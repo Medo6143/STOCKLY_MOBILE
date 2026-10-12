@@ -6,6 +6,10 @@ import 'package:stockly/core/storage/preferences_store.dart';
 
 /// The stored theme mode (`system` by default, design §7.7).
 final class ThemeModeNotifier extends Notifier<ThemeMode> {
+  /// `true` once a choice was made in this run: a late restore must not
+  /// overwrite it.
+  bool _chosen = false;
+
   @override
   ThemeMode build() {
     unawaited(_restore());
@@ -14,6 +18,7 @@ final class ThemeModeNotifier extends Notifier<ThemeMode> {
 
   /// Stores [mode] and applies it.
   Future<void> setThemeMode(ThemeMode mode) async {
+    _chosen = true;
     state = mode;
     await ref
         .read(preferencesStoreProvider)
@@ -25,7 +30,7 @@ final class ThemeModeNotifier extends Notifier<ThemeMode> {
         .read(preferencesStoreProvider)
         .read(PreferenceKey.themeMode);
     final mode = ThemeMode.values.asNameMap()[stored];
-    if (mode != null && ref.mounted) {
+    if (mode != null && ref.mounted && !_chosen) {
       state = mode;
     }
   }

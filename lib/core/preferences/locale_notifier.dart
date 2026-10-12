@@ -19,17 +19,22 @@ final deviceLocaleProvider = Provider<Locale>(
   (ref) => PlatformDispatcher.instance.locale,
 );
 
-/// The resolved app locale (`ar` or `en`, never "system").
-final class LocaleNotifier extends Notifier<Locale> {
+/// The stored language choice (`system`, `ar` or `en`), shown in settings.
+final class LocalePreferenceNotifier extends Notifier<LocalePreference> {
+  /// `true` once a choice was made in this run: a late restore must not
+  /// overwrite it.
+  bool _chosen = false;
+
   @override
-  Locale build() {
+  LocalePreference build() {
     unawaited(_restore());
-    return _resolve(LocalePreference.system);
+    return LocalePreference.system;
   }
 
   /// Stores [preference] and applies it.
-  Future<void> setPreference(LocalePreference preference) async {
-    state = _resolve(preference);
+  Future<void> set(LocalePreference preference) async {
+    _chosen = true;
+    state = preference;
     await ref
         .read(preferencesStoreProvider)
         .write(PreferenceKey.locale, preference.name);
@@ -40,8 +45,37 @@ final class LocaleNotifier extends Notifier<Locale> {
         .read(preferencesStoreProvider)
         .read(PreferenceKey.locale);
     final preference = LocalePreference.values.asNameMap()[stored];
-    if (preference != null && ref.mounted) {
-      state = _resolve(preference);
+    if (preference != null && ref.mounted && !_chosen) {
+      state = preference;
+    }
+  }
+}
+
+final localePreferenceProvider =
+    NotifierProvider<LocalePreferenceNotifier, LocalePreference>(
+      LocalePreferenceNotifier.new,
+    );
+
+/// The resolved app locale (`ar` or `en`, never "system").
+final class LocaleNotifier extends Notifier<Locale> {
+  @override
+  Locale build() => _resolve(ref.watch(localePreferenceProvider));
+
+  /// Stores [preference] and applies it.
+  Future<void> setPreference(LocalePreference preference) =>
+      ref.read(localePreferenceProvider.notifier).set(preference);
+
+  /// Design §8.2: after a sign-in, while the preference is still `system`,
+  /// the user's `preferredLanguage` ([languageCode]) becomes the explicit
+  /// choice when it differs from the resolved locale.
+  Future<void> adoptUserLanguage(String languageCode) async {
+    if (ref.read(localePreferenceProvider) != LocalePreference.system ||
+        languageCode == state.languageCode) {
+      return;
+    }
+    final preference = LocalePreference.values.asNameMap()[languageCode];
+    if (preference != null) {
+      await setPreference(preference);
     }
   }
 

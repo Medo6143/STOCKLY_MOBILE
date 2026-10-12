@@ -130,6 +130,14 @@
   "@errorAuthRefreshTokenReused": {
     "description": "Auth.RefreshTokenReused"
   },
+  "errorAuthLockedOut": "محاولات دخول فاشلة كتير. الحساب اتقفل شوية.",
+  "@errorAuthLockedOut": {
+    "description": "Auth.LockedOut"
+  },
+  "errorAuthTooManyRequests": "محاولات كتير. استنى شوية وجرّب تاني.",
+  "@errorAuthTooManyRequests": {
+    "description": "Auth.TooManyRequests"
+  },
   "errorShopNameRequired": "اكتب اسم المحل.",
   "@errorShopNameRequired": {
     "description": "Shop.NameRequired"
@@ -305,5 +313,271 @@
   "errorLocalStorage": "مقدرناش نحفظ على الجهاز. اتأكد من المساحة الفاضية.",
   "@errorLocalStorage": {
     "description": "Local storage error."
+  },
+  "authLoginTitle": "أهلاً بيك تاني",
+  "@authLoginTitle": {
+    "description": "Title of the login screen."
+  },
+  "authLoginSubtitle": "سجّل دخول على محلك عشان تكمّل.",
+  "@authLoginSubtitle": {
+    "description": "Subtitle of the login screen."
+  },
+  "authEmailLabel": "البريد الإلكتروني",
+  "@authEmailLabel": {
+    "description": "Email field label (login and register)."
+  },
+  "authPasswordLabel": "كلمة السر",
+  "@authPasswordLabel": {
+    "description": "Password field label."
+  },
+  "authShowPassword": "إظهار كلمة السر",
+  "@authShowPassword": {
+    "description": "Tooltip of the button that shows the password."
+  },
+  "authHidePassword": "إخفاء كلمة السر",
+  "@authHidePassword": {
+    "description": "Tooltip of the button that hides the password."
+  },
+  "authLoginSubmit": "دخول",
+  "@authLoginSubmit": {
+    "description": "Submit button of the login form."
+  },
+  "authLoginNoAccount": "أول مرة على ستوكلي؟",
+  "@authLoginNoAccount": {
+    "description": "Text before the link to the register screen."
+  },
+  "authLoginGoToRegister": "اعمل حساب لمحلك",
+  "@authLoginGoToRegister": {
+    "description": "Link from login to register."
+  },
+  "authLockedOut": "{minutes, plural, =0{محاولات فاشلة كتير. جرّب تاني بعد شوية.} =1{محاولات فاشلة كتير. جرّب تاني بعد دقيقة.} =2{محاولات فاشلة كتير. جرّب تاني بعد دقيقتين.} few{محاولات فاشلة كتير. جرّب تاني بعد {minutes} دقايق.} many{محاولات فاشلة كتير. جرّب تاني بعد {minutes} دقيقة.} other{محاولات فاشلة كتير. جرّب تاني بعد {minutes} دقيقة.}}",
+  "@authLockedOut": {
+    "description": "Login banner for 423 Auth.LockedOut with the whole minutes left (rounded up).",
+    "placeholders": {
+      "minutes": {
+        "type": "int",
+        "example": "15"
+      }
+    }
+  },
+  "authTooManyRequests": "{seconds, plural, =0{محاولات كتير. جرّب تاني بعد شوية.} =1{محاولات كتير. جرّب تاني بعد ثانية.} =2{محاولات كتير. جرّب تاني بعد ثانيتين.} few{محاولات كتير. جرّب تاني بعد {seconds} ثواني.} many{محاولات كتير. جرّب تاني بعد {seconds} ثانية.} other{محاولات كتير. جرّب تاني بعد {seconds} ثانية.}}",
+  "@authTooManyRequests": {
+    "description": "Login/register banner for 429 Auth.TooManyRequests with the seconds left; submit is disabled meanwhile.",
+    "placeholders": {
+      "seconds": {
+        "type": "int",
+        "example": "45"
+      }
+    }
+  },
+  "authFieldRequired": "الخانة دي مطلوبة.",
+  "@authFieldRequired": {
+    "description": "Field error: empty required field."
+  },
+  "authFieldInvalidEmail": "اكتب بريد إلكتروني صحيح.",
+  "@authFieldInvalidEmail": {
+    "description": "Field error: email format."
+  },
+  "authFieldWeakPassword": "استخدم من 8 لـ 128 حرف، فيهم حرف ورقم على الأقل.",
+  "@authFieldWeakPassword": {
+    "description": "Field error: password rules of contract A1."
+  },
+  "authFieldTooLong": "النص ده طويل زيادة.",
+  "@authFieldTooLong": {
+    "description": "Field error: text longer than the contract allows."
+  },
+  "authRegisterTitle": "اعمل حساب لمحلك",
+  "@authRegisterTitle": {
+    "description": "Title of the register screen."
+  },
+  "authRegisterSubtitle": "هتكون إنت صاحب المحل.",
+  "@authRegisterSubtitle": {
+    "description": "Subtitle of the register screen."
+  },
+  "authRegisterAboutYou": "بياناتك",
+  "@authRegisterAboutYou": {
+    "description": "Register section with the user's fields."
+  },
+  "authRegisterYourShop": "محلك",
+  "@authRegisterYourShop": {
+    "description": "Register section with the shop's fields."
+  },
+  "authFullNameLabel": "الاسم بالكامل",
+  "@authFullNameLabel": {
+    "description": "Register field: user's full name."
+  },
+  "authPhoneLabel": "رقم الموبايل (اختياري)",
+  "@authPhoneLabel": {
+    "description": "Register field: user's phone."
+  },
+  "authShopNameLabel": "اسم المحل",
+  "@authShopNameLabel": {
+    "description": "Register field: shop name."
+  },
+  "authShopTypeLabel": "نوع المحل",
+  "@authShopTypeLabel": {
+    "description": "Register field: shop type picker."
+  },
+  "authShopPhoneLabel": "تليفون المحل (اختياري)",
+  "@authShopPhoneLabel": {
+    "description": "Register field: shop phone."
+  },
+  "authShopGovernorateLabel": "المحافظة (اختياري)",
+  "@authShopGovernorateLabel": {
+    "description": "Register field: shop governorate."
+  },
+  "authShopAddressLabel": "العنوان (اختياري)",
+  "@authShopAddressLabel": {
+    "description": "Register field: shop address."
+  },
+  "authRegisterSubmit": "اعمل الحساب",
+  "@authRegisterSubmit": {
+    "description": "Submit button of the register form."
+  },
+  "authRegisterHaveAccount": "عندك حساب؟",
+  "@authRegisterHaveAccount": {
+    "description": "Text before the link to the login screen."
+  },
+  "authRegisterGoToLogin": "سجّل دخول",
+  "@authRegisterGoToLogin": {
+    "description": "Link from register to login."
+  },
+  "authSignOut": "تسجيل الخروج",
+  "@authSignOut": {
+    "description": "Sign out button (settings and suspended screen)."
+  },
+  "shopTypePharmacy": "صيدلية",
+  "@shopTypePharmacy": {
+    "description": "Shop type Pharmacy."
+  },
+  "shopTypeGrocery": "بقالة",
+  "@shopTypeGrocery": {
+    "description": "Shop type Grocery."
+  },
+  "shopTypeMobileShop": "محل موبايلات",
+  "@shopTypeMobileShop": {
+    "description": "Shop type MobileShop."
+  },
+  "shopTypeOther": "نوع تاني",
+  "@shopTypeOther": {
+    "description": "Shop type Other."
+  },
+  "roleOwner": "صاحب المحل",
+  "@roleOwner": {
+    "description": "Shop role Owner."
+  },
+  "roleStaff": "موظف",
+  "@roleStaff": {
+    "description": "Shop role Staff."
+  },
+  "suspendedTitle": "المحل ده موقوف",
+  "@suspendedTitle": {
+    "description": "Title of the shop-suspended screen."
+  },
+  "suspendedBody": "ستوكلي وقفت المحل ده. كلّم الدعم عشان يرجع يشتغل. تقدر تسجّل خروج.",
+  "@suspendedBody": {
+    "description": "Explanation on the shop-suspended screen."
+  },
+  "settingsLanguage": "اللغة",
+  "@settingsLanguage": {
+    "description": "Settings section: language."
+  },
+  "settingsLanguageSystem": "لغة الجهاز",
+  "@settingsLanguageSystem": {
+    "description": "Language option: follow the device."
+  },
+  "settingsLanguageArabic": "العربية",
+  "@settingsLanguageArabic": {
+    "description": "Language option: Arabic (always written in Arabic)."
+  },
+  "settingsLanguageEnglish": "English",
+  "@settingsLanguageEnglish": {
+    "description": "Language option: English (always written in English)."
+  },
+  "settingsTheme": "المظهر",
+  "@settingsTheme": {
+    "description": "Settings section: theme."
+  },
+  "settingsThemeSystem": "زي الجهاز",
+  "@settingsThemeSystem": {
+    "description": "Theme option: follow the device."
+  },
+  "settingsThemeLight": "فاتح",
+  "@settingsThemeLight": {
+    "description": "Theme option: light."
+  },
+  "settingsThemeDark": "غامق",
+  "@settingsThemeDark": {
+    "description": "Theme option: dark."
+  },
+  "settingsShop": "المحل",
+  "@settingsShop": {
+    "description": "Settings section: shop info."
+  },
+  "settingsShopName": "اسم المحل",
+  "@settingsShopName": {
+    "description": "Settings row: shop name."
+  },
+  "settingsShopType": "نوع المحل",
+  "@settingsShopType": {
+    "description": "Settings row: shop type."
+  },
+  "settingsRole": "دورك",
+  "@settingsRole": {
+    "description": "Settings row: the user's role in the shop."
+  },
+  "settingsAccount": "الحساب",
+  "@settingsAccount": {
+    "description": "Settings section: account."
+  },
+  "settingsUserName": "الاسم",
+  "@settingsUserName": {
+    "description": "Settings row: user's full name."
+  },
+  "settingsUserEmail": "البريد الإلكتروني",
+  "@settingsUserEmail": {
+    "description": "Settings row: user's email."
+  },
+  "settingsVersion": "الإصدار {version}",
+  "@settingsVersion": {
+    "description": "App version at the bottom of settings; long press opens the fake backend panel in fake mode.",
+    "placeholders": {
+      "version": {
+        "type": "String",
+        "example": "1.0.0 (1)"
+      }
+    }
+  },
+  "fakePanelTitle": "الخادم التجريبي (للتطوير)",
+  "@fakePanelTitle": {
+    "description": "Title of the debug fake backend panel."
+  },
+  "fakePanelOffline": "من غير إنترنت",
+  "@fakePanelOffline": {
+    "description": "Debug panel switch: every request fails as offline."
+  },
+  "fakePanelFailNext": "فشّل الطلب الجاي بـ",
+  "@fakePanelFailNext": {
+    "description": "Debug panel: pick an error code for the next request."
+  },
+  "fakePanelFailNextNone": "من غير فشل",
+  "@fakePanelFailNextNone": {
+    "description": "Debug panel: no forced error code."
+  },
+  "fakePanelExpireToken": "إنهاء رمز الدخول دلوقتي",
+  "@fakePanelExpireToken": {
+    "description": "Debug panel action: expire the access token."
+  },
+  "fakePanelSuspendShop": "إيقاف المحل",
+  "@fakePanelSuspendShop": {
+    "description": "Debug panel action: suspend the signed-in shop."
+  },
+  "fakePanelLockout": "قفل الحساب",
+  "@fakePanelLockout": {
+    "description": "Debug panel switch: account lockout after failed logins."
+  },
+  "fakePanelRateLimit": "حد محاولات الدخول والتسجيل",
+  "@fakePanelRateLimit": {
+    "description": "Debug panel switch: rate limit on login and register."
   }
 }

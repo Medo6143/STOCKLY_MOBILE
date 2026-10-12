@@ -18,18 +18,28 @@ const String _productsSegment = 'products';
 const int _productActionSegments = 3;
 
 /// The redirect table of design §3.2. Returns the location to go to, or
-/// `null` to stay.
-String? authRedirect(AuthState auth, Uri location) {
+/// `null` to stay. [splashFinished] is the splash timing gate (design
+/// §10.2): until it opens, a resolved session still stays on `/splash`.
+String? authRedirect(
+  AuthState auth,
+  Uri location, {
+  required bool splashFinished,
+}) {
   final path = location.path;
+  if (auth is AuthUnknown) {
+    return path == RoutePaths.splash
+        ? null
+        : Uri(
+            path: RoutePaths.splash,
+            queryParameters: {RoutePaths.fromParameter: location.toString()},
+          ).toString();
+  }
+  if (path == RoutePaths.splash && !splashFinished) {
+    return null;
+  }
   switch (auth) {
     case AuthUnknown():
-      if (path == RoutePaths.splash) {
-        return null;
-      }
-      return Uri(
-        path: RoutePaths.splash,
-        queryParameters: {RoutePaths.fromParameter: location.toString()},
-      ).toString();
+      return null;
     case AuthSignedOut():
       return _publicPaths.contains(path) ? null : RoutePaths.login;
     case AuthSuspended():
@@ -37,6 +47,9 @@ String? authRedirect(AuthState auth, Uri location) {
     case AuthSignedIn(:final session):
       if (_publicPaths.contains(path) || path == RoutePaths.suspended) {
         return RoutePaths.home;
+      }
+      if (path == RoutePaths.splash) {
+        return splashDestination(location);
       }
       if (session.shop.role == ShopRole.staff) {
         return _ownerOnlyFallback(location);

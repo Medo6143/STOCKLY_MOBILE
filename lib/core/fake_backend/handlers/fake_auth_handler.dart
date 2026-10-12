@@ -2,19 +2,29 @@ import 'dart:io';
 
 import 'package:stockly/core/error/api_error_code.dart';
 import 'package:stockly/core/fake_backend/fake_backend_config.dart';
+import 'package:stockly/core/fake_backend/fake_backend_controls.dart';
 import 'package:stockly/core/fake_backend/fake_backend_state.dart';
 import 'package:stockly/core/fake_backend/fake_http.dart';
 import 'package:stockly/core/ids/uuid_generator.dart';
 import 'package:stockly/core/network/api_paths.dart';
 import 'package:stockly/core/time/clock.dart';
 
-/// Fake A1–A5 (contract §4): validation, rotation on every refresh, and
-/// token families (reusing a revoked refresh token revokes that login's
-/// whole family, other logins are unaffected).
+/// A fixed rate-limit window of one endpoint (contract v1.4: per client IP;
+/// the fake has one client).
+final class _FixedWindow {
+  DateTime? start;
+  int count = 0;
+}
+
+/// Fake A1–A5 (contract §4): validation, rotation on every refresh, token
+/// families (reusing a revoked refresh token revokes that login's whole
+/// family, other logins are unaffected), account lockout and the login and
+/// register rate limits (v1.4).
 final class FakeAuthHandler implements FakeHandler {
   new({
     required this._state,
     required this._config,
+    required this._controls,
     required this._clock,
     required this._uuid,
     required this._problems,
@@ -22,6 +32,7 @@ final class FakeAuthHandler implements FakeHandler {
 
   final FakeBackendState _state;
   final FakeBackendConfig _config;
+  final FakeBackendControls _controls;
   final Clock _clock;
   final UuidGenerator _uuid;
   final FakeProblems _problems;
@@ -45,6 +56,9 @@ final class FakeAuthHandler implements FakeHandler {
   /// "name is blank" check, like the backend's Arabic normalization.
   static final RegExp _arabicMarks = RegExp('[ً-ٰٟـ]');
 
+  final _FixedWindow _loginWindow = _FixedWindow();
+  final _FixedWindow _registerWindow = _FixedWindow();
+
   @override
   List<FakeRoute> get routes => [
     FakeRoute('POST', ApiPaths.authRegister, _register),
@@ -63,6 +77,9 @@ final class FakeAuthHandler implements FakeHandler {
   }
 
   FakeResponse _register(FakeRequest request) {
+    if (_throttle(request, _registerWindow) case final throttled?) {
+      return throttled;
+    }
     final body = request.jsonObject ?? const {};
     final language = request.language;
     final errors = <String, List<String>>{};
@@ -169,6 +186,9 @@ final class FakeAuthHandler implements FakeHandler {
   }
 
   FakeResponse _login(FakeRequest request) {
+    if (_throttle(request, _loginWindow) case final throttled?) {
+      return throttled;
+    }
     final body = request.jsonObject ?? const {};
     final language = request.language;
     final errors = <String, List<String>>{};
@@ -179,13 +199,30 @@ final class FakeAuthHandler implements FakeHandler {
       return _problems.validation(request, errors);
     }
     final user = _state.userByEmail(email);
-    if (user == null || user.password != password) {
+    if (user == null) {
+      return _invalidCredentials(request);
+    }
+    // Checked before the password: while locked, even the right password
+    // is refused (contract A2).
+    final lockedUntil = user.lockedUntil;
+    final now = _clock.now();
+    if (_controls.lockoutEnabled &&
+        lockedUntil != null &&
+        lockedUntil.isAfter(now)) {
       return _problems.problem(
         request,
-        HttpStatus.unauthorized,
-        ApiErrorCode.authInvalidCredentials,
+        HttpStatus.locked,
+        ApiErrorCode.authLockedOut,
+        retryAfter: lockedUntil.difference(now),
       );
     }
+    if (user.password != password) {
+      _recordFailedLogin(user, now);
+      return _invalidCredentials(request);
+    }
+    user
+      ..failedLogins = 0
+      ..lockedUntil = null;
     final membership = _state.activeMembershipOf(user.id);
     final shop = membership == null ? null : _state.shopById(membership.shopId);
     if (shop == null) {
@@ -288,6 +325,51 @@ final class FakeAuthHandler implements FakeHandler {
       'user': _userJson(user),
       'shop': _shopJson(user, shop),
     });
+  }
+
+  FakeResponse _invalidCredentials(FakeRequest request) => _problems.problem(
+    request,
+    HttpStatus.unauthorized,
+    ApiErrorCode.authInvalidCredentials,
+  );
+
+  /// Identity-style lockout: the failure that reaches the threshold is still
+  /// `401`; the account is locked from then on.
+  void _recordFailedLogin(FakeUser user, DateTime now) {
+    if (!_controls.lockoutEnabled) {
+      return;
+    }
+    user.failedLogins++;
+    if (user.failedLogins >= _config.lockoutThreshold) {
+      user
+        ..failedLogins = 0
+        ..lockedUntil = now.add(_config.lockoutDuration);
+    }
+  }
+
+  /// `429 Auth.TooManyRequests` once [window] has used its permits, with
+  /// `Retry-After` until the window resets. `null` lets the request through.
+  FakeResponse? _throttle(FakeRequest request, _FixedWindow window) {
+    if (!_controls.rateLimitEnabled) {
+      return null;
+    }
+    final now = _clock.now();
+    final start = window.start;
+    if (start == null || !now.isBefore(start.add(_config.authWindow))) {
+      window
+        ..start = now
+        ..count = 0;
+    }
+    if (window.count >= _config.authPermitLimit) {
+      return _problems.problem(
+        request,
+        HttpStatus.tooManyRequests,
+        ApiErrorCode.authTooManyRequests,
+        retryAfter: window.start!.add(_config.authWindow).difference(now),
+      );
+    }
+    window.count++;
+    return null;
   }
 
   FakeResponse _unauthenticated(FakeRequest request) => _problems.problem(

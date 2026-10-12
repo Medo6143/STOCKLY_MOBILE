@@ -17,6 +17,8 @@ enum ApiErrorCode {
   authNoActiveShop('Auth.NoActiveShop'),
   authInvalidRefreshToken('Auth.InvalidRefreshToken'),
   authRefreshTokenReused('Auth.RefreshTokenReused'),
+  authLockedOut('Auth.LockedOut'),
+  authTooManyRequests('Auth.TooManyRequests'),
   shopNameRequired('Shop.NameRequired'),
   shopUnknownType('Shop.UnknownType'),
   shopSuspended('Shop.Suspended'),

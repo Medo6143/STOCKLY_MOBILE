@@ -5,6 +5,7 @@ import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:stockly/core/error/api_error_code.dart';
 import 'package:stockly/core/fake_backend/fake_backend_config.dart';
+import 'package:stockly/core/fake_backend/fake_backend_controls.dart';
 import 'package:stockly/core/fake_backend/fake_backend_state.dart';
 import 'package:stockly/core/fake_backend/fake_http.dart';
 import 'package:stockly/core/fake_backend/handlers/fake_auth_handler.dart';
@@ -22,12 +23,15 @@ final class FakeBackendAdapter implements HttpClientAdapter {
     required Clock clock,
     required UuidGenerator uuid,
   }) : _config = config,
-       _uuid = uuid {
+       _clock = clock,
+       _uuid = uuid,
+       controls = FakeBackendControls(config) {
     _problems = FakeProblems(_traceId);
     final handlers = <FakeHandler>[
       FakeAuthHandler(
         state: state,
         config: config,
+        controls: controls,
         clock: clock,
         uuid: uuid,
         problems: _problems,
@@ -37,7 +41,11 @@ final class FakeBackendAdapter implements HttpClientAdapter {
   }
 
   final FakeBackendState state;
+
+  /// Runtime switches for the debug panel.
+  final FakeBackendControls controls;
   final FakeBackendConfig _config;
+  final Clock _clock;
   final UuidGenerator _uuid;
   late final FakeProblems _problems;
   late final List<FakeRoute> _routes;
@@ -56,6 +64,12 @@ final class FakeBackendAdapter implements HttpClientAdapter {
   ) async {
     if (_config.latency > Duration.zero) {
       await Future<void>.delayed(_config.latency);
+    }
+    if (controls.offline) {
+      throw DioException.connectionError(
+        requestOptions: options,
+        reason: 'Fake backend is offline.',
+      );
     }
     final headers = {
       for (final entry in options.headers.entries)
@@ -78,9 +92,21 @@ final class FakeBackendAdapter implements HttpClientAdapter {
           : _defaultLanguage,
       correlationId: correlationId,
     );
-    final response = _dispatch(request, bytes, headers);
+    final forced = controls.failNextWith;
+    controls.failNextWith = null;
+    final response = forced == null
+        ? _dispatch(request, bytes, headers)
+        : _problems.forced(request, forced, retryAfter: _config.authWindow);
     return _toResponseBody(response, correlationId);
   }
+
+  /// Ends every access token now (debug panel): the next authenticated call
+  /// gets `401` and the app refreshes.
+  void expireAccessTokens() => state.expireAccessTokens(_clock.now());
+
+  /// Suspends or reactivates [shopId] (debug panel).
+  void setShopSuspended(String shopId, {required bool suspended}) =>
+      state.setShopStatus(shopId, suspended: suspended);
 
   FakeResponse _dispatch(
     FakeRequest bare,
@@ -142,6 +168,8 @@ final class FakeBackendAdapter implements HttpClientAdapter {
           if (response.problem) _problemContentType else _jsonContentType,
         ],
         HttpHeaderNames.correlationId.toLowerCase(): [correlationId],
+        for (final MapEntry(:key, :value) in response.headers.entries)
+          key.toLowerCase(): [value],
       },
     );
   }

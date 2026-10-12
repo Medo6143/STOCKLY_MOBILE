@@ -33,6 +33,12 @@ final class FakeUser {
   final String fullName;
   final String? phone;
   final String preferredLanguage;
+
+  /// Failed logins in a row (contract v1.4 lockout).
+  int failedLogins = 0;
+
+  /// The end of the current lockout, if any.
+  DateTime? lockedUntil;
 }
 
 final class FakeShop {
@@ -95,7 +101,9 @@ final class FakeAccessToken {
   final String token;
   final String userId;
   final String shopId;
-  final DateTime expiresAt;
+
+  /// Not final: the debug panel can expire a token early.
+  DateTime expiresAt;
 }
 
 /// The fake server's data. The tenant of a request is always taken from its
@@ -150,6 +158,22 @@ final class FakeBackendState {
       }
     }
     return null;
+  }
+
+  /// Ends every access token now, so the next call refreshes (debug panel).
+  void expireAccessTokens(DateTime now) {
+    for (final token in accessTokens.values) {
+      if (token.expiresAt.isAfter(now)) {
+        token.expiresAt = now;
+      }
+    }
+  }
+
+  /// Suspends or reactivates [shopId] (debug panel).
+  void setShopStatus(String shopId, {required bool suspended}) {
+    shopById(shopId)?.status = suspended
+        ? FakeShopStatuses.suspended
+        : FakeShopStatuses.active;
   }
 
   /// Revokes every refresh token of [familyId] (reuse or logout).
