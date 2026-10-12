@@ -33,4 +33,9 @@ Running record of the mobile lane: which agent, brief path, verification result,
 
 ## Brief 2b: splash and auth screens
 
-- Brief: `docs/agents/briefs/mobile-2b-splash-auth.md` (contract v1.4: lockout and rate-limit codes added since 2a; splash-minimum fix for `authRedirect`; PNG exports via headless Chrome, no downloads). Branch `feature/splash-auth`. Worker: general-purpose agent (background). State: started.
+- Brief: `docs/agents/briefs/mobile-2b-splash-auth.md` (contract v1.4: lockout and rate-limit codes added since 2a; splash-minimum fix for `authRedirect`; PNG exports via headless Chrome, no downloads). Branch `feature/splash-auth`. Worker: general-purpose agent (background).
+- Report: "AGENTS.md read: yes", contract deviations NONE.
+- Orchestrator verification: scope ok; build_runner, gen-l10n (untranslated `{}`), `flutter analyze` no issues, `flutter test` 408 passed, `dart format` 0 changed, debug APK built.
+- Decisions accepted: router-owned splash gate (`authRedirect(splashFinished:)`); 3 s maximum falls back to the cached session; restore-result guard; `flutter_native_splash` as a runtime dependency behind `NativeSplash`; single Ticker for loading dots; architecture exception widened so `settings` may import the app-wide session providers (design §2.2); `AppVersion` constant checked against pubspec; fake rate limit per adapter; settings pending-scans warning deferred until the scan queue exists.
+- For the brand (non-blocking): native mark is ~148 dp vs 132 dp for the animated mark on API 36, so the hand-off is not pixel-exact.
+- Note: the worker saw other input on the emulator while testing; that was the product owner using the live app (`D:\FLUTTER\_wt\mobile-live`).
