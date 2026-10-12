@@ -4,12 +4,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stockly/app.dart';
 import 'package:stockly/core/config/app_config.dart';
 import 'package:stockly/core/media/app_directories.dart';
+import 'package:stockly/core/platform/native_splash.dart';
 
 Future<void> main() => bootstrap();
 
 /// Resolves what must exist before the first frame, then starts the app.
 Future<void> bootstrap() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  final binding = WidgetsFlutterBinding.ensureInitialized();
+  // The native splash stays until the animated splash's first frame.
+  PluginNativeSplash.preserve(binding);
   final config = AppConfig.fromEnvironment()
     ..ensureValidFor(releaseMode: kReleaseMode);
   final directories = await resolveAppDirectories();

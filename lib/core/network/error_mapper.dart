@@ -118,6 +118,16 @@ ApiFailure failureForCode(
   ApiErrorCode.productUnitInUse ||
   ApiErrorCode.invoiceNotEditable ||
   ApiErrorCode.invoiceNotConfirmable => ConflictFailure(code, info),
+  ApiErrorCode.authLockedOut => AccountLockedFailure(
+    code,
+    info,
+    retryAfter: retryAfter ?? AuthLimits.defaultLockout,
+  ),
+  ApiErrorCode.authTooManyRequests => AuthRateLimitedFailure(
+    code,
+    info,
+    retryAfter: retryAfter ?? AuthLimits.defaultRetryAfter,
+  ),
   ApiErrorCode.invoiceImageTooLarge => PayloadTooLargeFailure(code, info),
   ApiErrorCode.scanRateLimited => ScanRateLimitedFailure(
     code,

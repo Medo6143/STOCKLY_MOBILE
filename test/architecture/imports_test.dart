@@ -2,6 +2,9 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'source_files.dart';
 
+/// Features that use the app-wide session providers of the auth feature.
+const Set<String> _sessionConsumers = {'splash', 'settings'};
+
 /// Design §1.1 and §13.4.
 void main() {
   final files = handWrittenLibFiles();
@@ -71,13 +74,15 @@ void main() {
           r'^package:stockly/features/(\w+)/(data|presentation)/',
         ).firstMatch(target);
         // Design §1.4: the splash has no data or domain layer and drives
-        // start-up through the auth providers.
-        final splashUsesAuth =
-            own == 'splash' &&
+        // start-up through the auth providers. Design §2.2: the session
+        // providers (`authProvider`, `currentSessionProvider`) are app-wide,
+        // so settings reads the session and signs out through them.
+        final usesSessionProviders =
+            _sessionConsumers.contains(own) &&
             target.startsWith(
               'package:stockly/features/auth/presentation/providers/',
             );
-        if (match != null && match.group(1) != own && !splashUsesAuth) {
+        if (match != null && match.group(1) != own && !usesSessionProviders) {
           violations.add('$path -> $target');
         }
       }

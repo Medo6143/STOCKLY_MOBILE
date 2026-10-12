@@ -105,6 +105,22 @@ final class ScanQuotaExceededFailure extends ApiFailure {
   final Duration? retryAfter;
 }
 
+/// `423 Auth.LockedOut`: too many failed logins (contract v1.4). The login
+/// form stays usable; [retryAfter] is the time until the lockout ends.
+final class AccountLockedFailure extends ApiFailure {
+  const new(super.code, super.info, {required this.retryAfter});
+
+  final Duration retryAfter;
+}
+
+/// `429 Auth.TooManyRequests`: the per-IP limit on login and register
+/// (contract v1.4). Submit waits [retryAfter] before it is allowed again.
+final class AuthRateLimitedFailure extends ApiFailure {
+  const new(super.code, super.info, {required this.retryAfter});
+
+  final Duration retryAfter;
+}
+
 /// `500 Server.Unexpected`, `405`, `415`.
 final class ServerFailure extends ApiFailure {
   const new(super.code, super.info);

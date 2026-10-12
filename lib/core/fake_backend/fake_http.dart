@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:stockly/core/error/api_error_code.dart';
+import 'package:stockly/core/network/request_extras.dart';
 
 /// A request as the fake backend sees it.
 @immutable
@@ -47,22 +48,33 @@ final class FakeRequest {
 /// A response of the fake backend.
 @immutable
 final class FakeResponse {
-  const new(this.status, {this.json, this.problem = false});
+  const new(
+    this.status, {
+    this.json,
+    this.problem = false,
+    this.headers = const {},
+  });
 
   /// `200`/`201` with a JSON body.
-  const new json(this.status, Map<String, Object?> this.json) : problem = false;
+  const new json(this.status, Map<String, Object?> this.json)
+    : problem = false,
+      headers = const {};
 
   /// `204 No Content`.
   const new noContent()
     : status = HttpStatus.noContent,
       json = null,
-      problem = false;
+      problem = false,
+      headers = const {};
 
   final int status;
   final Map<String, Object?>? json;
 
   /// `true` for `application/problem+json`.
   final bool problem;
+
+  /// Extra response headers (for example `Retry-After`).
+  final Map<String, String> headers;
 }
 
 /// One endpoint of the fake backend.
@@ -97,6 +109,8 @@ final class FakeProblems {
     HttpStatus.conflict: 'https://tools.ietf.org/html/rfc9110#section-15.5.10',
     HttpStatus.unsupportedMediaType:
         'https://tools.ietf.org/html/rfc9110#section-15.5.16',
+    HttpStatus.locked: 'https://tools.ietf.org/html/rfc4918#section-11.3',
+    HttpStatus.tooManyRequests: 'https://tools.ietf.org/html/rfc6585#section-4',
     HttpStatus.internalServerError:
         'https://tools.ietf.org/html/rfc9110#section-15.6.1',
   };
@@ -109,17 +123,104 @@ final class FakeProblems {
     HttpStatus.methodNotAllowed: 'Method Not Allowed',
     HttpStatus.conflict: 'Conflict',
     HttpStatus.unsupportedMediaType: 'Unsupported Media Type',
+    HttpStatus.locked: 'Locked',
+    HttpStatus.tooManyRequests: 'Too Many Requests',
     HttpStatus.internalServerError: 'Internal Server Error',
   };
+
+  /// The status the backend answers [code] with (contract §9).
+  static int statusOf(ApiErrorCode code) => switch (code) {
+    ApiErrorCode.validationFailed ||
+    ApiErrorCode.shopNameRequired ||
+    ApiErrorCode.shopUnknownType ||
+    ApiErrorCode.productNameRequired ||
+    ApiErrorCode.productUnitNameRequired ||
+    ApiErrorCode.productUnitBaseUnitCannotBeRemoved ||
+    ApiErrorCode.productUnitBaseUnitFactorFixed ||
+    ApiErrorCode.precisionTooManyDecimals ||
+    ApiErrorCode.precisionNegative ||
+    ApiErrorCode.precisionNotPositive ||
+    ApiErrorCode.precisionOutOfRange ||
+    ApiErrorCode.stockZeroChange ||
+    ApiErrorCode.stockNoteRequired ||
+    ApiErrorCode.invoiceImageRequired ||
+    ApiErrorCode.invoiceUnsupportedImageType ||
+    ApiErrorCode.invoiceLineProductRequired ||
+    ApiErrorCode.invoiceUnitNotOfProduct ||
+    ApiErrorCode.saleArchivedProduct ||
+    ApiErrorCode.saleUnitNotOfProduct => HttpStatus.badRequest,
+    ApiErrorCode.authUnauthenticated ||
+    ApiErrorCode.authInvalidCredentials ||
+    ApiErrorCode.authInvalidRefreshToken ||
+    ApiErrorCode.authRefreshTokenReused => HttpStatus.unauthorized,
+    ApiErrorCode.authForbidden ||
+    ApiErrorCode.authNoActiveShop ||
+    ApiErrorCode.shopSuspended ||
+    ApiErrorCode.productOpeningStockOwnerOnly => HttpStatus.forbidden,
+    ApiErrorCode.httpNotFound ||
+    ApiErrorCode.productNotFound ||
+    ApiErrorCode.productUnitNotFound ||
+    ApiErrorCode.invoiceNotFound ||
+    ApiErrorCode.saleNotFound => HttpStatus.notFound,
+    ApiErrorCode.httpMethodNotAllowed => HttpStatus.methodNotAllowed,
+    ApiErrorCode.authEmailTaken ||
+    ApiErrorCode.productArchived ||
+    ApiErrorCode.productDuplicateBarcode ||
+    ApiErrorCode.productUnitDuplicateName ||
+    ApiErrorCode.productUnitDuplicateBarcode ||
+    ApiErrorCode.productUnitInUse ||
+    ApiErrorCode.invoiceNotEditable ||
+    ApiErrorCode.invoiceNotConfirmable => HttpStatus.conflict,
+    ApiErrorCode.invoiceImageTooLarge => HttpStatus.requestEntityTooLarge,
+    ApiErrorCode.httpUnsupportedMediaType => HttpStatus.unsupportedMediaType,
+    ApiErrorCode.authLockedOut => HttpStatus.locked,
+    ApiErrorCode.authTooManyRequests ||
+    ApiErrorCode.scanRateLimited ||
+    ApiErrorCode.scanDailyQuotaExceeded => HttpStatus.tooManyRequests,
+    ApiErrorCode.serverUnexpected => HttpStatus.internalServerError,
+  };
+
+  /// [code] with its contract status, as when the debug panel forces the
+  /// next request to fail. Throttling codes carry [retryAfter].
+  FakeResponse forced(
+    FakeRequest request,
+    ApiErrorCode code, {
+    required Duration retryAfter,
+  }) {
+    final status = statusOf(code);
+    final throttled =
+        status == HttpStatus.locked || status == HttpStatus.tooManyRequests;
+    return problem(
+      request,
+      status,
+      code,
+      errors: code == ApiErrorCode.validationFailed ? const {} : null,
+      retryAfter: throttled ? retryAfter : null,
+    );
+  }
+
+  /// `Retry-After` in whole seconds, rounded up and at least 1, like the
+  /// backend.
+  static String retryAfterSeconds(Duration remaining) {
+    final seconds =
+        (remaining.inMicroseconds + Duration.microsecondsPerSecond - 1) ~/
+        Duration.microsecondsPerSecond;
+    return '${seconds < 1 ? 1 : seconds}';
+  }
 
   FakeResponse problem(
     FakeRequest request,
     int status,
     ApiErrorCode code, {
     Map<String, List<String>>? errors,
+    Duration? retryAfter,
   }) => FakeResponse(
     status,
     problem: true,
+    headers: {
+      if (retryAfter != null)
+        HttpHeaderNames.retryAfter: retryAfterSeconds(retryAfter),
+    },
     json: {
       'type': _types[status],
       'title': _titles[status],
@@ -175,6 +276,15 @@ abstract final class FakeMessages {
         ar ? 'نوع المتجر غير مدعوم.' : 'This shop type is not supported.',
       ApiErrorCode.shopSuspended =>
         ar ? 'تم إيقاف المتجر.' : 'The shop is suspended.',
+      ApiErrorCode.authLockedOut =>
+        ar
+            ? 'محاولات دخول فاشلة كثيرة. تم قفل حسابك لمدة 15 دقيقة.'
+            : 'Too many failed sign-in attempts. Your account is locked '
+                  'for 15 minutes.',
+      ApiErrorCode.authTooManyRequests =>
+        ar
+            ? 'طلبات كثيرة جداً. يرجى الانتظار قليلاً.'
+            : 'Too many requests. Please wait a moment and try again.',
       _ => ar ? 'حدث خطأ.' : 'An error occurred.',
     };
   }

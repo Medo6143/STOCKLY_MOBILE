@@ -38,6 +38,8 @@ String apiErrorMessage(
   ApiErrorCode.authNoActiveShop => l10n.errorAuthNoActiveShop,
   ApiErrorCode.authInvalidRefreshToken => l10n.errorAuthInvalidRefreshToken,
   ApiErrorCode.authRefreshTokenReused => l10n.errorAuthRefreshTokenReused,
+  ApiErrorCode.authLockedOut => l10n.errorAuthLockedOut,
+  ApiErrorCode.authTooManyRequests => l10n.errorAuthTooManyRequests,
   ApiErrorCode.shopNameRequired => l10n.errorShopNameRequired,
   ApiErrorCode.shopUnknownType => l10n.errorShopUnknownType,
   ApiErrorCode.shopSuspended => l10n.errorShopSuspended,

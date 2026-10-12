@@ -4,6 +4,7 @@ import 'package:stockly/core/storage/secure_token_storage.dart';
 import 'package:stockly/features/auth/data/datasources/auth_remote_data_source.dart';
 import 'package:stockly/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:stockly/features/auth/domain/repositories/auth_repository.dart';
+import 'package:stockly/features/auth/domain/usecases/get_cached_session_use_case.dart';
 import 'package:stockly/features/auth/domain/usecases/login_use_case.dart';
 import 'package:stockly/features/auth/domain/usecases/logout_use_case.dart';
 import 'package:stockly/features/auth/domain/usecases/register_use_case.dart';
@@ -37,4 +38,8 @@ final restoreSessionUseCaseProvider = Provider<RestoreSessionUseCase>(
 
 final logoutUseCaseProvider = Provider<LogoutUseCase>(
   (ref) => LogoutUseCase(ref.watch(authRepositoryProvider)),
+);
+
+final getCachedSessionUseCaseProvider = Provider<GetCachedSessionUseCase>(
+  (ref) => GetCachedSessionUseCase(ref.watch(authRepositoryProvider)),
 );

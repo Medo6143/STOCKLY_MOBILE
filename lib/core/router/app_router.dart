@@ -10,6 +10,12 @@ import 'package:stockly/core/widgets/not_found_screen.dart';
 import 'package:stockly/core/widgets/placeholder_screen.dart';
 import 'package:stockly/features/auth/presentation/providers/auth_notifier.dart';
 import 'package:stockly/features/auth/presentation/providers/auth_state.dart';
+import 'package:stockly/features/auth/presentation/screens/login_screen.dart';
+import 'package:stockly/features/auth/presentation/screens/register_screen.dart';
+import 'package:stockly/features/auth/presentation/screens/shop_suspended_screen.dart';
+import 'package:stockly/features/settings/presentation/screens/settings_screen.dart';
+import 'package:stockly/features/splash/presentation/providers/splash_notifier.dart';
+import 'package:stockly/features/splash/presentation/providers/splash_state.dart';
 import 'package:stockly/features/splash/presentation/screens/splash_screen.dart';
 import 'package:stockly/l10n/generated/app_localizations.dart';
 
@@ -26,6 +32,7 @@ final routerProvider = Provider<GoRouter>((ref) {
     redirect: (context, state) => authRedirect(
       ref.read(authProvider).value ?? const AuthState.unknown(),
       state.uri,
+      splashFinished: ref.read(splashProvider).finished,
     ),
     errorBuilder: (context, state) =>
         NotFoundScreen(onGoHome: () => context.go(RoutePaths.home)),
@@ -71,9 +78,21 @@ final class _RouteTable {
       name: RouteNames.splash,
       builder: (context, state) => const SplashScreen(),
     ),
-    _route(RoutePaths.login, RouteNames.login),
-    _route(RoutePaths.register, RouteNames.register),
-    _route(RoutePaths.suspended, RouteNames.suspended),
+    GoRoute(
+      path: RoutePaths.login,
+      name: RouteNames.login,
+      builder: (context, state) => const LoginScreen(),
+    ),
+    GoRoute(
+      path: RoutePaths.register,
+      name: RouteNames.register,
+      builder: (context, state) => const RegisterScreen(),
+    ),
+    GoRoute(
+      path: RoutePaths.suspended,
+      name: RouteNames.suspended,
+      builder: (context, state) => const ShopSuspendedScreen(),
+    ),
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) =>
           HomeShell(navigationShell: navigationShell),
@@ -187,7 +206,6 @@ final class _RouteTable {
   GoRoute get _settingsRoute => GoRoute(
     path: RoutePaths.settings,
     name: RouteNames.settings,
-    builder: (context, state) =>
-        PlaceholderScreen(title: AppLocalizations.of(context).navSettings),
+    builder: (context, state) => const SettingsScreen(),
   );
 }
