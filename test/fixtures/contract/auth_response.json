@@ -1,0 +1,20 @@
+{
+  "accessToken": "eyJhbGciOiJIUzI1NiJ9.e30.signature",
+  "accessTokenExpiresAt": "2026-10-12T07:15:00Z",
+  "refreshToken": "opaque-refresh-token",
+  "refreshTokenExpiresAt": "2026-11-11T07:00:00Z",
+  "user": {
+    "id": "0192f0a0-6c1e-7b3a-9d2e-4f5a6b7c8d9e",
+    "email": "mona@example.com",
+    "fullName": "Mona Adel",
+    "phone": "01001234567",
+    "preferredLanguage": "ar"
+  },
+  "shop": {
+    "id": "0192f0a0-6c1e-7b3a-9d2e-4f5a6b7c8d9f",
+    "name": "صيدلية الشفاء",
+    "shopType": "Pharmacy",
+    "status": "Active",
+    "role": "Owner"
+  }
+}
