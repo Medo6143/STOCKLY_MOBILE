@@ -19,8 +19,11 @@ The backend lives in `stockly-backend` (locally `D:\FLUTTER\stockly`), see its A
 
 | Layer | Technology |
 |---|---|
-| Mobile | Flutter stable, Riverpod, go_router, Dio, freezed + json_serializable, Drift (offline queue), flutter_animate |
+| Mobile | Flutter stable, Riverpod (`flutter_riverpod`), go_router, Dio, freezed + json_serializable (+ `freezed_annotation`, `json_annotation`, `build_runner`), Drift (`drift`, `drift_flutter`, `drift_dev` dev), flutter_animate, flutter_secure_storage, decimal, intl + flutter_localizations, connectivity_plus + workmanager, flutter_native_splash, uuid, image_picker, flutter_image_compress, path_provider, mobile_scanner (Sprint 4), flutter_launcher_icons (dev) |
+| Lints | very_good_analysis |
 | Tests | flutter_test, mocktail |
+
+Every package that touches the platform stays behind the interface named in `docs/design/frontend.md` §14. A package not listed here needs the orchestrator's approval first.
 
 ## Commands
 
