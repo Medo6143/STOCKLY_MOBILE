@@ -3,7 +3,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'source_files.dart';
 
 /// Features that use the app-wide session providers of the auth feature.
-const Set<String> _sessionConsumers = {'splash', 'settings'};
+/// Products reads `isOwnerProvider` for the Owner-only actions (design
+/// §2.3, §11).
+const Set<String> _sessionConsumers = {'splash', 'settings', 'products'};
 
 /// Design §1.1 and §13.4.
 void main() {
@@ -51,6 +53,8 @@ void main() {
             target.startsWith('package:stockly/core/error/') ||
             target.startsWith('package:stockly/core/decimal/') ||
             target.startsWith('package:stockly/core/time/') ||
+            // Design §1.4: `Paged<T>` is shared by every list.
+            target == 'package:stockly/core/pagination/paged.dart' ||
             RegExp(r'^package:stockly/features/\w+/domain/').hasMatch(target);
         if (!allowed) {
           violations.add('$path -> $target');
@@ -75,8 +79,9 @@ void main() {
         ).firstMatch(target);
         // Design §1.4: the splash has no data or domain layer and drives
         // start-up through the auth providers. Design §2.2: the session
-        // providers (`authProvider`, `currentSessionProvider`) are app-wide,
-        // so settings reads the session and signs out through them.
+        // providers (`authProvider`, `currentSessionProvider`,
+        // `isOwnerProvider`) are app-wide, so settings reads the session and
+        // signs out through them, and products hides Owner-only actions.
         final usesSessionProviders =
             _sessionConsumers.contains(own) &&
             target.startsWith(

@@ -1,0 +1,10 @@
+{
+  "name": "بنادول اكسترا",
+  "barcode": "6221234567890",
+  "category": "مسكنات",
+  "baseUnitName": "شريط",
+  "costPrice": "12.50",
+  "baseUnitSellPrice": "15.00",
+  "lowStockThreshold": "5.000",
+  "openingQuantity": "24.000"
+}

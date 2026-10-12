@@ -37,6 +37,18 @@ final class QuantityConverter implements JsonConverter<Quantity, String> {
   String toJson(Quantity object) => object.toApi();
 }
 
+final class NullableQuantityConverter
+    implements JsonConverter<Quantity?, String?> {
+  const new();
+
+  @override
+  Quantity? fromJson(String? json) =>
+      json == null ? null : Quantity.fromApi(json);
+
+  @override
+  String? toJson(Quantity? object) => object?.toApi();
+}
+
 final class UnitFactorConverter implements JsonConverter<UnitFactor, String> {
   const new();
 

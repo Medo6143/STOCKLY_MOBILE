@@ -13,6 +13,14 @@ import 'package:stockly/features/auth/presentation/providers/auth_state.dart';
 import 'package:stockly/features/auth/presentation/screens/login_screen.dart';
 import 'package:stockly/features/auth/presentation/screens/register_screen.dart';
 import 'package:stockly/features/auth/presentation/screens/shop_suspended_screen.dart';
+import 'package:stockly/features/products/domain/entities/product_query.dart';
+import 'package:stockly/features/products/presentation/screens/movement_list_screen.dart';
+import 'package:stockly/features/products/presentation/screens/product_detail_screen.dart';
+import 'package:stockly/features/products/presentation/screens/product_form_screen.dart';
+import 'package:stockly/features/products/presentation/screens/product_list_screen.dart';
+import 'package:stockly/features/products/presentation/screens/stock_adjustment_screen.dart';
+import 'package:stockly/features/products/presentation/screens/stock_count_screen.dart';
+import 'package:stockly/features/products/presentation/screens/unit_form_screen.dart';
 import 'package:stockly/features/settings/presentation/screens/settings_screen.dart';
 import 'package:stockly/features/splash/presentation/providers/splash_notifier.dart';
 import 'package:stockly/features/splash/presentation/providers/splash_state.dart';
@@ -135,31 +143,88 @@ final class _RouteTable {
   GoRoute get _productsRoute => GoRoute(
     path: RoutePaths.products,
     name: RouteNames.products,
-    builder: (context, state) =>
-        PlaceholderScreen(title: AppLocalizations.of(context).navProducts),
+    builder: (context, state) => ProductListScreen(
+      initialQuery: ProductQuery(
+        lowStock:
+            state.uri.queryParameters[RoutePaths.lowStockParameter] ==
+            RoutePaths.trueValue,
+        includeArchived:
+            state.uri.queryParameters[RoutePaths.archivedParameter] ==
+            RoutePaths.trueValue,
+      ),
+    ),
     routes: [
-      _route(
+      _screen(
         RoutePaths.productCreate,
         RouteNames.productCreate,
-        parent: RoutePaths.products,
+        RoutePaths.products,
+        (state) => const ProductFormScreen(),
       ),
-      _route(
+      _screen(
         RoutePaths.productDetail,
         RouteNames.productDetail,
-        parent: RoutePaths.products,
+        RoutePaths.products,
+        (state) => ProductDetailScreen(productId: _productId(state)),
         routes: [
-          for (final (path, name) in const [
-            (RoutePaths.productEdit, RouteNames.productEdit),
-            (RoutePaths.unitCreate, RouteNames.unitCreate),
-            (RoutePaths.unitEdit, RouteNames.unitEdit),
-            (RoutePaths.stockAdjust, RouteNames.stockAdjust),
-            (RoutePaths.stockCount, RouteNames.stockCount),
-            (RoutePaths.movements, RouteNames.movements),
-          ])
-            _route(path, name, parent: RoutePaths.productDetail),
+          _screen(
+            RoutePaths.productEdit,
+            RouteNames.productEdit,
+            RoutePaths.productDetail,
+            (state) => ProductFormScreen(productId: _productId(state)),
+          ),
+          _screen(
+            RoutePaths.unitCreate,
+            RouteNames.unitCreate,
+            RoutePaths.productDetail,
+            (state) => UnitFormScreen(productId: _productId(state)),
+          ),
+          _screen(
+            RoutePaths.unitEdit,
+            RouteNames.unitEdit,
+            RoutePaths.productDetail,
+            (state) => UnitFormScreen(
+              productId: _productId(state),
+              unitId: state.pathParameters[RoutePaths.unitIdParameter],
+            ),
+          ),
+          _screen(
+            RoutePaths.stockAdjust,
+            RouteNames.stockAdjust,
+            RoutePaths.productDetail,
+            (state) => StockAdjustmentScreen(productId: _productId(state)),
+          ),
+          _screen(
+            RoutePaths.stockCount,
+            RouteNames.stockCount,
+            RoutePaths.productDetail,
+            (state) => StockCountScreen(productId: _productId(state)),
+          ),
+          _screen(
+            RoutePaths.movements,
+            RouteNames.movements,
+            RoutePaths.productDetail,
+            (state) => MovementListScreen(productId: _productId(state)),
+          ),
         ],
       ),
     ],
+  );
+
+  static String _productId(GoRouterState state) =>
+      state.pathParameters[RoutePaths.productIdParameter]!;
+
+  /// A built route under [parent].
+  GoRoute _screen(
+    String path,
+    String name,
+    String parent,
+    Widget Function(GoRouterState state) build, {
+    List<RouteBase> routes = const [],
+  }) => GoRoute(
+    path: _child(path, parent),
+    name: name,
+    builder: (context, state) => build(state),
+    routes: routes,
   );
 
   GoRoute get _invoicesRoute => GoRoute(

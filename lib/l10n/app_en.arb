@@ -146,5 +146,178 @@
   "fakePanelExpireToken": "Expire the access token now",
   "fakePanelSuspendShop": "Suspend the shop",
   "fakePanelLockout": "Account lockout",
-  "fakePanelRateLimit": "Login and register rate limit"
+  "fakePanelRateLimit": "Login and register rate limit",
+  "commonSave": "Save",
+  "commonCancel": "Cancel",
+  "commonLoadMoreError": "Could not load more items.",
+  "moneyAmount": "EGP {amount}",
+  "@moneyAmount": {
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "1,250.00"
+      }
+    }
+  },
+  "quantityWithUnit": "{quantity} {unit}",
+  "@quantityWithUnit": {
+    "placeholders": {
+      "quantity": {
+        "type": "String",
+        "example": "24"
+      },
+      "unit": {
+        "type": "String",
+        "example": "شريط"
+      }
+    }
+  },
+  "productsListTitle": "Products",
+  "productsListAdd": "Add product",
+  "productsListEmptyTitle": "No products yet",
+  "productsListEmptyBody": "Add your first product to start tracking stock.",
+  "productsListNoResultsTitle": "No results for \"{search}\"",
+  "@productsListNoResultsTitle": {
+    "placeholders": {
+      "search": {
+        "type": "String",
+        "example": "بنادول"
+      }
+    }
+  },
+  "productsListNoResultsBody": "Try another name or clear the search.",
+  "productsListNoLowStockTitle": "No low-stock products",
+  "productsListNoLowStockBody": "Every product is above its low-stock level.",
+  "productsSearchHint": "Search products",
+  "productsSearchClear": "Clear search",
+  "productsFilterLowStock": "Low stock only",
+  "productsFilterArchived": "Show archived",
+  "productsLowStockBadge": "Low stock",
+  "productsArchivedChip": "Archived",
+  "productsDetailTitle": "Product",
+  "productsDetailQuantity": "In stock",
+  "productsDetailCostPrice": "Cost price",
+  "productsDetailSellPrice": "Sell price",
+  "productsDetailThreshold": "Low-stock level",
+  "productsDetailBarcode": "Barcode",
+  "productsDetailCategory": "Category",
+  "productsDetailUnitsHeader": "Units",
+  "productsDetailBaseUnit": "Base unit",
+  "productsUnitFactor": "1 {unit} = {factor} {baseUnit}",
+  "@productsUnitFactor": {
+    "placeholders": {
+      "unit": {
+        "type": "String",
+        "example": "علبة"
+      },
+      "factor": {
+        "type": "String",
+        "example": "3"
+      },
+      "baseUnit": {
+        "type": "String",
+        "example": "شريط"
+      }
+    }
+  },
+  "productsDetailEdit": "Edit",
+  "productsDetailAddUnit": "Add unit",
+  "productsDetailAdjust": "Adjust stock",
+  "productsDetailCount": "Stock count",
+  "productsDetailMovements": "Stock history",
+  "productsDetailArchive": "Archive",
+  "productsDetailArchivedNotice": "This product is archived: it is hidden from the list and cannot be edited.",
+  "productsArchiveDialogTitle": "Archive this product?",
+  "productsArchiveDialogBody": "An archived product is hidden from the list and cannot be edited. Its stock history is kept.",
+  "productsArchived": "Product archived",
+  "productsFormCreateTitle": "New product",
+  "productsFormEditTitle": "Edit product",
+  "productsFormName": "Product name",
+  "productsFormBarcode": "Barcode (optional)",
+  "productsFormCategory": "Category (optional)",
+  "productsFormBaseUnitName": "Base unit (for example strip or piece)",
+  "productsFormCostPrice": "Cost price per base unit",
+  "productsFormSellPrice": "Sell price per base unit",
+  "productsFormThreshold": "Low-stock level (optional)",
+  "productsFormThresholdRequired": "Low-stock level",
+  "productsFormOpeningQuantity": "Opening stock (optional)",
+  "productsFormOpeningHint": "In base units. It is recorded as a stock count.",
+  "productsFormEditHint": "Change the base unit name and price from the units.",
+  "productsFormSubmitCreate": "Add product",
+  "productsFormSubmitEdit": "Save changes",
+  "productsFormArchivedTitle": "Archived products cannot be edited",
+  "productsFormArchivedBody": "This product is archived, so its details are read-only.",
+  "productsSaved": "Product saved",
+  "productsFieldRequired": "This field is required.",
+  "productsFieldTooLong": "This is too long.",
+  "productsFieldInvalidNumber": "Enter a valid number, such as 12.5",
+  "unitsFormCreateTitle": "New unit",
+  "unitsFormEditTitle": "Edit unit",
+  "unitsFormName": "Unit name (for example box)",
+  "unitsFormFactor": "How many {baseUnit} in this unit",
+  "@unitsFormFactor": {
+    "placeholders": {
+      "baseUnit": {
+        "type": "String",
+        "example": "شريط"
+      }
+    }
+  },
+  "unitsFormFactorBaseFixed": "The base unit is always 1.",
+  "unitsFormSellPrice": "Sell price",
+  "unitsFormSubmit": "Save unit",
+  "unitsDelete": "Delete unit",
+  "unitsDeleteDialogTitle": "Delete this unit?",
+  "unitsDeleteDialogBody": "Stock is kept in the base unit, so the quantity does not change.",
+  "unitsSaved": "Unit saved",
+  "unitsDeleted": "Unit deleted",
+  "unitsArchivedTitle": "Units of an archived product cannot be changed",
+  "stockAdjustTitle": "Adjust stock",
+  "stockCurrentQuantity": "Current stock",
+  "stockAdjustChange": "Change (put - before the number to remove)",
+  "stockUnit": "Unit",
+  "stockAdjustNote": "Reason",
+  "stockAdjustNoteHint": "For example: expired, thrown away",
+  "stockAdjustSubmit": "Save adjustment",
+  "stockAdjustDone": "Stock is now {quantity}",
+  "@stockAdjustDone": {
+    "placeholders": {
+      "quantity": {
+        "type": "String",
+        "example": "22 شريط"
+      }
+    }
+  },
+  "stockCountTitle": "Stock count",
+  "stockCountQuantity": "Counted quantity",
+  "stockCountSubmit": "Save count",
+  "stockCountUnchanged": "Count matches, nothing changed",
+  "stockCountChanged": "Stock updated to {quantity}",
+  "@stockCountChanged": {
+    "placeholders": {
+      "quantity": {
+        "type": "String",
+        "example": "26 شريط"
+      }
+    }
+  },
+  "movementsTitle": "Stock history",
+  "movementsEmptyTitle": "No movements yet",
+  "movementsEmptyBody": "Receipts, sales, adjustments and counts will appear here.",
+  "movementsBalanceAfter": "Balance after: {quantity}",
+  "@movementsBalanceAfter": {
+    "placeholders": {
+      "quantity": {
+        "type": "String",
+        "example": "24"
+      }
+    }
+  },
+  "movementsOpenInvoice": "Open invoice",
+  "movementsOpenSale": "Open sale",
+  "movementReasonInvoiceReceipt": "Invoice receipt",
+  "movementReasonSale": "Sale",
+  "movementReasonManualAdjustment": "Manual adjustment",
+  "movementReasonStockCount": "Stock count",
+  "movementReasonInvoiceReversal": "Invoice reversal"
 }

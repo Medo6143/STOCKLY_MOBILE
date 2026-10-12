@@ -49,4 +49,16 @@ void main() {
       '0',
     );
   });
+
+  test('formatSignedQuantity_PlusOnlyForPositive', () {
+    expect(
+      DecimalFormatter.formatSignedQuantity(Quantity.fromApi('18.000')),
+      '+18',
+    );
+    expect(
+      DecimalFormatter.formatSignedQuantity(Quantity.fromApi('-2.500')),
+      '-2.5',
+    );
+    expect(DecimalFormatter.formatSignedQuantity(Quantity.zero), '0');
+  });
 }

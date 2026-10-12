@@ -11,6 +11,7 @@ abstract final class DecimalFormatter {
   static const String _groupSeparator = ',';
   static const String _point = '.';
   static const String _minus = '-';
+  static const String _plus = '+';
   static final Decimal _hundred = Decimal.fromInt(100);
   static final RegExp _trailingZeros = RegExp(r'0+$');
 
@@ -26,6 +27,12 @@ abstract final class DecimalFormatter {
 
   /// `24`, `1.5`, `-2`
   static String formatQuantity(Quantity quantity) => _trim(quantity.value);
+
+  /// `+24`, `-2`, `0`: a stock change with its sign.
+  static String formatSignedQuantity(Quantity quantity) {
+    final text = formatQuantity(quantity);
+    return quantity.value > Decimal.zero ? '$_plus$text' : text;
+  }
 
   /// `3`, `2.5`
   static String formatFactor(UnitFactor factor) => _trim(factor.value);

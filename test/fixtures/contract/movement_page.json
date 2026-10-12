@@ -1,0 +1,19 @@
+{
+  "items": [
+    {
+      "id": "0192f0a0-6c1e-7b3a-9d2e-4f5a6b7c8da2",
+      "productId": "0192f0a0-6c1e-7b3a-9d2e-4f5a6b7c8d9e",
+      "quantityChange": "-2.000",
+      "balanceAfter": "22.000",
+      "reason": "ManualAdjustment",
+      "invoiceId": null,
+      "saleId": null,
+      "note": "Expired, thrown away",
+      "createdByUserId": "0192f0a0-6c1e-7b3a-9d2e-4f5a6b7c8da3",
+      "createdAt": "2026-10-12T07:00:00Z"
+    }
+  ],
+  "page": 1,
+  "pageSize": 20,
+  "totalCount": 1
+}
