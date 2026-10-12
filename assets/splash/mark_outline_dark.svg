@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="512" height="512">
+  <!-- Derived from brand/stockly-mark.svg for the native splash (design §10.1, checkpoint 2 decision 6):
+       receipt outline with the printed lines at full width (splash .ln widths 16, 16, 11), no data pixels.
+       Colors: splash --s-paper / --s-ink, dark theme. -->
+  <path d="M16 6H34A4 4 0 0 1 38 10V54L34.75 51L31.5 54L28.25 51L25 54L21.75 51L18.5 54L15.25 51L12 54V10A4 4 0 0 1 16 6Z" fill="#13233A" stroke="#E6EEF5" stroke-width="2.4" stroke-linejoin="round"/>
+  <g fill="#E6EEF5">
+    <rect x="17" y="15" width="16" height="3" rx="1.5"/>
+    <rect x="17" y="23" width="16" height="3" rx="1.5"/>
+    <rect x="17" y="31" width="11" height="3" rx="1.5"/>
+  </g>
+</svg>

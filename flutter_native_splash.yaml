@@ -1,0 +1,21 @@
+# Native launch screen (design §10.1). Generator configuration, not app
+# code: it holds the brand tokens `--bg` (light, dark). The images are the
+# receipt outline with full-width lines and no data pixels (checkpoint 2
+# decision 6), rendered from assets/splash/mark_outline_*.svg at 4x for a
+# 132 dp mark (the animated splash's size); Android 12 images are 1152 px
+# with the mark inside the central 768 px circle.
+# Regenerate with: dart run flutter_native_splash:create
+flutter_native_splash:
+  color: "#F3F7F5"
+  color_dark: "#0B1626"
+  image: assets/splash/mark_light.png
+  image_dark: assets/splash/mark_dark.png
+  android_12:
+    color: "#F3F7F5"
+    color_dark: "#0B1626"
+    image: assets/splash/mark_android12_light.png
+    image_dark: assets/splash/mark_android12_dark.png
+  fullscreen: false
+  android: true
+  ios: false
+  web: false
