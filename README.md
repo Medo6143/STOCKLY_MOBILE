@@ -28,6 +28,29 @@ dart format --set-exit-if-changed lib test
 flutter build apk --debug --dart-define=STOCKLY_BACKEND=fake
 ```
 
-Fake backend demo accounts (fake data only): `mona@stockly.test` (Owner) and `karim@stockly.test` (Staff), password `Stockly123`.
+### Run in fake mode
+
+```bash
+flutter run --dart-define=STOCKLY_BACKEND=fake
+```
+
+The fake backend lives in memory: every restart starts again from the seed. Seed accounts (fake data only, shop `صيدلية الشفاء`, Pharmacy):
+
+| Role | Email | Password |
+|---|---|---|
+| Owner | `mona@stockly.test` | `Stockly123` |
+| Staff | `karim@stockly.test` | `Stockly123` |
+
+Like the real API (contract v1.4), 5 wrong passwords in a row lock an account for 15 minutes, and login and register each allow 10 requests per minute.
+
+Debug panel: sign in, open **Settings** and **long-press the version text** at the bottom (fake mode only). It can switch the device offline, fail the next request with a chosen error code, expire the access token now, suspend the shop, and turn the account lockout and the login/register rate limit on or off.
+
+### Native splash
+
+The native launch screen comes from `flutter_native_splash.yaml` and the PNGs in `assets/splash/`, rendered from the outline-only `mark_outline_*.svg` next to them. After changing them:
+
+```bash
+dart run flutter_native_splash:create
+```
 
 Android builds need NDK 28.2.13676358 (Flutter's default, required by the `jni` plugin that `path_provider_android` uses).
