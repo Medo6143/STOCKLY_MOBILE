@@ -24,6 +24,29 @@ const Map<String, Set<String>> _enums = {
   'status': {'Active', 'Suspended'},
   'role': {'Owner', 'Staff'},
   'preferredLanguage': {'ar', 'en'},
+  'reason': {
+    'InvoiceReceipt',
+    'Sale',
+    'ManualAdjustment',
+    'StockCount',
+    'InvoiceReversal',
+  },
+};
+
+/// Contract §1.2 decimal strings by field name: money 2, quantity 3,
+/// factor 6 decimals.
+final Map<String, RegExp> _decimals = {
+  for (final key in ['sellPrice', 'costPrice']) key: RegExp(r'^\d+\.\d{2}$'),
+  for (final key in [
+    'quantity',
+    'lowStockThreshold',
+    'quantityChange',
+    'balanceAfter',
+    'countedQuantity',
+    'openingQuantity',
+  ])
+    key: RegExp(r'^-?\d+\.\d{3}$'),
+  'factor': RegExp(r'^\d+\.\d{6}$'),
 };
 
 /// Asserts that [actual] has exactly the fields of [expected], with the same
@@ -45,6 +68,16 @@ void expectSameShape(Object? actual, Object? expected, {String path = r'$'}) {
 void _expectField(String key, Object? actual, Object? expected, String path) {
   if (expected is Map<String, Object?>) {
     expectSameShape(actual, expected, path: path);
+    return;
+  }
+  if (expected is List<Object?>) {
+    expect(actual, isA<List<Object?>>(), reason: path);
+    final items = actual! as List<Object?>;
+    if (expected.isNotEmpty) {
+      for (var i = 0; i < items.length; i++) {
+        _expectField(key, items[i], expected.first, '$path[$i]');
+      }
+    }
     return;
   }
   if (actual == null || expected == null) {
@@ -69,6 +102,10 @@ void _expectField(String key, Object? actual, Object? expected, String path) {
   }
   if (key.endsWith('At')) {
     expect(actual, matches(_timestamp), reason: '$path is ISO-8601 UTC');
+  }
+  final decimal = _decimals[key];
+  if (decimal != null) {
+    expect(actual, matches(decimal), reason: '$path has the contract scale');
   }
   final values = _enums[key];
   if (values != null) {

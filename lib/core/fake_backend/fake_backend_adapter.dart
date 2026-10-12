@@ -9,6 +9,7 @@ import 'package:stockly/core/fake_backend/fake_backend_controls.dart';
 import 'package:stockly/core/fake_backend/fake_backend_state.dart';
 import 'package:stockly/core/fake_backend/fake_http.dart';
 import 'package:stockly/core/fake_backend/handlers/fake_auth_handler.dart';
+import 'package:stockly/core/fake_backend/handlers/fake_products_handler.dart';
 import 'package:stockly/core/ids/uuid_generator.dart';
 import 'package:stockly/core/network/request_extras.dart';
 import 'package:stockly/core/time/clock.dart';
@@ -27,14 +28,22 @@ final class FakeBackendAdapter implements HttpClientAdapter {
        _uuid = uuid,
        controls = FakeBackendControls(config) {
     _problems = FakeProblems(_traceId);
+    final auth = FakeAuthHandler(
+      state: state,
+      config: config,
+      controls: controls,
+      clock: clock,
+      uuid: uuid,
+      problems: _problems,
+    );
     final handlers = <FakeHandler>[
-      FakeAuthHandler(
+      auth,
+      FakeProductsHandler(
         state: state,
-        config: config,
-        controls: controls,
         clock: clock,
         uuid: uuid,
         problems: _problems,
+        authenticate: auth.authenticate,
       ),
     ];
     _routes = [for (final handler in handlers) ...handler.routes];
@@ -91,6 +100,7 @@ final class FakeBackendAdapter implements HttpClientAdapter {
           ? _english
           : _defaultLanguage,
       correlationId: correlationId,
+      query: options.uri.queryParameters,
     );
     final forced = controls.failNextWith;
     controls.failNextWith = null;
@@ -113,7 +123,10 @@ final class FakeBackendAdapter implements HttpClientAdapter {
     List<int> bytes,
     Map<String, Object?> headers,
   ) {
-    final candidates = _routes.where((r) => r.path == bare.path).toList();
+    final candidates = [
+      for (final route in _routes)
+        if (route.match(bare.path) case final params?) (route, params),
+    ];
     if (candidates.isEmpty) {
       return _problems.problem(
         bare,
@@ -121,16 +134,19 @@ final class FakeBackendAdapter implements HttpClientAdapter {
         ApiErrorCode.httpNotFound,
       );
     }
-    final route = candidates.where((r) => r.method == bare.method).firstOrNull;
-    if (route == null) {
+    final matching =
+        candidates.where((c) => c.$1.method == bare.method).toList()
+          ..sort((a, b) => a.$1.parameterCount.compareTo(b.$1.parameterCount));
+    if (matching.isEmpty) {
       return _problems.problem(
         bare,
         HttpStatus.methodNotAllowed,
         ApiErrorCode.httpMethodNotAllowed,
       );
     }
+    final (route, params) = matching.first;
     if (bytes.isEmpty) {
-      return route.handle(bare);
+      return route.handle(bare.copyWith(body: null, params: params));
     }
     final contentType = headers[HttpHeaders.contentTypeHeader.toLowerCase()];
     if (contentType is! String || !Transformer.isJsonMimeType(contentType)) {
@@ -146,16 +162,7 @@ final class FakeBackendAdapter implements HttpClientAdapter {
     } on FormatException {
       return _problems.validation(bare, const {});
     }
-    return route.handle(
-      FakeRequest(
-        method: bare.method,
-        path: bare.path,
-        headers: bare.headers,
-        body: body,
-        language: bare.language,
-        correlationId: bare.correlationId,
-      ),
-    );
+    return route.handle(bare.copyWith(body: body, params: params));
   }
 
   ResponseBody _toResponseBody(FakeResponse response, String correlationId) {

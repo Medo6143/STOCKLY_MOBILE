@@ -1,3 +1,6 @@
+import 'package:decimal/decimal.dart';
+import 'package:stockly/core/fake_backend/fake_product_records.dart';
+
 /// Contract `ShopRole` values.
 abstract final class FakeRoles {
   static const String owner = 'Owner';
@@ -114,6 +117,56 @@ final class FakeBackendState {
   final List<FakeMembership> memberships = [];
   final Map<String, FakeRefreshToken> refreshTokens = {};
   final Map<String, FakeAccessToken> accessTokens = {};
+  final List<FakeProduct> products = [];
+
+  /// Append-only, oldest first.
+  final List<FakeMovement> movements = [];
+
+  /// Units referenced by invoice or sale lines (`ProductUnit.InUse`).
+  final Set<String> unitsInUse = {};
+
+  /// The product [productId] of [shopId] (another shop's is not found).
+  FakeProduct? productOf(String shopId, String? productId) {
+    for (final product in products) {
+      if (product.id == productId && product.shopId == shopId) {
+        return product;
+      }
+    }
+    return null;
+  }
+
+  /// Appends a movement and changes the quantity with it, so every
+  /// quantity has a movement behind it (AGENTS.md rules 1 and 2).
+  FakeMovement recordMovement(
+    FakeProduct product, {
+    required String id,
+    required Decimal change,
+    required String reason,
+    required String userId,
+    required DateTime at,
+    String? note,
+    String? invoiceId,
+    String? saleId,
+  }) {
+    product
+      ..quantity = product.quantity + change
+      ..updatedAt = at;
+    final movement = FakeMovement(
+      id: id,
+      shopId: product.shopId,
+      productId: product.id,
+      quantityChange: change,
+      balanceAfter: product.quantity,
+      reason: reason,
+      createdByUserId: userId,
+      createdAt: at,
+      invoiceId: invoiceId,
+      saleId: saleId,
+      note: note,
+    );
+    movements.add(movement);
+    return movement;
+  }
 
   FakeUser? userByEmail(String email) {
     final wanted = email.toLowerCase();

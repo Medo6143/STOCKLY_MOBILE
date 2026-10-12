@@ -1,0 +1,20 @@
+{
+  "items": [
+    {
+      "id": "0192f0a0-6c1e-7b3a-9d2e-4f5a6b7c8d9e",
+      "name": "بنادول اكسترا",
+      "quantity": "24.000",
+      "baseUnit": {
+        "id": "0192f0a0-6c1e-7b3a-9d2e-4f5a6b7c8da0",
+        "name": "شريط",
+        "sellPrice": "15.00"
+      },
+      "lowStockThreshold": "5.000",
+      "isLowStock": false,
+      "isArchived": false
+    }
+  ],
+  "page": 1,
+  "pageSize": 20,
+  "totalCount": 137
+}

@@ -14,11 +14,19 @@ final class FakeRequest {
     required this.body,
     required this.language,
     required this.correlationId,
+    this.query = const {},
+    this.params = const {},
   });
 
   final String method;
   final String path;
   final Map<String, Object?> headers;
+
+  /// The query string parameters.
+  final Map<String, String> query;
+
+  /// The values of the route's `{name}` path segments.
+  final Map<String, String> params;
 
   /// The decoded JSON body, or `null` when there is none.
   final Object? body;
@@ -43,6 +51,21 @@ final class FakeRequest {
   }
 
   String get instance => '$method $path';
+
+  /// This request with [body] and the route's [params].
+  FakeRequest copyWith({
+    required Object? body,
+    required Map<String, String> params,
+  }) => FakeRequest(
+    method: method,
+    path: path,
+    headers: headers,
+    body: body,
+    language: language,
+    correlationId: correlationId,
+    query: query,
+    params: params,
+  );
 }
 
 /// A response of the fake backend.
@@ -77,7 +100,8 @@ final class FakeResponse {
   final Map<String, String> headers;
 }
 
-/// One endpoint of the fake backend.
+/// One endpoint of the fake backend. A `{name}` segment of [path] matches
+/// a lower- or upper-case UUID, like the backend's `{id:guid}` routes.
 @immutable
 final class FakeRoute {
   const new(this.method, this.path, this.handle);
@@ -85,6 +109,38 @@ final class FakeRoute {
   final String method;
   final String path;
   final FakeResponse Function(FakeRequest request) handle;
+
+  static final RegExp _uuid = RegExp(
+    '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-'
+    r'[0-9a-fA-F]{12}$',
+  );
+
+  /// The number of `{name}` segments; literal routes win over templates.
+  int get parameterCount =>
+      path.split('/').where((s) => s.startsWith('{')).length;
+
+  /// The path parameters when [requestPath] matches, else `null`.
+  Map<String, String>? match(String requestPath) {
+    final expected = path.split('/');
+    final actual = requestPath.split('/');
+    if (expected.length != actual.length) {
+      return null;
+    }
+    final params = <String, String>{};
+    for (var i = 0; i < expected.length; i++) {
+      final segment = expected[i];
+      if (segment.startsWith('{') && segment.endsWith('}')) {
+        if (!_uuid.hasMatch(actual[i])) {
+          return null;
+        }
+        params[segment.substring(1, segment.length - 1)] = actual[i]
+            .toLowerCase();
+      } else if (segment != actual[i]) {
+        return null;
+      }
+    }
+    return params;
+  }
 }
 
 /// A handler for one API area (auth, products, ...).
@@ -303,6 +359,10 @@ abstract final class FakeMessages {
   static String weakPassword(String language) => language == arabic
       ? 'كلمة المرور من 8 إلى 128 حرفًا وفيها حرف ورقم على الأقل.'
       : 'The password needs 8 to 128 characters with a letter and a digit.';
+
+  static String decimalFormat(String language) => language == arabic
+      ? 'القيمة لازم تكون رقم مكتوب كنص، زي "12.50".'
+      : 'The value must be a decimal string such as "12.50".';
 
   static String invalidValue(String language) =>
       language == arabic ? 'القيمة غير مسموحة.' : 'This value is not allowed.';
