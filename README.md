@@ -43,6 +43,8 @@ The fake backend lives in memory: every restart starts again from the seed. Seed
 
 Like the real API (contract v1.4), 5 wrong passwords in a row lock an account for 15 minutes, and login and register each allow 10 requests per minute.
 
+The shop starts with an Arabic pharmacy catalogue of 31 products (one archived, several at or below their low-stock level, `نوفالجين` below zero), each quantity backed by stock movements. Barcodes to try: `6221234567890` (`بنادول اكسترا`, strip) and `6221234567906` (its box). The box of `بنادول اكسترا` counts as used on an invoice, so deleting it shows `ProductUnit.InUse`. Only the Owner sees adjust, count, archive and the opening stock field.
+
 Debug panel: sign in, open **Settings** and **long-press the version text** at the bottom (fake mode only). It can switch the device offline, fail the next request with a chosen error code, expire the access token now, suspend the shop, and turn the account lockout and the login/register rate limit on or off.
 
 ### Native splash
