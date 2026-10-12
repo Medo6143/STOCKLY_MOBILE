@@ -1,0 +1,309 @@
+{
+  "@@locale": "ar",
+  "appName": "ستوكلي",
+  "@appName": {
+    "description": "The product name (wordmark)."
+  },
+  "splashTagline": "صوّر الفاتورة، والمخزون يتظبط لوحده.",
+  "@splashTagline": {
+    "description": "Brand tagline under the wordmark."
+  },
+  "commonRetry": "حاول تاني",
+  "@commonRetry": {
+    "description": "Retry button of an error state."
+  },
+  "commonBack": "رجوع",
+  "@commonBack": {
+    "description": "Back button of a not-found error state."
+  },
+  "commonGoHome": "الرئيسية",
+  "@commonGoHome": {
+    "description": "Button that opens the home screen."
+  },
+  "commonLoading": "جاري التحميل",
+  "@commonLoading": {
+    "description": "Accessibility label of the loading indicator."
+  },
+  "commonEmptyTitle": "مفيش حاجة هنا لسه",
+  "@commonEmptyTitle": {
+    "description": "Default title of an empty list."
+  },
+  "commonEmptyBody": "أول ما تضيف بيانات هتظهر هنا.",
+  "@commonEmptyBody": {
+    "description": "Default body of an empty list."
+  },
+  "commonErrorTitle": "حصلت مشكلة",
+  "@commonErrorTitle": {
+    "description": "Title of an error state."
+  },
+  "commonCopyErrorReference": "نسخ رقم الخطأ",
+  "@commonCopyErrorReference": {
+    "description": "Button that copies the error reference for support."
+  },
+  "commonErrorReference": "رقم الخطأ: {reference}",
+  "@commonErrorReference": {
+    "description": "Error reference shown for support.",
+    "placeholders": {
+      "reference": {
+        "type": "String",
+        "example": "00-4bf92f-00"
+      }
+    }
+  },
+  "commonErrorReferenceCopied": "تم نسخ رقم الخطأ",
+  "@commonErrorReferenceCopied": {
+    "description": "Snackbar after copying the error reference."
+  },
+  "commonComingSoonTitle": "قريبًا",
+  "@commonComingSoonTitle": {
+    "description": "Title of a screen that is not built yet."
+  },
+  "commonComingSoonBody": "الشاشة دي لسه بنجهزها.",
+  "@commonComingSoonBody": {
+    "description": "Body of a screen that is not built yet."
+  },
+  "navProducts": "المنتجات",
+  "@navProducts": {
+    "description": "Bottom navigation tab."
+  },
+  "navInvoices": "الفواتير",
+  "@navInvoices": {
+    "description": "Bottom navigation tab."
+  },
+  "navSettings": "الإعدادات",
+  "@navSettings": {
+    "description": "Bottom navigation tab."
+  },
+  "notFoundTitle": "الصفحة مش موجودة",
+  "@notFoundTitle": {
+    "description": "Title of the unknown-route screen."
+  },
+  "notFoundBody": "الرابط ده مش موجود في التطبيق.",
+  "@notFoundBody": {
+    "description": "Body of the unknown-route screen."
+  },
+  "errorValidationFailed": "في بيانات ناقصة أو غلط. راجع الحقول.",
+  "@errorValidationFailed": {
+    "description": "Validation.Failed"
+  },
+  "errorServerUnexpected": "حصل خطأ في السيرفر. حاول تاني بعد شوية.",
+  "@errorServerUnexpected": {
+    "description": "Server.Unexpected"
+  },
+  "errorHttpNotFound": "المطلوب مش موجود.",
+  "@errorHttpNotFound": {
+    "description": "Http.NotFound"
+  },
+  "errorHttpMethodNotAllowed": "الطلب ده مش مسموح. حدّث التطبيق.",
+  "@errorHttpMethodNotAllowed": {
+    "description": "Http.MethodNotAllowed"
+  },
+  "errorHttpUnsupportedMediaType": "نوع البيانات مش مدعوم. حدّث التطبيق.",
+  "@errorHttpUnsupportedMediaType": {
+    "description": "Http.UnsupportedMediaType"
+  },
+  "errorAuthUnauthenticated": "لازم تسجّل دخول الأول.",
+  "@errorAuthUnauthenticated": {
+    "description": "Auth.Unauthenticated"
+  },
+  "errorAuthForbidden": "الإجراء ده لصاحب المحل بس.",
+  "@errorAuthForbidden": {
+    "description": "Auth.Forbidden"
+  },
+  "errorAuthEmailTaken": "البريد الإلكتروني ده متسجل قبل كده.",
+  "@errorAuthEmailTaken": {
+    "description": "Auth.EmailTaken"
+  },
+  "errorAuthInvalidCredentials": "البريد الإلكتروني أو كلمة السر غلط.",
+  "@errorAuthInvalidCredentials": {
+    "description": "Auth.InvalidCredentials"
+  },
+  "errorAuthNoActiveShop": "الحساب ده مش مربوط بمحل نشط.",
+  "@errorAuthNoActiveShop": {
+    "description": "Auth.NoActiveShop"
+  },
+  "errorAuthInvalidRefreshToken": "انتهت الجلسة. سجّل دخول تاني.",
+  "@errorAuthInvalidRefreshToken": {
+    "description": "Auth.InvalidRefreshToken"
+  },
+  "errorAuthRefreshTokenReused": "تم إنهاء الجلسة للأمان. سجّل دخول تاني.",
+  "@errorAuthRefreshTokenReused": {
+    "description": "Auth.RefreshTokenReused"
+  },
+  "errorShopNameRequired": "اكتب اسم المحل.",
+  "@errorShopNameRequired": {
+    "description": "Shop.NameRequired"
+  },
+  "errorShopUnknownType": "نوع المحل ده مش مدعوم.",
+  "@errorShopUnknownType": {
+    "description": "Shop.UnknownType"
+  },
+  "errorShopSuspended": "المحل ده موقوف. تواصل مع الدعم.",
+  "@errorShopSuspended": {
+    "description": "Shop.Suspended"
+  },
+  "errorProductNotFound": "المنتج ده مش موجود.",
+  "@errorProductNotFound": {
+    "description": "Product.NotFound"
+  },
+  "errorProductNameRequired": "اكتب اسم المنتج.",
+  "@errorProductNameRequired": {
+    "description": "Product.NameRequired"
+  },
+  "errorProductArchived": "المنتج ده مؤرشف ومينفعش يتعدل.",
+  "@errorProductArchived": {
+    "description": "Product.Archived"
+  },
+  "errorProductDuplicateBarcode": "الباركود ده مستخدم لمنتج تاني.",
+  "@errorProductDuplicateBarcode": {
+    "description": "Product.DuplicateBarcode"
+  },
+  "errorProductOpeningStockOwnerOnly": "الرصيد الافتتاحي لصاحب المحل بس.",
+  "@errorProductOpeningStockOwnerOnly": {
+    "description": "Product.OpeningStockOwnerOnly"
+  },
+  "errorProductUnitNotFound": "الوحدة دي مش موجودة.",
+  "@errorProductUnitNotFound": {
+    "description": "ProductUnit.NotFound"
+  },
+  "errorProductUnitNameRequired": "اكتب اسم الوحدة.",
+  "@errorProductUnitNameRequired": {
+    "description": "ProductUnit.NameRequired"
+  },
+  "errorProductUnitDuplicateName": "في وحدة بنفس الاسم للمنتج ده.",
+  "@errorProductUnitDuplicateName": {
+    "description": "ProductUnit.DuplicateName"
+  },
+  "errorProductUnitDuplicateBarcode": "الباركود ده مستخدم لوحدة تانية.",
+  "@errorProductUnitDuplicateBarcode": {
+    "description": "ProductUnit.DuplicateBarcode"
+  },
+  "errorProductUnitBaseUnitCannotBeRemoved": "مينفعش تمسح الوحدة الأساسية.",
+  "@errorProductUnitBaseUnitCannotBeRemoved": {
+    "description": "ProductUnit.BaseUnitCannotBeRemoved"
+  },
+  "errorProductUnitBaseUnitFactorFixed": "معامل الوحدة الأساسية دايمًا 1.",
+  "@errorProductUnitBaseUnitFactorFixed": {
+    "description": "ProductUnit.BaseUnitFactorFixed"
+  },
+  "errorProductUnitInUse": "الوحدة دي مستخدمة في فواتير أو مبيعات ومينفعش تتمسح.",
+  "@errorProductUnitInUse": {
+    "description": "ProductUnit.InUse"
+  },
+  "errorPrecisionTooManyDecimals": "عدد الأرقام العشرية أكتر من المسموح.",
+  "@errorPrecisionTooManyDecimals": {
+    "description": "Precision.TooManyDecimals"
+  },
+  "errorPrecisionNegative": "القيمة لازم تكون صفر أو أكتر.",
+  "@errorPrecisionNegative": {
+    "description": "Precision.Negative"
+  },
+  "errorPrecisionNotPositive": "القيمة لازم تكون أكبر من صفر.",
+  "@errorPrecisionNotPositive": {
+    "description": "Precision.NotPositive"
+  },
+  "errorPrecisionOutOfRange": "الرقم كبير جدًا.",
+  "@errorPrecisionOutOfRange": {
+    "description": "Precision.OutOfRange"
+  },
+  "errorStockZeroChange": "التعديل مينفعش يكون صفر.",
+  "@errorStockZeroChange": {
+    "description": "Stock.ZeroChange"
+  },
+  "errorStockNoteRequired": "اكتب سبب التعديل.",
+  "@errorStockNoteRequired": {
+    "description": "Stock.NoteRequired"
+  },
+  "errorInvoiceNotFound": "الفاتورة دي مش موجودة.",
+  "@errorInvoiceNotFound": {
+    "description": "Invoice.NotFound"
+  },
+  "errorInvoiceImageRequired": "صوّر الفاتورة الأول.",
+  "@errorInvoiceImageRequired": {
+    "description": "Invoice.ImageRequired"
+  },
+  "errorInvoiceUnsupportedImageType": "نوع الصورة مش مدعوم.",
+  "@errorInvoiceUnsupportedImageType": {
+    "description": "Invoice.UnsupportedImageType"
+  },
+  "errorInvoiceImageTooLarge": "الصورة كبيرة جدًا. صوّرها تاني.",
+  "@errorInvoiceImageTooLarge": {
+    "description": "Invoice.ImageTooLarge"
+  },
+  "errorInvoiceNotEditable": "الفاتورة دي مينفعش تتعدل دلوقتي.",
+  "@errorInvoiceNotEditable": {
+    "description": "Invoice.NotEditable"
+  },
+  "errorInvoiceNotConfirmable": "الفاتورة دي مينفعش تتأكد دلوقتي.",
+  "@errorInvoiceNotConfirmable": {
+    "description": "Invoice.NotConfirmable"
+  },
+  "errorInvoiceLineProductRequired": "اختار منتج لكل سطر.",
+  "@errorInvoiceLineProductRequired": {
+    "description": "Invoice.LineProductRequired"
+  },
+  "errorInvoiceUnitNotOfProduct": "الوحدة دي مش تبع المنتج ده.",
+  "@errorInvoiceUnitNotOfProduct": {
+    "description": "Invoice.UnitNotOfProduct"
+  },
+  "errorScanRateLimited": "فواتير كتير في وقت قصير. هنحاول تاني بعد شوية.",
+  "@errorScanRateLimited": {
+    "description": "Scan.RateLimited"
+  },
+  "errorScanDailyQuotaExceeded": "وصلت للحد اليومي للفواتير. هتترفع بعد نص الليل.",
+  "@errorScanDailyQuotaExceeded": {
+    "description": "Scan.DailyQuotaExceeded"
+  },
+  "errorSaleNotFound": "البيعة دي مش موجودة.",
+  "@errorSaleNotFound": {
+    "description": "Sale.NotFound"
+  },
+  "errorSaleArchivedProduct": "مينفعش تبيع منتج مؤرشف.",
+  "@errorSaleArchivedProduct": {
+    "description": "Sale.ArchivedProduct"
+  },
+  "errorSaleUnitNotOfProduct": "الوحدة دي مش تبع المنتج ده.",
+  "@errorSaleUnitNotOfProduct": {
+    "description": "Sale.UnitNotOfProduct"
+  },
+  "errorNetwork": "مفيش إنترنت. اتأكد من الاتصال وحاول تاني.",
+  "@errorNetwork": {
+    "description": "No connection to the server."
+  },
+  "errorTimeout": "السيرفر اتأخر في الرد. حاول تاني.",
+  "@errorTimeout": {
+    "description": "Connect, send or receive timeout."
+  },
+  "errorServer": "حصل خطأ في السيرفر. حاول تاني بعد شوية.",
+  "@errorServer": {
+    "description": "Unknown 5xx error response."
+  },
+  "errorUnknown": "حصلت مشكلة غير متوقعة. حاول تاني.",
+  "@errorUnknown": {
+    "description": "Unknown error response."
+  },
+  "errorMalformedResponse": "وصلنا رد مش مفهوم من السيرفر. حدّث التطبيق.",
+  "@errorMalformedResponse": {
+    "description": "A 2xx body that does not match the contract."
+  },
+  "errorSessionEnded": "انتهت الجلسة. سجّل دخول تاني.",
+  "@errorSessionEnded": {
+    "description": "The server ended the session."
+  },
+  "errorLocalCameraDenied": "محتاجين إذن الكاميرا عشان تصوّر الفاتورة.",
+  "@errorLocalCameraDenied": {
+    "description": "Camera permission denied."
+  },
+  "errorLocalImageTooLarge": "الصورة لسه كبيرة بعد الضغط. صوّرها تاني.",
+  "@errorLocalImageTooLarge": {
+    "description": "Image still over 8 MB."
+  },
+  "errorLocalQueueFull": "في فواتير كتير مستنية الرفع. استنى لما تترفع.",
+  "@errorLocalQueueFull": {
+    "description": "Scan queue full."
+  },
+  "errorLocalStorage": "مقدرناش نحفظ على الجهاز. اتأكد من المساحة الفاضية.",
+  "@errorLocalStorage": {
+    "description": "Local storage error."
+  }
+}

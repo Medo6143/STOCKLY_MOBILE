@@ -1,0 +1,14 @@
+targets:
+  $default:
+    builders:
+      drift_dev:
+        options:
+          # Design §6.2: ISO-8601 UTC strings, readable when debugging.
+          store_date_time_values_as_text: true
+      json_serializable:
+        options:
+          # A wrong JSON type (for example a number where the contract
+          # requires a decimal string) becomes CheckedFromJsonException,
+          # which safeApiCall maps to MalformedResponseFailure (§4.6).
+          checked: true
+          explicit_to_json: true

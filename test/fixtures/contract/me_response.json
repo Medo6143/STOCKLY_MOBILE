@@ -1,0 +1,16 @@
+{
+  "user": {
+    "id": "0192f0a0-6c1e-7b3a-9d2e-4f5a6b7c8d9e",
+    "email": "mona@example.com",
+    "fullName": "Mona Adel",
+    "phone": null,
+    "preferredLanguage": "ar"
+  },
+  "shop": {
+    "id": "0192f0a0-6c1e-7b3a-9d2e-4f5a6b7c8d9f",
+    "name": "صيدلية الشفاء",
+    "shopType": "Pharmacy",
+    "status": "Active",
+    "role": "Owner"
+  }
+}

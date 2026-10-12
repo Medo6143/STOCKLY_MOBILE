@@ -1,0 +1,9 @@
+{
+  "fullName": "Mona Adel",
+  "email": "mona@example.com",
+  "password": "Str0ngPass",
+  "phone": "01001234567",
+  "preferredLanguage": "ar",
+  "deviceId": "pixel-7-abc",
+  "shop": { "name": "صيدلية الشفاء", "shopType": "Pharmacy", "phone": null, "governorate": "القاهرة", "address": null }
+}
