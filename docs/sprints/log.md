@@ -43,4 +43,9 @@ Running record of the mobile lane: which agent, brief path, verification result,
 
 ## Brief 2c: product screens
 
-- Brief: `docs/agents/briefs/mobile-2c-products.md` (contract v1.4 §1, P1–P12, §3, §5, product codes; backend P1–P11 now implemented). Branch `feature/products`. Worker: general-purpose agent (background). State: started.
+- Brief: `docs/agents/briefs/mobile-2c-products.md` (contract v1.4 §1, P1–P12, §3, §5, product codes; backend P1–P11 now implemented). Branch `feature/products`. Worker: general-purpose agent (background).
+- Report: "AGENTS.md read: yes", contract deviations NONE, no new packages.
+- Orchestrator verification: scope ok (no `docs/`, `android/` or brand changes by the worker); build_runner OK; gen-l10n OK (untranslated `{}`); `flutter analyze` no issues; `flutter test` 660 passed (408 before); `dart format` 0 changed; debug APK built. Read the data source and repository (paths and query names match the backend `ProductsController`), the form notifier, and every edited test: no assertion removed or weakened. Grep for `left`/`right`, `DateTime.now`, `double`, `Colors.`, `TODO`: none.
+- Decisions accepted: architecture exceptions widened (products may read `isOwnerProvider`, design §2.3; domain may import `core/pagination/paged.dart`, design §1.4); `PagedResponseDto` in `core/network`; list filters read from the route query on entry; edit, unit, adjustment and count screens reuse `productDetailProvider`; writes invalidate list, detail and movements; the fake follows the backend's validation order (403 before validation, shape → precision → not found → domain codes).
+- Note: P12 (barcode lookup) is wired through data, use case, provider and fake, but no screen uses it yet; the quick-sale screen (Sprint 4) will. The backend implements it in Sprint 4.
+- Commits: `11c651e`, `2b5d59d`, `313e6d9`, `38db4f6`.
