@@ -14,6 +14,8 @@ You have not seen the conversation that produced this brief. Everything you need
 
 **You must NOT touch:** anything not listed above, in particular `docs/api/contract.md` (only the orchestrator changes it).
 
+**Machine safety:** never kill processes by image name (`taskkill /IM`, `pkill <name>`, `Stop-Process -Name`); stop only processes you started, by their PID. Never delete or change anything outside this repository.
+
 ## 3. Critical rules for this task
 Full rules: `AGENTS.md`. The ones that matter most here (copied):
 - <rule number and text>
