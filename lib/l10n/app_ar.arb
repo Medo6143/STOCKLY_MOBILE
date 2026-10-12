@@ -579,5 +579,453 @@
   "fakePanelRateLimit": "حد محاولات الدخول والتسجيل",
   "@fakePanelRateLimit": {
     "description": "Debug panel switch: rate limit on login and register."
+  },
+  "commonSave": "حفظ",
+  "@commonSave": {
+    "description": "Generic save button."
+  },
+  "commonCancel": "إلغاء",
+  "@commonCancel": {
+    "description": "Generic cancel button of a dialog."
+  },
+  "commonLoadMoreError": "معرفناش نحمّل باقي القائمة.",
+  "@commonLoadMoreError": {
+    "description": "Inline message when the next page of a list failed."
+  },
+  "moneyAmount": "{amount} ج.م",
+  "@moneyAmount": {
+    "description": "An amount in Egyptian pounds; the number is formatted with Western digits.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "1,250.00"
+      }
+    }
+  },
+  "quantityWithUnit": "{quantity} {unit}",
+  "@quantityWithUnit": {
+    "description": "A quantity followed by its unit name.",
+    "placeholders": {
+      "quantity": {
+        "type": "String",
+        "example": "24"
+      },
+      "unit": {
+        "type": "String",
+        "example": "شريط"
+      }
+    }
+  },
+  "productsListTitle": "المنتجات",
+  "@productsListTitle": {
+    "description": "Title of the product list."
+  },
+  "productsListAdd": "إضافة منتج",
+  "@productsListAdd": {
+    "description": "Button that opens the new product form."
+  },
+  "productsListEmptyTitle": "مفيش منتجات لسه",
+  "@productsListEmptyTitle": {
+    "description": "Empty product list title."
+  },
+  "productsListEmptyBody": "ضيف أول منتج عشان تبدأ تتابع المخزون.",
+  "@productsListEmptyBody": {
+    "description": "Empty product list body."
+  },
+  "productsListNoResultsTitle": "مفيش نتايج لـ \"{search}\"",
+  "@productsListNoResultsTitle": {
+    "description": "Empty list after a search.",
+    "placeholders": {
+      "search": {
+        "type": "String",
+        "example": "بنادول"
+      }
+    }
+  },
+  "productsListNoResultsBody": "جرّب اسم تاني أو امسح البحث.",
+  "@productsListNoResultsBody": {
+    "description": "Body of the empty search result."
+  },
+  "productsListNoLowStockTitle": "مفيش منتجات ناقصة",
+  "@productsListNoLowStockTitle": {
+    "description": "Empty list with the low-stock filter on."
+  },
+  "productsListNoLowStockBody": "كل المنتجات فوق حد النقص.",
+  "@productsListNoLowStockBody": {
+    "description": "Body of the empty low-stock list."
+  },
+  "productsSearchHint": "دوّر على منتج",
+  "@productsSearchHint": {
+    "description": "Hint of the product search field."
+  },
+  "productsSearchClear": "مسح البحث",
+  "@productsSearchClear": {
+    "description": "Tooltip of the clear-search button."
+  },
+  "productsFilterLowStock": "الناقص بس",
+  "@productsFilterLowStock": {
+    "description": "Filter chip: only products at or below their low-stock level."
+  },
+  "productsFilterArchived": "إظهار المؤرشف",
+  "@productsFilterArchived": {
+    "description": "Filter chip: include archived products."
+  },
+  "productsLowStockBadge": "ناقص",
+  "@productsLowStockBadge": {
+    "description": "Badge on a product at or below its low-stock level."
+  },
+  "productsArchivedChip": "مؤرشف",
+  "@productsArchivedChip": {
+    "description": "Chip on an archived product."
+  },
+  "productsDetailTitle": "المنتج",
+  "@productsDetailTitle": {
+    "description": "App bar title of the product detail."
+  },
+  "productsDetailQuantity": "الرصيد",
+  "@productsDetailQuantity": {
+    "description": "Label of the current stock."
+  },
+  "productsDetailCostPrice": "سعر التكلفة",
+  "@productsDetailCostPrice": {
+    "description": "Label of the cost price per base unit."
+  },
+  "productsDetailSellPrice": "سعر البيع",
+  "@productsDetailSellPrice": {
+    "description": "Label of the base unit sell price."
+  },
+  "productsDetailThreshold": "حد النقص",
+  "@productsDetailThreshold": {
+    "description": "Label of the low-stock threshold."
+  },
+  "productsDetailBarcode": "الباركود",
+  "@productsDetailBarcode": {
+    "description": "Label of the product barcode."
+  },
+  "productsDetailCategory": "التصنيف",
+  "@productsDetailCategory": {
+    "description": "Label of the product category."
+  },
+  "productsDetailUnitsHeader": "الوحدات",
+  "@productsDetailUnitsHeader": {
+    "description": "Header of the unit list."
+  },
+  "productsDetailBaseUnit": "الوحدة الأساسية",
+  "@productsDetailBaseUnit": {
+    "description": "Marks the base unit in the unit list."
+  },
+  "productsUnitFactor": "1 {unit} = {factor} {baseUnit}",
+  "@productsUnitFactor": {
+    "description": "How many base units are in one unit.",
+    "placeholders": {
+      "unit": {
+        "type": "String",
+        "example": "علبة"
+      },
+      "factor": {
+        "type": "String",
+        "example": "3"
+      },
+      "baseUnit": {
+        "type": "String",
+        "example": "شريط"
+      }
+    }
+  },
+  "productsDetailEdit": "تعديل",
+  "@productsDetailEdit": {
+    "description": "Button that opens the edit form."
+  },
+  "productsDetailAddUnit": "إضافة وحدة",
+  "@productsDetailAddUnit": {
+    "description": "Button that opens the new unit form."
+  },
+  "productsDetailAdjust": "تعديل الرصيد",
+  "@productsDetailAdjust": {
+    "description": "Owner action: manual stock correction."
+  },
+  "productsDetailCount": "جرد",
+  "@productsDetailCount": {
+    "description": "Owner action: record a stock count."
+  },
+  "productsDetailMovements": "حركة المخزون",
+  "@productsDetailMovements": {
+    "description": "Button that opens the movement list."
+  },
+  "productsDetailArchive": "أرشفة",
+  "@productsDetailArchive": {
+    "description": "Owner action: archive the product."
+  },
+  "productsDetailArchivedNotice": "المنتج ده مؤرشف: مش هيظهر في القائمة ومينفعش يتعدل.",
+  "@productsDetailArchivedNotice": {
+    "description": "Notice on an archived product."
+  },
+  "productsArchiveDialogTitle": "تأرشف المنتج ده؟",
+  "@productsArchiveDialogTitle": {
+    "description": "Title of the archive confirmation."
+  },
+  "productsArchiveDialogBody": "المنتج المؤرشف بيختفي من القائمة ومينفعش يتعدل. حركة المخزون بتفضل محفوظة.",
+  "@productsArchiveDialogBody": {
+    "description": "Body of the archive confirmation."
+  },
+  "productsArchived": "تمت أرشفة المنتج",
+  "@productsArchived": {
+    "description": "Snackbar after archiving."
+  },
+  "productsFormCreateTitle": "منتج جديد",
+  "@productsFormCreateTitle": {
+    "description": "Title of the create form."
+  },
+  "productsFormEditTitle": "تعديل المنتج",
+  "@productsFormEditTitle": {
+    "description": "Title of the edit form."
+  },
+  "productsFormName": "اسم المنتج",
+  "@productsFormName": {
+    "description": "Field label."
+  },
+  "productsFormBarcode": "الباركود (اختياري)",
+  "@productsFormBarcode": {
+    "description": "Field label."
+  },
+  "productsFormCategory": "التصنيف (اختياري)",
+  "@productsFormCategory": {
+    "description": "Field label."
+  },
+  "productsFormBaseUnitName": "الوحدة الأساسية (مثلًا شريط أو قطعة)",
+  "@productsFormBaseUnitName": {
+    "description": "Field label."
+  },
+  "productsFormCostPrice": "سعر التكلفة للوحدة الأساسية",
+  "@productsFormCostPrice": {
+    "description": "Field label."
+  },
+  "productsFormSellPrice": "سعر البيع للوحدة الأساسية",
+  "@productsFormSellPrice": {
+    "description": "Field label."
+  },
+  "productsFormThreshold": "حد النقص (اختياري)",
+  "@productsFormThreshold": {
+    "description": "Field label on the create form."
+  },
+  "productsFormThresholdRequired": "حد النقص",
+  "@productsFormThresholdRequired": {
+    "description": "Field label on the edit form (required there)."
+  },
+  "productsFormOpeningQuantity": "الرصيد الافتتاحي (اختياري)",
+  "@productsFormOpeningQuantity": {
+    "description": "Owner-only field label."
+  },
+  "productsFormOpeningHint": "بالوحدة الأساسية، وبيتسجل كجرد.",
+  "@productsFormOpeningHint": {
+    "description": "Helper text of the opening stock field."
+  },
+  "productsFormEditHint": "اسم الوحدة الأساسية وسعرها بيتعدلوا من الوحدات.",
+  "@productsFormEditHint": {
+    "description": "Helper text above the edit form."
+  },
+  "productsFormSubmitCreate": "إضافة المنتج",
+  "@productsFormSubmitCreate": {
+    "description": "Submit button of the create form."
+  },
+  "productsFormSubmitEdit": "حفظ التعديلات",
+  "@productsFormSubmitEdit": {
+    "description": "Submit button of the edit form."
+  },
+  "productsFormArchivedTitle": "مينفعش تعدّل منتج مؤرشف",
+  "@productsFormArchivedTitle": {
+    "description": "Shown instead of the edit form for an archived product."
+  },
+  "productsFormArchivedBody": "المنتج ده مؤرشف، فبياناته للعرض بس.",
+  "@productsFormArchivedBody": {
+    "description": "Body shown instead of the edit form."
+  },
+  "productsSaved": "تم حفظ المنتج",
+  "@productsSaved": {
+    "description": "Snackbar after create or edit."
+  },
+  "productsFieldRequired": "الخانة دي مطلوبة.",
+  "@productsFieldRequired": {
+    "description": "Field issue."
+  },
+  "productsFieldTooLong": "النص ده طويل أوي.",
+  "@productsFieldTooLong": {
+    "description": "Field issue."
+  },
+  "productsFieldInvalidNumber": "اكتب رقم صحيح، زي 12.5",
+  "@productsFieldInvalidNumber": {
+    "description": "Field issue."
+  },
+  "unitsFormCreateTitle": "وحدة جديدة",
+  "@unitsFormCreateTitle": {
+    "description": "Title of the add-unit form."
+  },
+  "unitsFormEditTitle": "تعديل الوحدة",
+  "@unitsFormEditTitle": {
+    "description": "Title of the edit-unit form."
+  },
+  "unitsFormName": "اسم الوحدة (مثلًا علبة)",
+  "@unitsFormName": {
+    "description": "Field label."
+  },
+  "unitsFormFactor": "كام {baseUnit} في الوحدة دي",
+  "@unitsFormFactor": {
+    "description": "Field label of the unit factor.",
+    "placeholders": {
+      "baseUnit": {
+        "type": "String",
+        "example": "شريط"
+      }
+    }
+  },
+  "unitsFormFactorBaseFixed": "الوحدة الأساسية دايمًا بـ 1.",
+  "@unitsFormFactorBaseFixed": {
+    "description": "Helper text of the read-only base unit factor."
+  },
+  "unitsFormSellPrice": "سعر البيع",
+  "@unitsFormSellPrice": {
+    "description": "Field label."
+  },
+  "unitsFormSubmit": "حفظ الوحدة",
+  "@unitsFormSubmit": {
+    "description": "Submit button of the unit form."
+  },
+  "unitsDelete": "حذف الوحدة",
+  "@unitsDelete": {
+    "description": "Delete button of the unit form."
+  },
+  "unitsDeleteDialogTitle": "تحذف الوحدة دي؟",
+  "@unitsDeleteDialogTitle": {
+    "description": "Title of the delete confirmation."
+  },
+  "unitsDeleteDialogBody": "الرصيد محسوب بالوحدة الأساسية، فمش هيتغير.",
+  "@unitsDeleteDialogBody": {
+    "description": "Body of the delete confirmation."
+  },
+  "unitsSaved": "تم حفظ الوحدة",
+  "@unitsSaved": {
+    "description": "Snackbar after saving a unit."
+  },
+  "unitsDeleted": "تم حذف الوحدة",
+  "@unitsDeleted": {
+    "description": "Snackbar after deleting a unit."
+  },
+  "unitsArchivedTitle": "مينفعش تغيّر وحدات منتج مؤرشف",
+  "@unitsArchivedTitle": {
+    "description": "Shown instead of the unit form for an archived product."
+  },
+  "stockAdjustTitle": "تعديل الرصيد",
+  "@stockAdjustTitle": {
+    "description": "Title of the adjustment form."
+  },
+  "stockCurrentQuantity": "الرصيد الحالي",
+  "@stockCurrentQuantity": {
+    "description": "Label above the current stock."
+  },
+  "stockAdjustChange": "التغيير (اكتب - قبل الرقم للخصم)",
+  "@stockAdjustChange": {
+    "description": "Field label of the signed change."
+  },
+  "stockUnit": "الوحدة",
+  "@stockUnit": {
+    "description": "Label of the unit picker."
+  },
+  "stockAdjustNote": "السبب",
+  "@stockAdjustNote": {
+    "description": "Field label of the required note."
+  },
+  "stockAdjustNoteHint": "مثلًا: منتهي الصلاحية واترمى",
+  "@stockAdjustNoteHint": {
+    "description": "Hint of the note field."
+  },
+  "stockAdjustSubmit": "حفظ التعديل",
+  "@stockAdjustSubmit": {
+    "description": "Submit button of the adjustment form."
+  },
+  "stockAdjustDone": "الرصيد بقى {quantity}",
+  "@stockAdjustDone": {
+    "description": "Snackbar after an adjustment.",
+    "placeholders": {
+      "quantity": {
+        "type": "String",
+        "example": "22 شريط"
+      }
+    }
+  },
+  "stockCountTitle": "جرد",
+  "@stockCountTitle": {
+    "description": "Title of the count form."
+  },
+  "stockCountQuantity": "الكمية اللي اتعدّت",
+  "@stockCountQuantity": {
+    "description": "Field label."
+  },
+  "stockCountSubmit": "حفظ الجرد",
+  "@stockCountSubmit": {
+    "description": "Submit button of the count form."
+  },
+  "stockCountUnchanged": "الجرد مطابق، مفيش تغيير",
+  "@stockCountUnchanged": {
+    "description": "Result when the count equals the stock."
+  },
+  "stockCountChanged": "الرصيد اتعدّل لـ {quantity}",
+  "@stockCountChanged": {
+    "description": "Result when the count changed the stock.",
+    "placeholders": {
+      "quantity": {
+        "type": "String",
+        "example": "26 شريط"
+      }
+    }
+  },
+  "movementsTitle": "حركة المخزون",
+  "@movementsTitle": {
+    "description": "Title of the movement list."
+  },
+  "movementsEmptyTitle": "مفيش حركات لسه",
+  "@movementsEmptyTitle": {
+    "description": "Empty movement list title."
+  },
+  "movementsEmptyBody": "الاستلام والبيع والتعديلات والجرد هيظهروا هنا.",
+  "@movementsEmptyBody": {
+    "description": "Empty movement list body."
+  },
+  "movementsBalanceAfter": "الرصيد بعدها: {quantity}",
+  "@movementsBalanceAfter": {
+    "description": "Stock after a movement.",
+    "placeholders": {
+      "quantity": {
+        "type": "String",
+        "example": "24"
+      }
+    }
+  },
+  "movementsOpenInvoice": "فتح الفاتورة",
+  "@movementsOpenInvoice": {
+    "description": "Link from a movement to its invoice."
+  },
+  "movementsOpenSale": "فتح البيعة",
+  "@movementsOpenSale": {
+    "description": "Link from a movement to its sale."
+  },
+  "movementReasonInvoiceReceipt": "استلام فاتورة",
+  "@movementReasonInvoiceReceipt": {
+    "description": "Movement reason."
+  },
+  "movementReasonSale": "بيع",
+  "@movementReasonSale": {
+    "description": "Movement reason."
+  },
+  "movementReasonManualAdjustment": "تعديل يدوي",
+  "@movementReasonManualAdjustment": {
+    "description": "Movement reason."
+  },
+  "movementReasonStockCount": "جرد",
+  "@movementReasonStockCount": {
+    "description": "Movement reason."
+  },
+  "movementReasonInvoiceReversal": "إلغاء فاتورة",
+  "@movementReasonInvoiceReversal": {
+    "description": "Movement reason."
   }
 }

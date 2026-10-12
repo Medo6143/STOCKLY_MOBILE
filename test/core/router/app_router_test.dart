@@ -12,6 +12,13 @@ import 'package:stockly/core/widgets/placeholder_screen.dart';
 import 'package:stockly/features/auth/presentation/providers/auth_notifier.dart';
 import 'package:stockly/features/auth/presentation/providers/auth_state.dart';
 import 'package:stockly/features/auth/presentation/screens/login_screen.dart';
+import 'package:stockly/features/products/presentation/screens/movement_list_screen.dart';
+import 'package:stockly/features/products/presentation/screens/product_detail_screen.dart';
+import 'package:stockly/features/products/presentation/screens/product_form_screen.dart';
+import 'package:stockly/features/products/presentation/screens/product_list_screen.dart';
+import 'package:stockly/features/products/presentation/screens/stock_adjustment_screen.dart';
+import 'package:stockly/features/products/presentation/screens/stock_count_screen.dart';
+import 'package:stockly/features/products/presentation/screens/unit_form_screen.dart';
 import 'package:stockly/features/settings/presentation/screens/settings_screen.dart';
 
 import '../../helpers/fake_app.dart';
@@ -136,15 +143,6 @@ void main() {
     for (final location in [
       '/dashboard',
       '/dashboard/expiring-soon',
-      '/products',
-      '/products/new',
-      '/products/p1',
-      '/products/p1/edit',
-      '/products/p1/units/new',
-      '/products/p1/units/u1/edit',
-      '/products/p1/adjust',
-      '/products/p1/count',
-      '/products/p1/movements',
       '/invoices',
       '/invoices/scan',
       '/invoices/queue',
@@ -173,6 +171,34 @@ void main() {
 
     expect(_location(container), RoutePaths.settings);
     expect(find.byType(SettingsScreen), findsOneWidget);
+  });
+
+  testWidgets('ProductRoutes_RenderTheProductScreens', (tester) async {
+    final state = FakeSeed.pharmacy(FakeClock().now());
+    final tokens = await tester.runAsync(() => _signedInTokens(state));
+    final container = await _startApp(tester, tokens: tokens!, state: state);
+    final product = state.products.first;
+    final id = product.id;
+    final unitId = product.units.last.id;
+
+    for (final (location, screen) in [
+      ('/products', ProductListScreen),
+      ('/products?lowStock=true', ProductListScreen),
+      ('/products/new', ProductFormScreen),
+      ('/products/$id', ProductDetailScreen),
+      ('/products/$id/edit', ProductFormScreen),
+      ('/products/$id/units/new', UnitFormScreen),
+      ('/products/$id/units/$unitId/edit', UnitFormScreen),
+      ('/products/$id/adjust', StockAdjustmentScreen),
+      ('/products/$id/count', StockCountScreen),
+      ('/products/$id/movements', MovementListScreen),
+    ]) {
+      container.read(routerProvider).go(location);
+      await tester.pumpAndSettle();
+      expect(_location(container), location);
+      expect(find.byType(screen), findsOneWidget, reason: location);
+      expect(find.byType(PlaceholderScreen), findsNothing, reason: location);
+    }
   });
 
   testWidgets('Logout_ReturnsToLogin', (tester) async {

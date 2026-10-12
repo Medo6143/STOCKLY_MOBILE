@@ -21,6 +21,7 @@ import 'package:stockly/features/auth/presentation/providers/auth_notifier.dart'
 import 'package:stockly/features/auth/presentation/providers/auth_providers.dart';
 import 'package:stockly/features/auth/presentation/providers/auth_state.dart';
 import 'package:stockly/features/auth/presentation/screens/login_screen.dart';
+import 'package:stockly/features/products/presentation/providers/products_providers.dart';
 import 'package:stockly/features/splash/presentation/screens/splash_screen.dart';
 import 'package:stockly/features/splash/presentation/widgets/animated_stockly_mark.dart';
 import 'package:stockly/features/splash/presentation/widgets/splash_loading_dots.dart';
@@ -28,6 +29,7 @@ import 'package:stockly/features/splash/presentation/widgets/stockly_mark_painte
 
 import '../../helpers/auth_doubles.dart';
 import '../../helpers/fake_app.dart';
+import '../../helpers/products_doubles.dart';
 import '../../helpers/pump_app.dart';
 import '../../helpers/test_doubles.dart';
 
@@ -56,8 +58,12 @@ void main() {
             deviceLocale: localeVariant.currentValue!,
           ),
           nativeSplashProvider.overrideWithValue(nativeSplash),
-          if (repository != null)
+          if (repository != null) ...[
             authRepositoryProvider.overrideWithValue(repository),
+            // A mocked session has no real tokens: the home screen behind
+            // the splash reads an empty catalogue instead of the backend.
+            productsRepositoryProvider.overrideWithValue(emptyCatalog()),
+          ],
         ],
         retry: (_, _) => null,
         child: const StocklyApp(),
