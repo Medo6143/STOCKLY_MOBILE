@@ -18,8 +18,13 @@ final AuthState _suspended = AuthState.suspended(storedSession().toEntity());
 const AuthState _unknown = AuthState.unknown();
 const AuthState _signedOut = AuthState.signedOut();
 
-String? _redirect(AuthState auth, String location) =>
-    authRedirect(auth, Uri.parse(location));
+/// [splashFinished] defaults to `true`: every row below except the splash
+/// gate rows describes the app after the splash minimum (design §3.2).
+String? _redirect(
+  AuthState auth,
+  String location, {
+  bool splashFinished = true,
+}) => authRedirect(auth, Uri.parse(location), splashFinished: splashFinished);
 
 void main() {
   group('authRedirect (design §3.2)', () {
@@ -37,8 +42,78 @@ void main() {
     });
 
     test('Unknown_OnSplash_Stays', () {
-      expect(_redirect(_unknown, RoutePaths.splash), isNull);
-      expect(_redirect(_unknown, '/splash?from=%2Fsettings'), isNull);
+      for (final finished in [false, true]) {
+        expect(
+          _redirect(_unknown, RoutePaths.splash, splashFinished: finished),
+          isNull,
+        );
+        expect(
+          _redirect(
+            _unknown,
+            '/splash?from=%2Fsettings',
+            splashFinished: finished,
+          ),
+          isNull,
+        );
+      }
+    });
+
+    test('Unknown_BeforeTheSplashStarted_StillGoesToSplash', () {
+      expect(
+        _redirect(_unknown, RoutePaths.products, splashFinished: false),
+        '/splash?from=%2Fproducts',
+      );
+    });
+
+    test('ResolvedSession_OnSplashBeforeTheMinimum_Stays', () {
+      for (final auth in [_signedOut, _suspended, _owner, _staff]) {
+        expect(
+          _redirect(auth, RoutePaths.splash, splashFinished: false),
+          isNull,
+          reason: '$auth',
+        );
+        expect(
+          _redirect(auth, '/splash?from=%2Fsettings', splashFinished: false),
+          isNull,
+          reason: '$auth',
+        );
+      }
+    });
+
+    test('SignedOut_OnSplashAfterTheMinimum_GoesToLogin', () {
+      expect(_redirect(_signedOut, RoutePaths.splash), RoutePaths.login);
+      expect(
+        _redirect(_signedOut, '/splash?from=%2Fsettings'),
+        RoutePaths.login,
+      );
+    });
+
+    test('Suspended_OnSplashAfterTheMinimum_GoesToSuspended', () {
+      expect(_redirect(_suspended, RoutePaths.splash), RoutePaths.suspended);
+    });
+
+    test('SignedIn_OnSplashAfterTheMinimum_GoesToFromOrHome', () {
+      expect(_redirect(_owner, RoutePaths.splash), RoutePaths.home);
+      expect(
+        _redirect(_owner, '/splash?from=%2Fsettings'),
+        RoutePaths.settings,
+      );
+      expect(_redirect(_staff, '/splash?from=%2Flogin'), RoutePaths.home);
+    });
+
+    test('SplashGate_OnlyHoldsTheSplashRoute', () {
+      expect(
+        _redirect(_signedOut, RoutePaths.products, splashFinished: false),
+        RoutePaths.login,
+      );
+      expect(
+        _redirect(_suspended, RoutePaths.products, splashFinished: false),
+        RoutePaths.suspended,
+      );
+      expect(
+        _redirect(_owner, RoutePaths.login, splashFinished: false),
+        RoutePaths.home,
+      );
     });
 
     test('SignedOut_OnPublicRoute_Stays', () {
@@ -96,7 +171,6 @@ void main() {
 
     test('SignedIn_AnythingElse_Stays', () {
       for (final location in [
-        RoutePaths.splash,
         RoutePaths.products,
         '/invoices/abc/review',
         RoutePaths.settings,

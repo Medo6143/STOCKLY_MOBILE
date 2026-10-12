@@ -11,6 +11,8 @@ import 'package:stockly/core/widgets/not_found_screen.dart';
 import 'package:stockly/core/widgets/placeholder_screen.dart';
 import 'package:stockly/features/auth/presentation/providers/auth_notifier.dart';
 import 'package:stockly/features/auth/presentation/providers/auth_state.dart';
+import 'package:stockly/features/auth/presentation/screens/login_screen.dart';
+import 'package:stockly/features/settings/presentation/screens/settings_screen.dart';
 
 import '../../helpers/fake_app.dart';
 import '../../helpers/pump_app.dart';
@@ -61,7 +63,7 @@ void main() {
     );
 
     expect(_location(container), RoutePaths.login);
-    expect(find.byType(PlaceholderScreen), findsOneWidget);
+    expect(find.byType(LoginScreen), findsOneWidget);
     expect(container.read(authProvider).value, isA<AuthSignedOut>());
   });
 
@@ -152,7 +154,6 @@ void main() {
       '/sales',
       '/sales/new',
       '/sales/s1',
-      '/settings',
     ]) {
       container.read(routerProvider).go(location);
       await tester.pumpAndSettle();
@@ -160,6 +161,18 @@ void main() {
       expect(find.byType(NotFoundScreen), findsNothing, reason: location);
       expect(find.byType(PlaceholderScreen), findsWidgets, reason: location);
     }
+  });
+
+  testWidgets('SprintThreeScreens_ReplaceTheirPlaceholders', (tester) async {
+    final state = FakeSeed.pharmacy(FakeClock().now());
+    final tokens = await tester.runAsync(() => _signedInTokens(state));
+    final container = await _startApp(tester, tokens: tokens!, state: state);
+
+    container.read(routerProvider).go(RoutePaths.settings);
+    await tester.pumpAndSettle();
+
+    expect(_location(container), RoutePaths.settings);
+    expect(find.byType(SettingsScreen), findsOneWidget);
   });
 
   testWidgets('Logout_ReturnsToLogin', (tester) async {

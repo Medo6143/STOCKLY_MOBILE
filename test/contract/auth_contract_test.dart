@@ -3,9 +3,11 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:stockly/core/error/api_error_code.dart';
 import 'package:stockly/core/fake_backend/fake_backend_adapter.dart';
 import 'package:stockly/core/fake_backend/fake_backend_config.dart';
 import 'package:stockly/core/fake_backend/fake_backend_state.dart';
+import 'package:stockly/core/fake_backend/fake_http.dart';
 import 'package:stockly/core/fake_backend/seed/fake_seed.dart';
 import 'package:stockly/core/network/api_paths.dart';
 import 'package:stockly/core/network/request_extras.dart';
@@ -14,7 +16,7 @@ import '../helpers/fake_app.dart';
 import '../helpers/test_doubles.dart';
 import 'json_shape.dart';
 
-/// Contract A1–A5 (v1.3 §4) against the fake backend: status codes, error
+/// Contract A1–A5 (v1.4 §4) against the fake backend: status codes, error
 /// codes and JSON shapes from the contract fixtures.
 void main() {
   late FakeClock clock;
@@ -476,6 +478,227 @@ void main() {
     });
   });
 
+  group('A2 lockout (v1.4)', () {
+    Future<Response<Object?>> attempt({
+      String email = FakeSeed.ownerEmail,
+      String password = FakeSeed.password,
+    }) => post(ApiPaths.authLogin, {'email': email, 'password': password});
+
+    Future<void> failTimes(int times) async {
+      for (var i = 0; i < times; i++) {
+        expectProblem(
+          await attempt(password: 'Wrong1234'),
+          401,
+          'Auth.InvalidCredentials',
+        );
+      }
+    }
+
+    test('Login_FiveWrongPasswords_Locks423WithRetryAfter', () async {
+      await failTimes(FakeBackendConfig.defaultLockoutThreshold);
+
+      final locked = await attempt();
+
+      expectProblem(locked, 423, 'Auth.LockedOut');
+      expect(locked.headers.value(HttpHeaderNames.retryAfter), '900');
+      expect(
+        json(locked)['type'],
+        'https://tools.ietf.org/html/rfc4918#section-11.3',
+      );
+    });
+
+    test('Login_Locked_RetryAfterCountsDownAndLockEndsAfter15Min', () async {
+      await failTimes(FakeBackendConfig.defaultLockoutThreshold);
+
+      clock.advance(
+        const Duration(minutes: 14, seconds: 59, milliseconds: 500),
+      );
+      final almost = await attempt();
+      clock.advance(const Duration(seconds: 2));
+      final after = await attempt();
+
+      expectProblem(almost, 423, 'Auth.LockedOut');
+      expect(almost.headers.value(HttpHeaderNames.retryAfter), '1');
+      expect(after.statusCode, HttpStatus.ok);
+    });
+
+    test('Login_SuccessBetweenFailures_ResetsTheCount', () async {
+      await failTimes(FakeBackendConfig.defaultLockoutThreshold - 1);
+      expect((await attempt()).statusCode, HttpStatus.ok);
+      await failTimes(FakeBackendConfig.defaultLockoutThreshold - 1);
+
+      expect((await attempt()).statusCode, HttpStatus.ok);
+    });
+
+    test('Login_UnknownEmail_NeverLocked', () async {
+      for (var i = 0; i <= FakeBackendConfig.defaultLockoutThreshold; i++) {
+        final response = await attempt(email: 'nobody@stockly.test');
+        expectProblem(response, 401, 'Auth.InvalidCredentials');
+        expect(response.headers.value(HttpHeaderNames.retryAfter), isNull);
+      }
+    });
+
+    test('Login_LockoutSwitchedOff_NeverLocks', () async {
+      adapter.controls.lockoutEnabled = false;
+
+      await failTimes(FakeBackendConfig.defaultLockoutThreshold + 1);
+
+      expect((await attempt()).statusCode, HttpStatus.ok);
+    });
+
+    test('Login_LockedOut_LocalizedDetailSameCode', () async {
+      await failTimes(FakeBackendConfig.defaultLockoutThreshold);
+
+      final arabic = await post(ApiPaths.authLogin, {
+        'email': FakeSeed.ownerEmail,
+        'password': FakeSeed.password,
+      }, language: 'ar');
+      final english = await attempt();
+
+      expectProblem(arabic, 423, 'Auth.LockedOut');
+      expectProblem(english, 423, 'Auth.LockedOut');
+      expect(json(arabic)['detail'], isNot(json(english)['detail']));
+    });
+  });
+
+  group('A1/A2 rate limit (v1.4)', () {
+    Future<Response<Object?>> wrongLogin() => post(ApiPaths.authLogin, {
+      'email': 'nobody@stockly.test',
+      'password': FakeSeed.password,
+    });
+
+    test('Login_EleventhRequestInAMinute_429WithRetryAfter', () async {
+      for (var i = 0; i < FakeBackendConfig.defaultAuthPermitLimit; i++) {
+        expectProblem(await wrongLogin(), 401, 'Auth.InvalidCredentials');
+      }
+      clock.advance(const Duration(seconds: 15));
+
+      final throttled = await wrongLogin();
+
+      expectProblem(throttled, 429, 'Auth.TooManyRequests');
+      expect(throttled.headers.value(HttpHeaderNames.retryAfter), '45');
+      expect(
+        json(throttled)['type'],
+        'https://tools.ietf.org/html/rfc6585#section-4',
+      );
+    });
+
+    test('Login_WindowResets_AfterOneMinute', () async {
+      for (var i = 0; i <= FakeBackendConfig.defaultAuthPermitLimit; i++) {
+        await wrongLogin();
+      }
+      clock.advance(FakeBackendConfig.defaultAuthWindow);
+
+      expectProblem(await wrongLogin(), 401, 'Auth.InvalidCredentials');
+    });
+
+    test('Register_EleventhRequestInAMinute_429', () async {
+      for (var i = 0; i < FakeBackendConfig.defaultAuthPermitLimit; i++) {
+        final response = await post(
+          ApiPaths.authRegister,
+          registerBody(email: 'user$i@stockly.test'),
+        );
+        expect(response.statusCode, HttpStatus.created);
+      }
+
+      final throttled = await post(
+        ApiPaths.authRegister,
+        registerBody(email: 'late@stockly.test'),
+      );
+
+      expectProblem(throttled, 429, 'Auth.TooManyRequests');
+      expect(throttled.headers.value(HttpHeaderNames.retryAfter), '60');
+    });
+
+    test('LoginAndRegister_HaveSeparateLimits', () async {
+      for (var i = 0; i <= FakeBackendConfig.defaultAuthPermitLimit; i++) {
+        await wrongLogin();
+      }
+
+      final register = await post(ApiPaths.authRegister, registerBody());
+
+      expect(register.statusCode, HttpStatus.created);
+    });
+
+    test('RateLimitSwitchedOff_NeverThrottles', () async {
+      adapter.controls.rateLimitEnabled = false;
+
+      for (var i = 0; i <= FakeBackendConfig.defaultAuthPermitLimit * 2; i++) {
+        expectProblem(await wrongLogin(), 401, 'Auth.InvalidCredentials');
+      }
+    });
+  });
+
+  group('Debug panel controls', () {
+    test('Offline_ThrowsConnectionError', () async {
+      adapter.controls.offline = true;
+
+      await expectLater(
+        _wrongLoginRaw(dio),
+        throwsA(
+          isA<DioException>().having(
+            (e) => e.type,
+            'type',
+            DioExceptionType.connectionError,
+          ),
+        ),
+      );
+    });
+
+    test('FailNextWith_FailsOnceWithTheCodesStatus', () async {
+      adapter.controls.failNextWith = ApiErrorCode.authTooManyRequests;
+
+      final forced = await post(ApiPaths.authLogin, {
+        'email': FakeSeed.ownerEmail,
+        'password': FakeSeed.password,
+      });
+      final next = await post(ApiPaths.authLogin, {
+        'email': FakeSeed.ownerEmail,
+        'password': FakeSeed.password,
+      });
+
+      expectProblem(forced, 429, 'Auth.TooManyRequests');
+      expect(forced.headers.value(HttpHeaderNames.retryAfter), isNotNull);
+      expect(adapter.controls.failNextWith, isNull);
+      expect(next.statusCode, HttpStatus.ok);
+    });
+
+    test('FailNextWith_EveryCodeUsesItsContractStatus', () async {
+      for (final code in ApiErrorCode.values) {
+        adapter.controls.failNextWith = code;
+        final response = await me(null);
+        expectProblem(
+          response,
+          FakeProblems.statusOf(code),
+          code.wire,
+          withErrors: code == ApiErrorCode.validationFailed,
+        );
+      }
+    });
+
+    test('ExpireAccessTokens_NextCallIs401', () async {
+      final session = await login();
+      final token = session['accessToken']! as String;
+
+      adapter.expireAccessTokens();
+
+      expectProblem(await me(token), 401, 'Auth.Unauthenticated');
+    });
+
+    test('SetShopSuspended_MeIs403', () async {
+      final session = await login();
+      final shop = session['shop']! as Map<String, Object?>;
+
+      adapter.setShopSuspended(shop['id']! as String, suspended: true);
+
+      expectProblem(
+        await me(session['accessToken']! as String),
+        403,
+        'Shop.Suspended',
+      );
+    });
+  });
+
   test('Latency_IsSimulated', () async {
     final slow = fakeBackend(
       clock: clock,
@@ -495,3 +718,8 @@ void main() {
     );
   });
 }
+
+Future<Response<Object?>> _wrongLoginRaw(Dio dio) => dio.post<Object?>(
+  ApiPaths.authLogin,
+  data: {'email': 'nobody@stockly.test', 'password': 'x'},
+);

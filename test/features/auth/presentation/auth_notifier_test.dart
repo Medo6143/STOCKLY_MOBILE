@@ -1,10 +1,15 @@
+import 'dart:async';
+import 'dart:ui';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:stockly/core/error/api_error_code.dart';
 import 'package:stockly/core/error/failure.dart';
 import 'package:stockly/core/error/result.dart';
+import 'package:stockly/core/preferences/locale_notifier.dart';
 import 'package:stockly/core/session/session_signals.dart';
+import 'package:stockly/core/storage/preferences_store.dart';
 import 'package:stockly/features/auth/data/models/session_mapper.dart';
 import 'package:stockly/features/auth/domain/entities/session.dart';
 import 'package:stockly/features/auth/domain/entities/session_restoration.dart';
@@ -40,6 +45,8 @@ void main() {
       overrides: [
         authRepositoryProvider.overrideWithValue(repository),
         sessionSignalsProvider.overrideWithValue(signals),
+        preferencesStoreProvider.overrideWithValue(InMemoryPreferencesStore()),
+        deviceLocaleProvider.overrideWithValue(const Locale('ar')),
       ],
     )..listen(authProvider, (_, _) {});
     await container.read(authProvider.future);
@@ -156,6 +163,99 @@ void main() {
     expect(
       container.read(authProvider).requireValue,
       const AuthState.signedOut(),
+    );
+  });
+
+  test('restore_AfterSignIn_ResultIsDropped', () async {
+    final pending = Completer<Result<Session, Failure>>();
+    when(() => repository.cachedSession()).thenAnswer((_) async => _owner);
+    when(() => repository.restoreSession()).thenAnswer((_) => pending.future);
+
+    final restoring = container.read(authProvider.notifier).restore();
+    await pumpEventQueue();
+    await container.read(authProvider.notifier).signIn(_staff);
+    pending.complete(const Err(_ended));
+    await restoring;
+
+    expect(
+      container.read(authProvider).requireValue,
+      AuthState.signedIn(_staff, offline: false),
+    );
+  });
+
+  test(
+    'restore_SuspendedAtStartUp_SignalWithoutSessionDoesNotBlockIt',
+    () async {
+      final pending = Completer<Result<Session, Failure>>();
+      when(() => repository.cachedSession()).thenAnswer((_) async => _owner);
+      when(() => repository.restoreSession()).thenAnswer((_) => pending.future);
+
+      final restoring = container.read(authProvider.notifier).restore();
+      await pumpEventQueue();
+      signals.shopSuspended(_suspendedFailure);
+      await pumpEventQueue();
+      pending.complete(const Err(_suspendedFailure));
+      await restoring;
+
+      expect(
+        container.read(authProvider).requireValue,
+        AuthState.suspended(_owner),
+      );
+    },
+  );
+
+  test('fallBackToCachedSession_WhileUnknown_StartsOffline', () async {
+    when(() => repository.cachedSession()).thenAnswer((_) async => _owner);
+
+    await container.read(authProvider.notifier).fallBackToCachedSession();
+
+    expect(
+      container.read(authProvider).requireValue,
+      AuthState.signedIn(_owner, offline: true),
+    );
+  });
+
+  test('fallBackToCachedSession_NoCache_SignsOut', () async {
+    when(() => repository.cachedSession()).thenAnswer((_) async => null);
+
+    await container.read(authProvider.notifier).fallBackToCachedSession();
+
+    expect(
+      container.read(authProvider).requireValue,
+      const AuthState.signedOut(),
+    );
+  });
+
+  test('fallBackToCachedSession_AlreadyResolved_Ignored', () async {
+    await restoreWith(const SessionRestoration.none());
+
+    await container.read(authProvider.notifier).fallBackToCachedSession();
+
+    expect(
+      container.read(authProvider).requireValue,
+      const AuthState.signedOut(),
+    );
+    verify(() => repository.cachedSession()).called(1);
+  });
+
+  test('restore_AfterTheFallback_CorrectsIt', () async {
+    final pending = Completer<Result<Session, Failure>>();
+    when(() => repository.cachedSession()).thenAnswer((_) async => _owner);
+    when(() => repository.restoreSession()).thenAnswer((_) => pending.future);
+
+    final restoring = container.read(authProvider.notifier).restore();
+    await pumpEventQueue();
+    await container.read(authProvider.notifier).fallBackToCachedSession();
+    expect(
+      container.read(authProvider).requireValue,
+      AuthState.signedIn(_owner, offline: true),
+    );
+    pending.complete(const Err(_ended));
+    await restoring;
+
+    expect(
+      container.read(authProvider).requireValue,
+      const AuthState.signedOut(reason: _ended),
     );
   });
 }

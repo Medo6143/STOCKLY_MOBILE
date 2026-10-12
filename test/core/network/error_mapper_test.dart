@@ -19,6 +19,8 @@ final Map<ApiErrorCode, Type> _expected = {
   ApiErrorCode.authNoActiveShop: ForbiddenFailure,
   ApiErrorCode.authInvalidRefreshToken: SessionEndedFailure,
   ApiErrorCode.authRefreshTokenReused: SessionEndedFailure,
+  ApiErrorCode.authLockedOut: AccountLockedFailure,
+  ApiErrorCode.authTooManyRequests: AuthRateLimitedFailure,
   ApiErrorCode.shopNameRequired: InvalidInputFailure,
   ApiErrorCode.shopUnknownType: InvalidInputFailure,
   ApiErrorCode.shopSuspended: ShopSuspendedFailure,
@@ -64,6 +66,7 @@ const List<String> _contractCodes = [
   'Auth.Unauthenticated', 'Auth.Forbidden', 'Auth.EmailTaken', //
   'Auth.InvalidCredentials', 'Auth.NoActiveShop', //
   'Auth.InvalidRefreshToken', 'Auth.RefreshTokenReused', //
+  'Auth.LockedOut', 'Auth.TooManyRequests', //
   'Shop.NameRequired', 'Shop.UnknownType', 'Shop.Suspended', //
   'Product.NotFound', 'Product.NameRequired', 'Product.Archived', //
   'Product.DuplicateBarcode', 'Product.OpeningStockOwnerOnly', //
@@ -212,6 +215,53 @@ void main() {
     expect(
       (failure as ScanRateLimitedFailure).retryAfter,
       ScanLimits.defaultRetryAfter,
+    );
+  });
+
+  test('mapErrorResponse_LockedOut_UsesRetryAfterHeaderOrDefault', () {
+    final withHeader = mapErrorResponse(
+      _response(
+        423,
+        _problem('Auth.LockedOut', status: 423),
+        headers: {
+          'retry-after': ['900'],
+        },
+      ),
+    );
+    expect(
+      (withHeader as AccountLockedFailure).retryAfter,
+      const Duration(minutes: 15),
+    );
+    expect(withHeader.info.status, 423);
+    final without = mapErrorResponse(
+      _response(423, _problem('Auth.LockedOut', status: 423)),
+    );
+    expect(
+      (without as AccountLockedFailure).retryAfter,
+      AuthLimits.defaultLockout,
+    );
+  });
+
+  test('mapErrorResponse_AuthTooManyRequests_UsesRetryAfterOrDefault', () {
+    final withHeader = mapErrorResponse(
+      _response(
+        429,
+        _problem('Auth.TooManyRequests', status: 429),
+        headers: {
+          'retry-after': ['42'],
+        },
+      ),
+    );
+    expect(
+      (withHeader as AuthRateLimitedFailure).retryAfter,
+      const Duration(seconds: 42),
+    );
+    final without = mapErrorResponse(
+      _response(429, _problem('Auth.TooManyRequests', status: 429)),
+    );
+    expect(
+      (without as AuthRateLimitedFailure).retryAfter,
+      AuthLimits.defaultRetryAfter,
     );
   });
 

@@ -126,6 +126,55 @@ void main() {
           .setPreference(LocalePreference.system);
       expect(container.read(localeProvider), AppLocales.english);
     });
+
+    test('LocalePreference_IsExposedForSettings', () async {
+      final store = InMemoryPreferencesStore()
+        ..values[PreferenceKey.locale] = 'en';
+      final container = _container(store)
+        ..listen(localePreferenceProvider, (_, _) {});
+      await pumpEventQueue();
+
+      expect(container.read(localePreferenceProvider), LocalePreference.en);
+    });
+
+    test('AdoptUserLanguage_WhileSystem_BecomesTheExplicitChoice', () async {
+      final store = InMemoryPreferencesStore();
+      final container = _container(store, device: const Locale('en'))
+        ..listen(localeProvider, (_, _) {});
+
+      await container.read(localeProvider.notifier).adoptUserLanguage('ar');
+
+      expect(container.read(localeProvider), AppLocales.arabic);
+      expect(container.read(localePreferenceProvider), LocalePreference.ar);
+      expect(store.values[PreferenceKey.locale], 'ar');
+    });
+
+    test('AdoptUserLanguage_ExplicitChoiceOrSameLanguage_Unchanged', () async {
+      final store = InMemoryPreferencesStore();
+      final container = _container(store)..listen(localeProvider, (_, _) {});
+
+      await container.read(localeProvider.notifier).adoptUserLanguage('ar');
+      expect(container.read(localePreferenceProvider), LocalePreference.system);
+
+      await container
+          .read(localeProvider.notifier)
+          .setPreference(LocalePreference.ar);
+      await container.read(localeProvider.notifier).adoptUserLanguage('en');
+      expect(container.read(localeProvider), AppLocales.arabic);
+    });
+
+    test('LateRestore_DoesNotOverwriteAChoice', () async {
+      final store = InMemoryPreferencesStore()
+        ..values[PreferenceKey.locale] = 'en';
+      final container = _container(store)..listen(localeProvider, (_, _) {});
+
+      await container
+          .read(localeProvider.notifier)
+          .setPreference(LocalePreference.ar);
+      await pumpEventQueue();
+
+      expect(container.read(localeProvider), AppLocales.arabic);
+    });
   });
 
   group('ThemeModeNotifier', () {
