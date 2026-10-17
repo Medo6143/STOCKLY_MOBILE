@@ -30,10 +30,11 @@ typedef _LineInput = ({
   String? batchNo,
 });
 
-/// Fake I1–I4 (contract §6): `clientRequestId` idempotency, image checks,
+/// Fake I1–I5 (contract §6): `clientRequestId` idempotency, image checks,
 /// per-minute rate limit and daily quota with `Retry-After`, a simulated
 /// `Processing` → `NeedsReview` (or `Failed`) transition on the fake
-/// clock, matching against the shop's products, and the I4 rules.
+/// clock, matching against the shop's products, the I4 rules and the
+/// idempotent confirm that receives the stock.
 final class FakeInvoicesHandler implements FakeHandler {
   new({
     required this._state,
@@ -101,6 +102,7 @@ final class FakeInvoicesHandler implements FakeHandler {
     FakeRoute('GET', ApiPaths.invoices, (r) => _guard(r, _list)),
     FakeRoute('GET', _invoice, (r) => _guard(r, _get)),
     FakeRoute('PUT', '$_invoice/items', (r) => _guard(r, _updateItems)),
+    FakeRoute('POST', '$_invoice/confirm', (r) => _guardAccess(r, _confirm)),
   ];
 
   /// `401` without a valid token, `403 Shop.Suspended`. The shop comes
@@ -108,6 +110,12 @@ final class FakeInvoicesHandler implements FakeHandler {
   FakeResponse _guard(
     FakeRequest request,
     FakeResponse Function(FakeRequest request, String shopId) handle,
+  ) => _guardAccess(request, (r, access) => handle(r, access.shopId));
+
+  /// [_guard] for handlers that also need the caller.
+  FakeResponse _guardAccess(
+    FakeRequest request,
+    FakeResponse Function(FakeRequest request, FakeAccessToken access) handle,
   ) {
     final access = _authenticate(request);
     final shop = access == null ? null : _state.shopById(access.shopId);
@@ -117,7 +125,17 @@ final class FakeInvoicesHandler implements FakeHandler {
     if (shop.status == FakeShopStatuses.suspended) {
       return _error(request, ApiErrorCode.shopSuspended);
     }
-    return handle(request, access.shopId);
+    return handle(request, access);
+  }
+
+  /// Applies every finished fake extraction of [shopId] (the dashboard
+  /// counts the invoices awaiting review).
+  void settleShop(String shopId) {
+    for (final invoice in _state.invoices) {
+      if (invoice.shopId == shopId) {
+        _settle(invoice);
+      }
+    }
   }
 
   // I1
@@ -336,6 +354,104 @@ final class FakeInvoicesHandler implements FakeHandler {
       ];
     _recomputeWarnings(invoice);
     return FakeResponse.json(HttpStatus.ok, _detailJson(invoice));
+  }
+
+  // I5
+  FakeResponse _confirm(FakeRequest request, FakeAccessToken access) {
+    final invoice = _invoiceOf(request, access.shopId);
+    if (invoice == null) {
+      return _error(request, ApiErrorCode.invoiceNotFound);
+    }
+    if (invoice.status == FakeInvoiceStatuses.confirmed) {
+      return FakeResponse.json(HttpStatus.ok, _detailJson(invoice));
+    }
+    if (invoice.status != FakeInvoiceStatuses.needsReview) {
+      return _error(request, ApiErrorCode.invoiceNotConfirmable);
+    }
+    if (invoice.items.any((i) => i.productId == null && i.newProduct == null)) {
+      return _error(request, ApiErrorCode.invoiceLineProductRequired);
+    }
+    final now = _clock.now();
+    final lines = [...invoice.items]
+      ..sort((a, b) => a.lineNo.compareTo(b.lineNo));
+    invoice
+      ..items = [
+        for (final line in lines) _receive(invoice, line, access.userId, now),
+      ]
+      ..status = FakeInvoiceStatuses.confirmed
+      ..confirmedAt = now;
+    return FakeResponse.json(HttpStatus.ok, _detailJson(invoice));
+  }
+
+  /// Receives one confirmed line in base units, creating its new product
+  /// first. A new product's line then names the created product (contract
+  /// §6 `InvoiceItemDto`, `newProduct` is kept).
+  FakeInvoiceItem _receive(
+    FakeInvoice invoice,
+    FakeInvoiceItem line,
+    String userId,
+    DateTime now,
+  ) {
+    final existing = _state.productOf(invoice.shopId, line.productId);
+    final product = existing ?? _createProduct(invoice.shopId, line, now);
+    final unit = product.unitById(line.productUnitId) ?? product.baseUnit;
+    _state
+      ..recordMovement(
+        product,
+        id: _uuid.v4(),
+        change: (line.quantity * unit.factor).round(scale: _quantityScale),
+        reason: FakeMovementReasons.invoiceReceipt,
+        userId: userId,
+        at: now,
+        invoiceId: invoice.id,
+      )
+      ..unitsInUse.add(unit.id);
+    return FakeInvoiceItem(
+      id: line.id,
+      lineNo: line.lineNo,
+      rawName: line.rawName,
+      productId: product.id,
+      productUnitId: unit.id,
+      quantity: line.quantity,
+      unitPrice: line.unitPrice,
+      lineTotal: line.lineTotal,
+      expiryDate: line.expiryDate,
+      batchNo: line.batchNo,
+      matchConfidence: line.matchConfidence,
+      newProduct: line.newProduct,
+    );
+  }
+
+  /// The product a `newProduct` line asks for: cost = the line's price,
+  /// one base unit, stock from the receipt only.
+  FakeProduct _createProduct(
+    String shopId,
+    FakeInvoiceItem line,
+    DateTime now,
+  ) {
+    final wanted = line.newProduct!;
+    final product = FakeProduct(
+      id: _uuid.v4(),
+      shopId: shopId,
+      name: wanted.name,
+      barcode: null,
+      category: null,
+      costPrice: line.unitPrice,
+      lowStockThreshold: Decimal.zero,
+      units: [
+        FakeUnit(
+          id: _uuid.v4(),
+          name: wanted.baseUnitName,
+          factor: Decimal.one,
+          sellPrice: wanted.sellPrice,
+          barcode: null,
+          isBase: true,
+        ),
+      ],
+      createdAt: now,
+    );
+    _state.products.add(product);
+    return product;
   }
 
   /// The shape checks of one I4 line; `null` when it has errors.

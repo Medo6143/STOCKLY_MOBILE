@@ -1,0 +1,13 @@
+{
+  "items": [
+    {
+      "id": "0192f0a0-6c1e-7b3a-9d2e-5a1e00000001",
+      "totalAmount": "28.00",
+      "itemCount": 1,
+      "createdAt": "2026-10-12T07:00:00Z"
+    }
+  ],
+  "page": 1,
+  "pageSize": 20,
+  "totalCount": 1
+}

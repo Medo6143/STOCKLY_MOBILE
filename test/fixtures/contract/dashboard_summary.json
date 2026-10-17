@@ -1,0 +1,13 @@
+{
+  "productCount": 412,
+  "lowStockCount": 9,
+  "negativeStockCount": 2,
+  "expiringSoonCount": 5,
+  "todaySales": {
+    "count": 37,
+    "total": "4815.50",
+    "overriddenSalesCount": 3
+  },
+  "invoicesAwaitingReview": 1,
+  "generatedAt": "2026-10-12T07:00:00Z"
+}

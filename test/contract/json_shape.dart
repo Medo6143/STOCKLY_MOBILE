@@ -45,6 +45,12 @@ const Map<String, Set<String>> invoiceEnums = {
   },
 };
 
+/// Contract §7 sale warning codes; `code` means an error code elsewhere,
+/// so sale shapes pass these to [expectSameShape].
+const Map<String, Set<String>> saleEnums = {
+  'code': {'Stock.NegativeBalance'},
+};
+
 /// Object fields the contract allows to be `null` (I4 `newProduct`).
 const Set<String> _nullableObjects = {'newProduct'};
 
@@ -63,6 +69,8 @@ final Map<String, RegExp> _decimals = {
     'totalAmount',
     'computedTotal',
     'matchConfidence',
+    'listUnitPrice',
+    'total',
   ])
     key: RegExp(r'^\d+\.\d{2}$'),
   for (final key in [
@@ -72,6 +80,8 @@ final Map<String, RegExp> _decimals = {
     'balanceAfter',
     'countedQuantity',
     'openingQuantity',
+    'lineQuantity',
+    'currentQuantity',
   ])
     key: RegExp(r'^-?\d+\.\d{3}$'),
   'factor': RegExp(r'^\d+\.\d{6}$'),

@@ -15,8 +15,13 @@ abstract final class FakeInvoiceSeed {
   /// a product, a new product, and a total that does not match.
   static const String needsReviewId = '${_idPrefix}0001';
 
-  /// A confirmed invoice.
+  /// A confirmed invoice; its lines expire [soonExpiry] and [laterExpiry]
+  /// after the seed time (the dashboard's expiring-soon list).
   static const String confirmedId = '${_idPrefix}0002';
+
+  static const Duration soonExpiry = Duration(days: 20);
+  static const Duration laterExpiry = Duration(days: 75);
+  static const int _dateLength = 10;
 
   /// A failed scan.
   static const String failedId = '${_idPrefix}0003';
@@ -117,6 +122,8 @@ abstract final class FakeInvoiceSeed {
       );
     }
 
+    String dayAfter(Duration offset) =>
+        now.toUtc().add(offset).toIso8601String().substring(0, _dateLength);
     String request(int n) =>
         '$_requestPrefix${n.toString().padLeft(_idDigits, '0')}';
     const day = Duration(days: 1);
@@ -187,6 +194,8 @@ abstract final class FakeInvoiceSeed {
             '30.00',
             of: brufen,
             confidence: '0.97',
+            expiryDate: dayAfter(soonExpiry),
+            batchNo: 'BR-40',
           ),
           item(
             2,
@@ -195,6 +204,7 @@ abstract final class FakeInvoiceSeed {
             '45.00',
             of: vitaminC,
             confidence: '0.93',
+            expiryDate: dayAfter(laterExpiry),
           ),
         ],
       ),

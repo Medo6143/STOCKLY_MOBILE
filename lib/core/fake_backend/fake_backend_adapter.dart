@@ -9,8 +9,10 @@ import 'package:stockly/core/fake_backend/fake_backend_controls.dart';
 import 'package:stockly/core/fake_backend/fake_backend_state.dart';
 import 'package:stockly/core/fake_backend/fake_http.dart';
 import 'package:stockly/core/fake_backend/handlers/fake_auth_handler.dart';
+import 'package:stockly/core/fake_backend/handlers/fake_dashboard_handler.dart';
 import 'package:stockly/core/fake_backend/handlers/fake_invoices_handler.dart';
 import 'package:stockly/core/fake_backend/handlers/fake_products_handler.dart';
+import 'package:stockly/core/fake_backend/handlers/fake_sales_handler.dart';
 import 'package:stockly/core/ids/uuid_generator.dart';
 import 'package:stockly/core/network/request_extras.dart';
 import 'package:stockly/core/time/clock.dart';
@@ -37,6 +39,15 @@ final class FakeBackendAdapter implements HttpClientAdapter {
       uuid: uuid,
       problems: _problems,
     );
+    final invoices = FakeInvoicesHandler(
+      state: state,
+      config: config,
+      controls: controls,
+      clock: clock,
+      uuid: uuid,
+      problems: _problems,
+      authenticate: auth.authenticate,
+    );
     final handlers = <FakeHandler>[
       auth,
       FakeProductsHandler(
@@ -46,14 +57,20 @@ final class FakeBackendAdapter implements HttpClientAdapter {
         problems: _problems,
         authenticate: auth.authenticate,
       ),
-      FakeInvoicesHandler(
+      invoices,
+      FakeSalesHandler(
         state: state,
-        config: config,
-        controls: controls,
         clock: clock,
         uuid: uuid,
         problems: _problems,
         authenticate: auth.authenticate,
+      ),
+      FakeDashboardHandler(
+        state: state,
+        clock: clock,
+        problems: _problems,
+        authenticate: auth.authenticate,
+        settleInvoices: invoices.settleShop,
       ),
     ];
     _routes = [for (final handler in handlers) ...handler.routes];
