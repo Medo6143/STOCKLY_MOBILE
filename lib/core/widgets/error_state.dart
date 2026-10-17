@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:stockly/core/error/failure.dart';
 import 'package:stockly/core/theme/app_theme.dart';
+import 'package:stockly/core/widgets/entrance.dart';
 import 'package:stockly/core/widgets/failure_message.dart';
+import 'package:stockly/core/widgets/press_scale.dart';
+import 'package:stockly/core/widgets/state_illustration.dart';
 import 'package:stockly/l10n/generated/app_localizations.dart';
 
 /// Shown when loading failed (design §9): the failure's message, a retry
@@ -25,58 +28,64 @@ class ErrorState extends StatelessWidget {
     return Center(
       child: SingleChildScrollView(
         padding: EdgeInsetsDirectional.all(spacing.xl),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              failure is NetworkFailure
-                  ? Icons.wifi_off_rounded
-                  : Icons.error_outline_rounded,
-              size: spacing.huge,
-              color: failure is NetworkFailure ? colors.muted : colors.danger,
-            ),
-            SizedBox(height: spacing.md),
-            Text(
-              l10n.commonErrorTitle,
-              style: textTheme.titleLarge,
-              textAlign: TextAlign.center,
-            ),
-            SizedBox(height: spacing.xs),
-            Text(
-              failureMessage(l10n, failure),
-              style: textTheme.bodyMedium?.copyWith(color: colors.muted),
-              textAlign: TextAlign.center,
-            ),
-            if (onRetry != null) ...[
-              SizedBox(height: spacing.xl),
-              FilledButton.icon(
-                onPressed: onRetry,
-                icon: const Icon(Icons.refresh_rounded),
-                label: Text(l10n.commonRetry),
+        child: Entrance(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              StateIllustration(
+                icon: failure is NetworkFailure
+                    ? Icons.wifi_off_rounded
+                    : Icons.error_outline_rounded,
+                color: failure is NetworkFailure ? colors.muted : colors.danger,
+                background: failure is NetworkFailure
+                    ? colors.line
+                    : colors.dangerSoft,
               ),
-            ],
-            if (failure is NotFoundFailure) ...[
-              SizedBox(height: spacing.sm),
-              OutlinedButton(
-                onPressed: () => Navigator.of(context).maybePop(),
-                child: Text(l10n.commonBack),
-              ),
-            ],
-            if (reference != null) ...[
               SizedBox(height: spacing.lg),
               Text(
-                l10n.commonErrorReference(reference),
-                style: context.typo.code.copyWith(color: colors.muted),
+                l10n.commonErrorTitle,
+                style: textTheme.titleLarge,
                 textAlign: TextAlign.center,
-                textDirection: TextDirection.ltr,
               ),
-              TextButton.icon(
-                onPressed: () => _copy(context, reference),
-                icon: const Icon(Icons.copy_rounded),
-                label: Text(l10n.commonCopyErrorReference),
+              SizedBox(height: spacing.xs),
+              Text(
+                failureMessage(l10n, failure),
+                style: textTheme.bodyMedium?.copyWith(color: colors.muted),
+                textAlign: TextAlign.center,
               ),
+              if (onRetry != null) ...[
+                SizedBox(height: spacing.xl),
+                PressScale(
+                  child: FilledButton.icon(
+                    onPressed: onRetry,
+                    icon: const Icon(Icons.refresh_rounded),
+                    label: Text(l10n.commonRetry),
+                  ),
+                ),
+              ],
+              if (failure is NotFoundFailure) ...[
+                SizedBox(height: spacing.sm),
+                OutlinedButton(
+                  onPressed: () => Navigator.of(context).maybePop(),
+                  child: Text(l10n.commonBack),
+                ),
+              ],
+              if (reference != null) ...[
+                SizedBox(height: spacing.lg),
+                Text(
+                  l10n.commonErrorReference(reference),
+                  style: context.typo.code.copyWith(color: colors.muted),
+                  textAlign: TextAlign.center,
+                  textDirection: TextDirection.ltr,
+                ),
+                TextButton.icon(
+                  onPressed: () => _copy(context, reference),
+                  icon: const Icon(Icons.copy_rounded),
+                  label: Text(l10n.commonCopyErrorReference),
+                ),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:stockly/core/theme/app_theme.dart';
+import 'package:stockly/core/widgets/entrance.dart';
+import 'package:stockly/core/widgets/press_scale.dart';
+import 'package:stockly/core/widgets/state_illustration.dart';
 import 'package:stockly/l10n/generated/app_localizations.dart';
 
 /// The call to action of an [EmptyState].
@@ -11,13 +14,16 @@ final class EmptyStateAction {
   final VoidCallback onPressed;
 }
 
-/// Shown when a list or screen has no data (rule 34).
+/// Shown when a list or screen has no data (rule 34): an illustration-style
+/// icon in a soft circle, title, body and actions, entering with a fade
+/// (design-refresh brief).
 class EmptyState extends StatelessWidget {
   const new({
     this.title,
     this.body,
     this.action,
     this.secondaryAction,
+    this.icon = Icons.inventory_2_outlined,
     super.key,
   });
 
@@ -26,7 +32,8 @@ class EmptyState extends StatelessWidget {
     : title = null,
       body = null,
       action = null,
-      secondaryAction = null;
+      secondaryAction = null,
+      icon = Icons.inventory_2_outlined;
 
   /// Defaults to `commonEmptyTitle`.
   final String? title;
@@ -38,6 +45,9 @@ class EmptyState extends StatelessWidget {
   /// A second, less prominent call to action under [action].
   final EmptyStateAction? secondaryAction;
 
+  /// The illustration's icon.
+  final IconData icon;
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -48,43 +58,47 @@ class EmptyState extends StatelessWidget {
     return Center(
       child: SingleChildScrollView(
         padding: EdgeInsetsDirectional.all(spacing.xl),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.inventory_2_outlined,
-              size: spacing.huge,
-              color: context.colors.muted,
-            ),
-            SizedBox(height: spacing.md),
-            Text(
-              title ?? l10n.commonEmptyTitle,
-              style: textTheme.titleLarge,
-              textAlign: TextAlign.center,
-            ),
-            SizedBox(height: spacing.xs),
-            Text(
-              body ?? l10n.commonEmptyBody,
-              style: textTheme.bodyMedium?.copyWith(
-                color: context.colors.muted,
+        child: Entrance(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              StateIllustration(
+                icon: icon,
+                color: context.colors.mint,
+                background: context.colors.mintSoft,
               ),
-              textAlign: TextAlign.center,
-            ),
-            if (action != null) ...[
-              SizedBox(height: spacing.xl),
-              FilledButton(
-                onPressed: action.onPressed,
-                child: Text(action.label),
+              SizedBox(height: spacing.lg),
+              Text(
+                title ?? l10n.commonEmptyTitle,
+                style: textTheme.titleLarge,
+                textAlign: TextAlign.center,
               ),
-            ],
-            if (secondaryAction != null) ...[
               SizedBox(height: spacing.xs),
-              OutlinedButton(
-                onPressed: secondaryAction.onPressed,
-                child: Text(secondaryAction.label),
+              Text(
+                body ?? l10n.commonEmptyBody,
+                style: textTheme.bodyMedium?.copyWith(
+                  color: context.colors.muted,
+                ),
+                textAlign: TextAlign.center,
               ),
+              if (action != null) ...[
+                SizedBox(height: spacing.xl),
+                PressScale(
+                  child: FilledButton(
+                    onPressed: action.onPressed,
+                    child: Text(action.label),
+                  ),
+                ),
+              ],
+              if (secondaryAction != null) ...[
+                SizedBox(height: spacing.xs),
+                OutlinedButton(
+                  onPressed: secondaryAction.onPressed,
+                  child: Text(secondaryAction.label),
+                ),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );

@@ -33,6 +33,7 @@ import 'package:stockly/features/products/presentation/screens/unit_form_screen.
 import 'package:stockly/features/sales/presentation/screens/quick_sale_screen.dart';
 import 'package:stockly/features/sales/presentation/screens/sale_detail_screen.dart';
 import 'package:stockly/features/sales/presentation/screens/sale_list_screen.dart';
+import 'package:stockly/features/settings/presentation/screens/profile_screen.dart';
 import 'package:stockly/features/settings/presentation/screens/settings_screen.dart';
 
 import '../../helpers/fake_app.dart';
@@ -106,7 +107,7 @@ void main() {
       l10n.navProducts,
       l10n.navInvoices,
       l10n.navSales,
-      l10n.navSettings,
+      l10n.navProfile,
     ]) {
       expect(find.text(label), findsWidgets);
     }
@@ -224,6 +225,68 @@ void main() {
     final container = await _startApp(tester, tokens: tokens!, state: state);
 
     container.read(routerProvider).go(RoutePaths.settings);
+    await tester.pumpAndSettle();
+
+    expect(_location(container), RoutePaths.settings);
+    expect(find.byType(SettingsScreen), findsOneWidget);
+  });
+
+  testWidgets('BottomNav_FiveTabsInOrder', (tester) async {
+    for (final locale in [const Locale('ar'), const Locale('en')]) {
+      final state = FakeSeed.pharmacy(FakeClock().now());
+      final tokens = await tester.runAsync(() => _signedInTokens(state));
+      await _startApp(
+        tester,
+        tokens: tokens!,
+        state: state,
+        deviceLocale: locale,
+      );
+
+      final l10n = l10nOf(locale);
+      final labels = tester
+          .widgetList<NavigationDestination>(find.byType(NavigationDestination))
+          .map((destination) => destination.label)
+          .toList();
+      expect(labels, [
+        l10n.navDashboard,
+        l10n.navProducts,
+        l10n.navInvoices,
+        l10n.navSales,
+        l10n.navProfile,
+      ], reason: locale.languageCode);
+      await tester.pumpWidget(const SizedBox.shrink());
+    }
+  });
+
+  testWidgets('ProfileTab_OpensTheProfileAndItsSettings', (tester) async {
+    final state = FakeSeed.pharmacy(FakeClock().now());
+    final tokens = await tester.runAsync(() => _signedInTokens(state));
+    final container = await _startApp(tester, tokens: tokens!, state: state);
+    final l10n = l10nOf(const Locale('ar'));
+
+    await tester.tap(find.text(l10n.navProfile));
+    await tester.pumpAndSettle();
+    expect(_location(container), RoutePaths.profile);
+    expect(find.byType(ProfileScreen), findsOneWidget);
+    expect(find.byType(DashboardScreen), findsNothing);
+    expect(
+      find.byType(DashboardScreen, skipOffstage: false),
+      findsOneWidget,
+      reason: 'the left tab keeps its state, offstage',
+    );
+
+    await tester.tap(find.text(l10n.navSettings));
+    await tester.pumpAndSettle();
+    expect(_location(container), RoutePaths.settings);
+    expect(find.byType(SettingsScreen), findsOneWidget);
+  });
+
+  testWidgets('LegacySettings_RedirectsToProfileSettings', (tester) async {
+    final state = FakeSeed.pharmacy(FakeClock().now());
+    final tokens = await tester.runAsync(() => _signedInTokens(state));
+    final container = await _startApp(tester, tokens: tokens!, state: state);
+
+    container.read(routerProvider).go(RoutePaths.legacySettings);
     await tester.pumpAndSettle();
 
     expect(_location(container), RoutePaths.settings);

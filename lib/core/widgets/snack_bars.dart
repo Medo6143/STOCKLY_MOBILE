@@ -3,12 +3,29 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stockly/core/error/failure.dart';
 import 'package:stockly/core/theme/app_theme.dart';
 import 'package:stockly/core/widgets/failure_message.dart';
+import 'package:stockly/core/widgets/success_check.dart';
 import 'package:stockly/l10n/generated/app_localizations.dart';
 
 /// Shows [message] in a snackbar, if the screen has a messenger.
 void showMessageSnackBar(BuildContext context, String message) =>
     ScaffoldMessenger.maybeOf(context)?.showSnackBar(
       SnackBar(content: Text(message), duration: context.durations.snackbar),
+    );
+
+/// Shows [message] with the animated success check (design-refresh brief:
+/// success feedback after an invoice confirm or a recorded sale).
+void showSuccessSnackBar(BuildContext context, String message) =>
+    ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+      SnackBar(
+        duration: context.durations.snackbar,
+        content: Row(
+          children: [
+            const SuccessCheck(),
+            SizedBox(width: context.spacing.sm),
+            Expanded(child: Text(message)),
+          ],
+        ),
+      ),
     );
 
 /// Shows the message of [failure] in a snackbar.
