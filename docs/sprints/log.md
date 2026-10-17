@@ -49,3 +49,18 @@ Running record of the mobile lane: which agent, brief path, verification result,
 - Decisions accepted: architecture exceptions widened (products may read `isOwnerProvider`, design §2.3; domain may import `core/pagination/paged.dart`, design §1.4); `PagedResponseDto` in `core/network`; list filters read from the route query on entry; edit, unit, adjustment and count screens reuse `productDetailProvider`; writes invalidate list, detail and movements; the fake follows the backend's validation order (403 before validation, shape → precision → not found → domain codes).
 - Note: P12 (barcode lookup) is wired through data, use case, provider and fake, but no screen uses it yet; the quick-sale screen (Sprint 4) will. The backend implements it in Sprint 4.
 - Commits: `11c651e`, `2b5d59d`, `313e6d9`, `38db4f6`.
+
+## Real backend on the emulator (2026-10-17)
+
+- Debug-only `network_security_config` allowing cleartext to `10.0.2.2` and `localhost` (`148f8d7`, merged `a253efb`). Release builds keep the platform default.
+- App from `main` (real backend, `http://10.0.2.2:5000`) on QA_Pixel_7 against the API from backend `main`: register → `201`, product list → `200`, create product with opening stock 24 → `201`, product detail from the database. English UI.
+
+## Brief 3: scan flow
+
+- Brief: `docs/agents/briefs/mobile-3-scan-flow.md`. Branch `feature/scan-flow`. Worker: general-purpose agent (background); resumed once after a network error, no work lost.
+- Report: "AGENTS.md read: yes", contract deviations NONE; packages added are all approved in design §14.
+- Orchestrator verification: build_runner OK; gen-l10n (untranslated `{}`); `flutter analyze` no issues; `dart format` 0 changed; `flutter test` 931 passed, 2 skipped (live). **Live API test** (`flutter test --tags live test/live --dart-define=STOCKLY_LIVE_API=http://127.0.0.1:5000`) against the backend from `main`: `FullFlow_ar` and `FullFlow_en` passed (register, login, me, product with opening stock, unit, adjust, count, low stock, movements, refresh, logout, localized ProblemDetails).
+- Read the architecture-test changes: narrow, design-backed exceptions (`invoices` as session consumer; `invoices` → `products_providers.dart`; `settings` → `pending_scans_providers.dart`). No assertion removed.
+- Decisions accepted: upload service in invoices data layer; background entrypoint no-op in fake builds; domain `InvoicePhotoSource` separate from `core/media`; cancellable polling (31 polls / 60 s); review auto-opens once; unresolved lines checked on the device before I4; fake rate limit 10/min, quota 50/Cairo day, every third fake scan fails; no manifest change for `image_picker`.
+- Live tag: `dart_test.yaml` declares `live`; the test skips without `STOCKLY_LIVE_API` (a config exclude would also block `--tags live`). Accepted.
+- Commits: `11fc77e`, `8bca0de`, `9132c70`, `9b3316e`, `0d3c7de`.
