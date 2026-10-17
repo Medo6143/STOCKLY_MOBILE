@@ -16,6 +16,9 @@ abstract class InvoiceReviewState with _$InvoiceReviewState {
     @Default(false) bool isDirty,
     @Default(false) bool isSaving,
 
+    /// I5 is running ("Confirming…" overlay).
+    @Default(false) bool isConfirming,
+
     /// The last save's failure, shown in the banner.
     Failure? failure,
 
@@ -31,6 +34,10 @@ abstract class InvoiceReviewState with _$InvoiceReviewState {
 
     /// Bumped by every successful save, so the screen can confirm it.
     @Default(0) int savedCount,
+
+    /// Bumped when this screen's confirm succeeds, so the screen can move
+    /// on to the confirmed invoice.
+    @Default(0) int confirmedCount,
   }) = _InvoiceReviewState;
 }
 
@@ -41,6 +48,13 @@ extension InvoiceReviewStateX on InvoiceReviewState {
   bool get canSave =>
       !isReadOnly &&
       !isSaving &&
+      !isConfirming &&
       draft.lines.isNotEmpty &&
       totalAmountIssue == null;
+
+  /// Confirm saves a dirty draft first, so it needs what save needs.
+  bool get canConfirm => canSave;
+
+  /// Saving or confirming: the form is not editable.
+  bool get isBusy => isSaving || isConfirming;
 }

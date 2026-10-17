@@ -42,4 +42,8 @@ final class InvoicesRepositoryImpl implements InvoicesRepository {
     () async =>
         (await _remote.updateItems(invoiceId, draft.toRequest())).toEntity(),
   );
+
+  @override
+  Future<Result<InvoiceDetail, Failure>> confirm(String invoiceId) =>
+      safeApiCall(() async => (await _remote.confirm(invoiceId)).toEntity());
 }

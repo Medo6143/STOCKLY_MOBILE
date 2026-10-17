@@ -1,3 +1,4 @@
+import 'package:stockly/core/router/route_paths.dart';
 import 'package:stockly/features/invoices/domain/entities/invoice_status.dart';
 
 /// The `status` query of `/invoices` (design §3.1): the contract's status
@@ -5,7 +6,7 @@ import 'package:stockly/features/invoices/domain/entities/invoice_status.dart';
 abstract final class InvoiceRouteQuery {
   static const Map<InvoiceStatus, String> _values = {
     InvoiceStatus.processing: 'Processing',
-    InvoiceStatus.needsReview: 'NeedsReview',
+    InvoiceStatus.needsReview: RoutePaths.needsReviewValue,
     InvoiceStatus.confirmed: 'Confirmed',
     InvoiceStatus.failed: 'Failed',
   };
