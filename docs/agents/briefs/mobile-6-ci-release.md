@@ -2,7 +2,7 @@ Read AGENTS.md fully before starting.
 
 # Brief: mobile-6-ci-release
 
-Repository: `stockly-mobile` (`D:\FLUTTER\stockly-mobile`), branch `feature/sprint-6` (already checked out, based on `main` with Sprint 4 merged) · Lane: MOBILE · Contract version: **v1.5** (`docs/api/contract.md`; no mobile-facing change since v1.4)
+Repository: `stockly-mobile` (`D:\FLUTTER\stockly-mobile`), branch `feature/ci-release` (already checked out, based on `main` with Sprint 4 merged) · Lane: MOBILE · Contract version: **v1.5** (`docs/api/contract.md`; no mobile-facing change since v1.4)
 
 You have not seen the conversation that produced this brief. Everything you need is here or in the files it links. If something you need is missing or contradicts AGENTS.md or the design, **stop and report** instead of guessing.
 
