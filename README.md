@@ -47,11 +47,13 @@ The shop starts with an Arabic pharmacy catalogue of 31 products (one archived, 
 
 Invoices: the seed has one invoice in every status (two to review, one with a total that does not match and a line without a product, one with no lines read; one confirmed; one failed; one still being read, which turns "Needs review" about 6 seconds after start). A new scan is read after 6 seconds: in turn a pharmacy invoice that needs review, a clean one, and an unreadable photo that fails. Up to 10 scans a minute and 50 a day (Cairo day) are accepted. The upload queue works offline (switch the fake backend offline in the panel) and in the background only against the real API.
 
+Confirming an invoice receives its stock (boxes are counted in strips) and creates its new products; confirming again changes nothing. Sales: the quick sale (**New sale** on the home screen or the sales tab) takes barcodes typed or sent by a Bluetooth/USB scanner (each ends with Enter; the same barcode twice adds 1), the camera scanner, or a product search; a sale that takes stock below zero is recorded with a warning. The home screen (dashboard) is computed from the fake data: today's sales by the Cairo day, low and negative stock, invoices to review, and the confirmed lines that expire soon (`بروفين 400` within 60 days, `فيتامين سي 1000` within 90). When a sale is sent while the fake backend is offline its outcome is unknown: the cart stays locked with Retry and Discard, also after a restart.
+
 Debug panel: sign in, open **Settings** and **long-press the version text** at the bottom (fake mode only). It can switch the device offline, fail the next request with a chosen error code, expire the access token now, suspend the shop, turn the account lockout and the login/register rate limit on or off, and use up the daily scan quota.
 
 ### Live API test
 
-`test/live/live_api_test.dart` (tag `live`) runs the app's real Dio stack, data sources and repositories against a running backend: register, login, `me`, a product with opening stock, a unit, an adjustment, a stock count, the low-stock list, movements, refresh and logout, once in Arabic and once in English. Without the define it is skipped, so `flutter test` stays offline.
+`test/live/live_api_test.dart` (tag `live`) runs the app's real Dio stack, data sources and repositories against a running backend: register, login, `me`, a product with opening stock, a unit, an adjustment, a stock count, the low-stock list, movements, a sale of the product and the same sale again (`200`, same id), the sales list and detail, the dashboard summary and expiring-soon list, the barcode lookup, refresh and logout, once in Arabic and once in English. Without the define it is skipped, so `flutter test` stays offline.
 
 ```bash
 flutter test --tags live --dart-define=STOCKLY_LIVE_API=http://127.0.0.1:5000
