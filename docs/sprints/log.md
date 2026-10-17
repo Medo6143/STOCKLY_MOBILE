@@ -64,3 +64,11 @@ Running record of the mobile lane: which agent, brief path, verification result,
 - Decisions accepted: upload service in invoices data layer; background entrypoint no-op in fake builds; domain `InvoicePhotoSource` separate from `core/media`; cancellable polling (31 polls / 60 s); review auto-opens once; unresolved lines checked on the device before I4; fake rate limit 10/min, quota 50/Cairo day, every third fake scan fails; no manifest change for `image_picker`.
 - Live tag: `dart_test.yaml` declares `live`; the test skips without `STOCKLY_LIVE_API` (a config exclude would also block `--tags live`). Accepted.
 - Commits: `11fc77e`, `8bca0de`, `9132c70`, `9b3316e`, `0d3c7de`.
+
+## Brief 4: confirm, sales, dashboard
+
+- Brief: `docs/agents/briefs/mobile-4-confirm-sales-dashboard.md`. Branch `feature/confirm-sales-dashboard`. Worker: general-purpose agent (background); resumed once after a network error.
+- Sent back once: the fake D2 left out already-expired lines while the real backend includes them (SOLID L). Fixed: fake D2/D1 match the backend order and window; expired lines marked with a danger chip.
+- Orchestrator verification: build_runner OK; gen-l10n (untranslated `{}`); `flutter analyze` no issues; `dart format` 0 changed; `flutter test` 1,131 passed, 2 skipped (live). **Live API test** against backend `main` (with Sprint 4): `FullFlow_ar` and `FullFlow_en` passed, now including sale + idempotent repeat, S2, S3, D1, D2 and P12.
+- Decisions accepted: pending sale row written before the first send; unknown outcome locks the cart; reopened cart shows a summary only (no schema change); discard after a warning dialog; S2 filters send only `from`; unit picker loads P2 on demand; PlaceholderScreen removed; narrow architecture exceptions for cross-feature invalidation (design §2.3, §6.8); `mobile_scanner` without manifest change.
+- Process note: the worker once ran `git checkout -- lib/core/config/limits.dart` (reverting only its own appended lines), which the brief forbids. Reminded; no other tree-changing git command.
