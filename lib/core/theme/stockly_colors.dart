@@ -21,6 +21,14 @@ final class StocklyColors extends ThemeExtension<StocklyColors> {
     required this.markPaper,
     required this.markInk,
     required this.markMint,
+    required this.raisedSurface,
+    required this.heroStart,
+    required this.heroEnd,
+    required this.heroGlow,
+    required this.heroDecoration,
+    required this.onHero,
+    required this.onHeroMuted,
+    required this.shimmerHighlight,
   });
 
   static final StocklyColors light = StocklyColors(
@@ -48,6 +56,16 @@ final class StocklyColors extends ThemeExtension<StocklyColors> {
     markPaper: Tokens.lightMarkPaper,
     markInk: Tokens.lightMarkInk,
     markMint: Tokens.lightMarkMint,
+    raisedSurface: Tokens.lightSurface,
+    heroStart: Tokens.navy,
+    heroEnd: Tokens.lightInk,
+    heroGlow: Tokens.lightMint.withValues(alpha: Tokens.lightHeroGlowAlpha),
+    heroDecoration: Tokens.white.withValues(alpha: Tokens.heroDecorationAlpha),
+    onHero: Tokens.white,
+    onHeroMuted: Tokens.white.withValues(alpha: Tokens.onHeroMutedAlpha),
+    shimmerHighlight: Tokens.lightSurface.withValues(
+      alpha: Tokens.shimmerHighlightAlpha,
+    ),
   );
 
   static final StocklyColors dark = StocklyColors(
@@ -75,6 +93,22 @@ final class StocklyColors extends ThemeExtension<StocklyColors> {
     markPaper: Tokens.darkMarkPaper,
     markInk: Tokens.darkMarkInk,
     markMint: Tokens.darkMarkMint,
+    raisedSurface: _soft(
+      Tokens.darkInk,
+      Tokens.darkRaisedSurfaceAlpha,
+      Tokens.darkSurface,
+    ),
+    heroStart: Tokens.darkBackground,
+    heroEnd: Tokens.darkSurface,
+    heroGlow: Tokens.darkMint.withValues(alpha: Tokens.darkHeroGlowAlpha),
+    heroDecoration: Tokens.darkInk.withValues(
+      alpha: Tokens.heroDecorationAlpha,
+    ),
+    onHero: Tokens.darkInk,
+    onHeroMuted: Tokens.darkMuted,
+    shimmerHighlight: Tokens.darkInk.withValues(
+      alpha: Tokens.heroDecorationAlpha,
+    ),
   );
 
   final Color background;
@@ -93,6 +127,26 @@ final class StocklyColors extends ThemeExtension<StocklyColors> {
   final Color markPaper;
   final Color markInk;
   final Color markMint;
+
+  /// Cards: the surface in light, slightly lighter than it in dark.
+  final Color raisedSurface;
+
+  /// Hero header gradient: navy → ink (light), background → surface (dark).
+  final Color heroStart;
+  final Color heroEnd;
+
+  /// The mint glow in the end corner of a hero header.
+  final Color heroGlow;
+
+  /// The soft rings drawn on a hero header.
+  final Color heroDecoration;
+
+  /// Text and icons on a hero header.
+  final Color onHero;
+  final Color onHeroMuted;
+
+  /// The moving highlight of a loading skeleton.
+  final Color shimmerHighlight;
 
   /// [color] at [alpha], composed over [surface].
   static Color _soft(Color color, double alpha, Color surface) =>
@@ -116,6 +170,14 @@ final class StocklyColors extends ThemeExtension<StocklyColors> {
     Color? markPaper,
     Color? markInk,
     Color? markMint,
+    Color? raisedSurface,
+    Color? heroStart,
+    Color? heroEnd,
+    Color? heroGlow,
+    Color? heroDecoration,
+    Color? onHero,
+    Color? onHeroMuted,
+    Color? shimmerHighlight,
   }) => StocklyColors(
     background: background ?? this.background,
     surface: surface ?? this.surface,
@@ -133,6 +195,14 @@ final class StocklyColors extends ThemeExtension<StocklyColors> {
     markPaper: markPaper ?? this.markPaper,
     markInk: markInk ?? this.markInk,
     markMint: markMint ?? this.markMint,
+    raisedSurface: raisedSurface ?? this.raisedSurface,
+    heroStart: heroStart ?? this.heroStart,
+    heroEnd: heroEnd ?? this.heroEnd,
+    heroGlow: heroGlow ?? this.heroGlow,
+    heroDecoration: heroDecoration ?? this.heroDecoration,
+    onHero: onHero ?? this.onHero,
+    onHeroMuted: onHeroMuted ?? this.onHeroMuted,
+    shimmerHighlight: shimmerHighlight ?? this.shimmerHighlight,
   );
 
   @override
@@ -158,6 +228,14 @@ final class StocklyColors extends ThemeExtension<StocklyColors> {
       markPaper: mix(markPaper, other.markPaper),
       markInk: mix(markInk, other.markInk),
       markMint: mix(markMint, other.markMint),
+      raisedSurface: mix(raisedSurface, other.raisedSurface),
+      heroStart: mix(heroStart, other.heroStart),
+      heroEnd: mix(heroEnd, other.heroEnd),
+      heroGlow: mix(heroGlow, other.heroGlow),
+      heroDecoration: mix(heroDecoration, other.heroDecoration),
+      onHero: mix(onHero, other.onHero),
+      onHeroMuted: mix(onHeroMuted, other.onHeroMuted),
+      shimmerHighlight: mix(shimmerHighlight, other.shimmerHighlight),
     );
   }
 }
