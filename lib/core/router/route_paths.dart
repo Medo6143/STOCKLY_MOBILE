@@ -32,8 +32,8 @@ abstract final class RoutePaths {
 
   static const String settings = '/settings';
 
-  /// Home in Sprint 3 (no dashboard yet); `/dashboard` from Sprint 4.
-  static const String home = products;
+  /// Home after sign-in (design §3.1, Sprint 4).
+  static const String home = dashboard;
 
   /// Query parameter of `/splash` with the location to resume.
   static const String fromParameter = 'from';
@@ -52,6 +52,17 @@ abstract final class RoutePaths {
 
   /// Query parameter of `/invoices`: a contract `InvoiceStatus` name.
   static const String statusParameter = 'status';
+
+  /// The `status` value of the invoices awaiting review (the dashboard
+  /// links to them).
+  static const String needsReviewValue = 'NeedsReview';
+
+  /// Query parameter of `/sales/:saleId`: `true` when the sale had
+  /// already been recorded by an earlier attempt (S1 `200`).
+  static const String repeatParameter = 'repeat';
+
+  /// Query parameter of `/dashboard/expiring-soon`: the window in days.
+  static const String daysParameter = 'days';
 
   /// `/products/<productId>`.
   static String productDetailOf(String productId) => '$products/$productId';

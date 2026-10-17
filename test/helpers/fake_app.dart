@@ -1,4 +1,6 @@
 import 'package:dio/dio.dart';
+import 'package:drift/drift.dart';
+import 'package:drift/native.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/misc.dart';
 import 'package:stockly/core/config/app_config.dart';
@@ -13,6 +15,7 @@ import 'package:stockly/core/network/api_paths.dart';
 import 'package:stockly/core/network/dio_client.dart';
 import 'package:stockly/core/network/json_body.dart';
 import 'package:stockly/core/network/request_extras.dart';
+import 'package:stockly/core/offline/app_database.dart';
 import 'package:stockly/core/offline/lease.dart';
 import 'package:stockly/core/preferences/locale_notifier.dart';
 import 'package:stockly/core/session/session_dtos.dart';
@@ -71,6 +74,7 @@ List<Override> fakeAppOverrides({
   Clock? clock,
   PreferencesStore? preferences,
   Locale deviceLocale = const Locale('ar'),
+  AppDatabase? database,
 }) => [
   appConfigProvider.overrideWithValue(fakeConfig),
   fakeBackendProvider.overrideWithValue(adapter),
@@ -82,5 +86,16 @@ List<Override> fakeAppOverrides({
   deviceLocaleProvider.overrideWithValue(deviceLocale),
   appLoggerProvider.overrideWithValue(const NoopLogger()),
   if (clock != null) clockProvider.overrideWithValue(clock),
+  appDatabaseProvider.overrideWith((ref) {
+    final db = database ?? inMemoryDatabase();
+    ref.onDispose(db.close);
+    return db;
+  }),
   ...quietScanQueueOverrides(),
 ];
+
+/// A fresh database in memory whose streams close at once, so widget tests
+/// leave no pending timers.
+AppDatabase inMemoryDatabase() => AppDatabase(
+  DatabaseConnection(NativeDatabase.memory(), closeStreamsSynchronously: true),
+);

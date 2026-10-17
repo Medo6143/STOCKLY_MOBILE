@@ -24,6 +24,7 @@ import 'package:stockly/features/invoices/domain/repositories/invoice_photo_sour
 import 'package:stockly/features/invoices/domain/repositories/invoices_repository.dart';
 import 'package:stockly/features/invoices/domain/repositories/scan_queue_repository.dart';
 import 'package:stockly/features/invoices/domain/usecases/capture_invoice_use_case.dart';
+import 'package:stockly/features/invoices/domain/usecases/confirm_invoice_use_case.dart';
 import 'package:stockly/features/invoices/domain/usecases/delete_pending_scan_use_case.dart';
 import 'package:stockly/features/invoices/domain/usecases/get_invoice_use_case.dart';
 import 'package:stockly/features/invoices/domain/usecases/get_invoices_use_case.dart';
@@ -91,6 +92,10 @@ final getInvoiceUseCaseProvider = Provider<GetInvoiceUseCase>(
 
 final saveInvoiceItemsUseCaseProvider = Provider<SaveInvoiceItemsUseCase>(
   (ref) => SaveInvoiceItemsUseCase(ref.watch(invoicesRepositoryProvider)),
+);
+
+final confirmInvoiceUseCaseProvider = Provider<ConfirmInvoiceUseCase>(
+  (ref) => ConfirmInvoiceUseCase(ref.watch(invoicesRepositoryProvider)),
 );
 
 final watchInvoiceProcessingUseCaseProvider =

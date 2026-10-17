@@ -54,14 +54,6 @@
   "@commonErrorReferenceCopied": {
     "description": "Snackbar after copying the error reference."
   },
-  "commonComingSoonTitle": "قريبًا",
-  "@commonComingSoonTitle": {
-    "description": "Title of a screen that is not built yet."
-  },
-  "commonComingSoonBody": "الشاشة دي لسه بنجهزها.",
-  "@commonComingSoonBody": {
-    "description": "Body of a screen that is not built yet."
-  },
   "navProducts": "المنتجات",
   "@navProducts": {
     "description": "Bottom navigation tab."
@@ -1551,5 +1543,379 @@
   "fakePanelScanQuota": "حد الفواتير اليومي خلص",
   "@fakePanelScanQuota": {
     "description": "Debug panel: the next scans get Scan.DailyQuotaExceeded."
+  },
+  "navDashboard": "الرئيسية",
+  "@navDashboard": {
+    "description": "Dashboard tab."
+  },
+  "navSales": "المبيعات",
+  "@navSales": {
+    "description": "Sales tab."
+  },
+  "invoiceReviewConfirm": "أكّد واستلم البضاعة",
+  "@invoiceReviewConfirm": {
+    "description": "Confirms the invoice (I5); stock goes up."
+  },
+  "invoiceReviewConfirming": "جاري التأكيد…",
+  "@invoiceReviewConfirming": {
+    "description": "Shown while I5 runs."
+  },
+  "invoiceReviewConfirmed": "الفاتورة اتأكدت والمخزون زاد.",
+  "@invoiceReviewConfirmed": {
+    "description": "Snackbar after a successful confirm."
+  },
+  "dashboardTodaySales": "مبيعات النهارده",
+  "@dashboardTodaySales": {
+    "description": "Title of the today card."
+  },
+  "dashboardSalesCount": "{count, plural, =0{مفيش بيع لسه} =1{عملية بيع واحدة} =2{عمليتين بيع} few{{count} عمليات بيع} many{{count} عملية بيع} other{{count} عملية بيع}}",
+  "@dashboardSalesCount": {
+    "description": "Number of today's sales.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "37"
+      }
+    }
+  },
+  "dashboardOverriddenSales": "{count, plural, =0{مفيش أسعار متغيرة} =1{بيعة واحدة بسعر متغير} =2{بيعتين بسعر متغير} few{{count} بيعات بسعر متغير} many{{count} بيعة بسعر متغير} other{{count} بيعة بسعر متغير}}",
+  "@dashboardOverriddenSales": {
+    "description": "Today's sales with a price override.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "dashboardLowStock": "مخزون قليل",
+  "@dashboardLowStock": {
+    "description": "Low-stock count card."
+  },
+  "dashboardNegativeStock": "مخزون بالسالب",
+  "@dashboardNegativeStock": {
+    "description": "Negative-stock count card."
+  },
+  "dashboardExpiringSoon": "قرب ينتهي",
+  "@dashboardExpiringSoon": {
+    "description": "Expiring-soon count card."
+  },
+  "dashboardAwaitingReview": "فواتير مستنية مراجعة",
+  "@dashboardAwaitingReview": {
+    "description": "Invoices awaiting review card."
+  },
+  "dashboardProducts": "المنتجات",
+  "@dashboardProducts": {
+    "description": "Product count card."
+  },
+  "dashboardUpdatedAt": "آخر تحديث {time}",
+  "@dashboardUpdatedAt": {
+    "description": "When the server computed the summary.",
+    "placeholders": {
+      "time": {
+        "type": "String",
+        "example": "07:00"
+      }
+    }
+  },
+  "dashboardEmptyTitle": "ابدأ بمحلك",
+  "@dashboardEmptyTitle": {
+    "description": "Dashboard of a new shop."
+  },
+  "dashboardEmptyBody": "ضيف أول منتج أو صوّر فاتورة مورد.",
+  "@dashboardEmptyBody": {
+    "description": "Body of the new-shop dashboard."
+  },
+  "dashboardAddProduct": "ضيف منتج",
+  "@dashboardAddProduct": {
+    "description": "Opens the product form."
+  },
+  "expiringTitle": "قرب ينتهي",
+  "@expiringTitle": {
+    "description": "Expiring-soon screen title."
+  },
+  "expiringHint": "التواريخ من الفواتير المؤكدة. ده تنبيه، مش عدّ دقيق للمخزون.",
+  "@expiringHint": {
+    "description": "ADR-0004: expiry is informational."
+  },
+  "expiringDaysChip": "{days} يوم",
+  "@expiringDaysChip": {
+    "description": "Window chip.",
+    "placeholders": {
+      "days": {
+        "type": "String",
+        "example": "60"
+      }
+    }
+  },
+  "expiringEmptyTitle": "مفيش حاجة هتنتهي خلال {days} يوم",
+  "@expiringEmptyTitle": {
+    "description": "Empty expiring list.",
+    "placeholders": {
+      "days": {
+        "type": "String",
+        "example": "60"
+      }
+    }
+  },
+  "expiringEmptyBody": "التواريخ بتيجي من الفواتير المؤكدة.",
+  "@expiringEmptyBody": {
+    "description": "Body of the empty expiring list."
+  },
+  "expiringExpiresOn": "ينتهي {date}",
+  "@expiringExpiresOn": {
+    "description": "Expiry date of a line.",
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "Mar 31, 2027"
+      }
+    }
+  },
+  "expiringBatch": "التشغيلة {batch}",
+  "@expiringBatch": {
+    "description": "Batch number of a line.",
+    "placeholders": {
+      "batch": {
+        "type": "String",
+        "example": "B12"
+      }
+    }
+  },
+  "expiringLineQuantity": "استلمت:",
+  "@expiringLineQuantity": {
+    "description": "Quantity of the invoice line."
+  },
+  "expiringInStock": "في المخزن",
+  "@expiringInStock": {
+    "description": "Current stock of the product."
+  },
+  "salesQuickSaleTitle": "بيع سريع",
+  "@salesQuickSaleTitle": {
+    "description": "Quick-sale screen title."
+  },
+  "salesNewSale": "بيع جديد",
+  "@salesNewSale": {
+    "description": "Opens the quick sale."
+  },
+  "salesBarcodeLabel": "الباركود",
+  "@salesBarcodeLabel": {
+    "description": "Barcode field (keyboard-wedge scanners too)."
+  },
+  "salesScanWithCamera": "امسح بالكاميرا",
+  "@salesScanWithCamera": {
+    "description": "Opens the camera scanner."
+  },
+  "salesCameraHint": "وجّه الكاميرا على الباركود.",
+  "@salesCameraHint": {
+    "description": "Camera scanner hint."
+  },
+  "salesSearchTitle": "دوّر على منتج",
+  "@salesSearchTitle": {
+    "description": "Product search for the cart."
+  },
+  "salesSearchEmptyBody": "جرّب اسم تاني.",
+  "@salesSearchEmptyBody": {
+    "description": "No product matches the search."
+  },
+  "salesBarcodeNotFound": "مفيش منتج بالباركود ده.",
+  "@salesBarcodeNotFound": {
+    "description": "P12 Product.NotFound."
+  },
+  "salesLineLimit": "البيعة الواحدة فيها {max} صنف بالكتير.",
+  "@salesLineLimit": {
+    "description": "Cart line limit.",
+    "placeholders": {
+      "max": {
+        "type": "int",
+        "example": "100"
+      }
+    }
+  },
+  "salesFixLines": "صلّح البنود اللي عليها علامة.",
+  "@salesFixLines": {
+    "description": "Lines that cannot be sent."
+  },
+  "salesCartEmptyTitle": "السلة فاضية",
+  "@salesCartEmptyTitle": {
+    "description": "Empty cart."
+  },
+  "salesCartEmptyBody": "امسح باركود أو دوّر على منتج.",
+  "@salesCartEmptyBody": {
+    "description": "Body of the empty cart."
+  },
+  "salesClearCart": "فضّي السلة",
+  "@salesClearCart": {
+    "description": "Empties the cart."
+  },
+  "salesRemoveLine": "شيل البند",
+  "@salesRemoveLine": {
+    "description": "Removes a cart line."
+  },
+  "salesInStock": "في المخزن:",
+  "@salesInStock": {
+    "description": "Stock of the product on a cart line."
+  },
+  "salesQuantityLabel": "الكمية",
+  "@salesQuantityLabel": {
+    "description": "Quantity field of a cart line."
+  },
+  "salesPriceLabel": "سعر مختلف",
+  "@salesPriceLabel": {
+    "description": "Price override field."
+  },
+  "salesListPrice": "سعر البيع {price}",
+  "@salesListPrice": {
+    "description": "Unit sell price under the override field.",
+    "placeholders": {
+      "price": {
+        "type": "String",
+        "example": "15.00"
+      }
+    }
+  },
+  "salesChooseUnit": "اختار الوحدة",
+  "@salesChooseUnit": {
+    "description": "Unit picker title."
+  },
+  "salesNoteLabel": "ملاحظة",
+  "@salesNoteLabel": {
+    "description": "Sale note field."
+  },
+  "salesTotalLabel": "الإجمالي",
+  "@salesTotalLabel": {
+    "description": "Sale total."
+  },
+  "salesSubmit": "سجّل البيعة",
+  "@salesSubmit": {
+    "description": "Submits the sale (S1)."
+  },
+  "salesSubmitting": "جاري التسجيل…",
+  "@salesSubmitting": {
+    "description": "Shown while S1 runs."
+  },
+  "salesLockedTitle": "مش متأكدين البيعة اتسجلت",
+  "@salesLockedTitle": {
+    "description": "Unknown outcome (design §6.8)."
+  },
+  "salesLockedBody": "ممكن تكون اتسجلت. \"حاول تاني\" بيبعت نفس البيعة ومش هتتسجل مرتين.",
+  "@salesLockedBody": {
+    "description": "Body of the locked cart."
+  },
+  "salesLockedSince": "من {time}",
+  "@salesLockedSince": {
+    "description": "When the locked sale was first sent.",
+    "placeholders": {
+      "time": {
+        "type": "String",
+        "example": "Oct 12, 2026 07:00"
+      }
+    }
+  },
+  "salesDiscard": "الغي البيعة",
+  "@salesDiscard": {
+    "description": "Discards the locked sale."
+  },
+  "salesDiscardTitle": "تلغي البيعة؟",
+  "@salesDiscardTitle": {
+    "description": "Discard confirmation title."
+  },
+  "salesDiscardBody": "لو كانت اتسجلت هتلاقيها في المبيعات. راجع قبل ما تبيع تاني.",
+  "@salesDiscardBody": {
+    "description": "Discard confirmation body."
+  },
+  "salesItemCount": "{count, plural, =0{مفيش أصناف} =1{صنف واحد} =2{صنفين} few{{count} أصناف} many{{count} صنف} other{{count} صنف}}",
+  "@salesItemCount": {
+    "description": "Number of lines of a sale.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "salesListEmptyTitle": "مفيش مبيعات في الفترة دي",
+  "@salesListEmptyTitle": {
+    "description": "Empty sales list."
+  },
+  "salesListEmptyBody": "سجّل بيعة من الشاشة السريعة.",
+  "@salesListEmptyBody": {
+    "description": "Body of the empty sales list."
+  },
+  "salesRangeToday": "النهارده",
+  "@salesRangeToday": {
+    "description": "Sales filter: today."
+  },
+  "salesRangeSevenDays": "آخر ٧ أيام",
+  "@salesRangeSevenDays": {
+    "description": "Sales filter: seven days."
+  },
+  "salesRangeAll": "الكل",
+  "@salesRangeAll": {
+    "description": "Sales filter: everything."
+  },
+  "salesDetailTitle": "تفاصيل البيعة",
+  "@salesDetailTitle": {
+    "description": "Sale detail title."
+  },
+  "salesAlreadyRecorded": "البيعة دي كانت متسجلة قبل كده.",
+  "@salesAlreadyRecorded": {
+    "description": "S1 answered 200 (earlier attempt succeeded)."
+  },
+  "salesNegativeStockWarning": "المخزون بتاع {product} بقى بالسالب.",
+  "@salesNegativeStockWarning": {
+    "description": "Stock.NegativeBalance warning.",
+    "placeholders": {
+      "product": {
+        "type": "String",
+        "example": "Panadol"
+      }
+    }
+  },
+  "salesHasOverride": "فيها أسعار متغيرة.",
+  "@salesHasOverride": {
+    "description": "The sale has an override."
+  },
+  "salesNoteValue": "ملاحظة: {note}",
+  "@salesNoteValue": {
+    "description": "The sale note.",
+    "placeholders": {
+      "note": {
+        "type": "String",
+        "example": "Paid later"
+      }
+    }
+  },
+  "salesLinesHeader": "الأصناف",
+  "@salesLinesHeader": {
+    "description": "Header of the sale lines."
+  },
+  "salesUnitPriceLabel": "السعر:",
+  "@salesUnitPriceLabel": {
+    "description": "Charged unit price."
+  },
+  "salesListPriceLabel": "بدل:",
+  "@salesListPriceLabel": {
+    "description": "List price next to an override."
+  },
+  "salesPriceOverridden": "سعر متغير",
+  "@salesPriceOverridden": {
+    "description": "Override marker."
+  },
+  "salesBalanceAfter": "المخزون بعدها:",
+  "@salesBalanceAfter": {
+    "description": "Stock after the line."
+  },
+  "salesFieldRequired": "الحقل ده مطلوب.",
+  "@salesFieldRequired": {
+    "description": "A required cart field is empty."
+  },
+  "salesFieldInvalidNumber": "اكتب رقم صحيح.",
+  "@salesFieldInvalidNumber": {
+    "description": "A cart number is not a number."
+  },
+  "expiringExpiredChip": "انتهى",
+  "@expiringExpiredChip": {
+    "description": "Marks a line whose expiry date has passed."
   }
 }

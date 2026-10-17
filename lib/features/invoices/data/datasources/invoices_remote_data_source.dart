@@ -18,7 +18,7 @@ final class ScanUploadResponse {
   final InvoiceListItemDto invoice;
 }
 
-/// Contract I1–I4. Throws `DioException`; callers map it.
+/// Contract I1–I5. Throws `DioException`; callers map it.
 final class InvoicesRemoteDataSource {
   const new(this._dio);
 
@@ -80,6 +80,14 @@ final class InvoicesRemoteDataSource {
     final response = await _dio.put<Object?>(
       ApiPaths.invoiceItems(invoiceId),
       data: request.toJson(),
+    );
+    return InvoiceDetailDto.fromJson(requireJsonObject(response.data));
+  }
+
+  /// I5 (no body).
+  Future<InvoiceDetailDto> confirm(String invoiceId) async {
+    final response = await _dio.post<Object?>(
+      ApiPaths.invoiceConfirm(invoiceId),
     );
     return InvoiceDetailDto.fromJson(requireJsonObject(response.data));
   }

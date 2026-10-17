@@ -22,12 +22,13 @@ import 'package:stockly/features/invoices/presentation/widgets/invoice_warning_b
 import 'package:stockly/features/invoices/presentation/widgets/invoices_labels.dart';
 import 'package:stockly/l10n/generated/app_localizations.dart';
 
-/// Review the extracted invoice (I3, I4; design §11): header fields,
-/// warnings, every line, save. Confirm (I5) arrives in Sprint 4. States:
-/// loading = I3, and a progress bar while saving; empty = no lines were
-/// read, "Add lines manually"; error = load failure with retry, save
+/// Review the extracted invoice (I3, I4, I5; design §11): header fields,
+/// warnings, every line, save and confirm. States: loading = I3, and a
+/// progress bar while saving or "Confirming…"; empty = no lines were read,
+/// "Add lines manually"; error = load failure with retry, save and confirm
 /// failures in the banner and on their lines; data = the editable draft
-/// (read-only when the invoice is not `NeedsReview`).
+/// (read-only when the invoice is not `NeedsReview`). A confirmed invoice
+/// opens its detail (the confirmed view).
 class InvoiceReviewScreen extends ConsumerWidget {
   const new({required this.invoiceId, super.key});
 
@@ -53,9 +54,25 @@ class InvoiceReviewScreen extends ConsumerWidget {
       if (before != null && after != null && after > before) {
         showMessageSnackBar(context, l10n.invoiceReviewSaved);
       }
+      final confirmedBefore = previous?.value?.confirmedCount;
+      final confirmedAfter = next.value?.confirmedCount;
+      if (confirmedBefore != null &&
+          confirmedAfter != null &&
+          confirmedAfter > confirmedBefore) {
+        showMessageSnackBar(context, l10n.invoiceReviewConfirmed);
+        context.goNamed(
+          RouteNames.invoiceDetail,
+          pathParameters: {RoutePaths.invoiceIdParameter: invoiceId},
+        );
+      }
     });
     final canAdd =
-        review != null && !review.isReadOnly && review.draft.canAddLine;
+        review != null &&
+        !review.isReadOnly &&
+        !review.isBusy &&
+        review.draft.canAddLine;
+    final showConfirm =
+        review != null && !review.isReadOnly && review.draft.lines.isNotEmpty;
     void addLine() => _openLine(context, review!.draft.nextLineNo);
     return Scaffold(
       appBar: AppBar(
@@ -78,6 +95,24 @@ class InvoiceReviewScreen extends ConsumerWidget {
               icon: const Icon(Icons.add_rounded),
               label: Text(
                 canAdd ? l10n.invoiceReviewAddLine : l10n.invoiceReviewMaxLines,
+              ),
+            )
+          : null,
+      bottomNavigationBar: showConfirm
+          ? SafeArea(
+              child: Padding(
+                padding: EdgeInsetsDirectional.all(context.spacing.md),
+                child: FilledButton.icon(
+                  onPressed: review.canConfirm
+                      ? ref.read(provider.notifier).confirm
+                      : null,
+                  icon: const Icon(Icons.inventory_rounded),
+                  label: Text(
+                    review.isConfirming
+                        ? l10n.invoiceReviewConfirming
+                        : l10n.invoiceReviewConfirm,
+                  ),
+                ),
               ),
             )
           : null,
@@ -160,7 +195,7 @@ class _ReviewFormState extends ConsumerState<_ReviewForm> {
     final state = widget.state;
     final draft = state.draft;
     final readOnly = state.isReadOnly;
-    final enabled = !readOnly && !state.isSaving;
+    final enabled = !readOnly && !state.isBusy;
     final failure = state.failure;
     final language = Localizations.localeOf(context).languageCode;
     final date = draft.header.invoiceDate;
@@ -170,7 +205,15 @@ class _ReviewFormState extends ConsumerState<_ReviewForm> {
     final gutter = EdgeInsetsDirectional.symmetric(horizontal: spacing.md);
     return Column(
       children: [
-        if (state.isSaving) const LinearProgressIndicator(),
+        if (state.isBusy) const LinearProgressIndicator(),
+        if (state.isConfirming)
+          Padding(
+            padding: EdgeInsetsDirectional.all(spacing.xs),
+            child: Text(
+              l10n.invoiceReviewConfirming,
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+          ),
         Expanded(
           child: ListView(
             padding: EdgeInsetsDirectional.only(

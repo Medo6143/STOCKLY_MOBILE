@@ -7,12 +7,14 @@ import 'package:stockly/core/router/route_names.dart';
 import 'package:stockly/core/router/route_paths.dart';
 import 'package:stockly/core/router/router_refresh.dart';
 import 'package:stockly/core/widgets/not_found_screen.dart';
-import 'package:stockly/core/widgets/placeholder_screen.dart';
 import 'package:stockly/features/auth/presentation/providers/auth_notifier.dart';
 import 'package:stockly/features/auth/presentation/providers/auth_state.dart';
 import 'package:stockly/features/auth/presentation/screens/login_screen.dart';
 import 'package:stockly/features/auth/presentation/screens/register_screen.dart';
 import 'package:stockly/features/auth/presentation/screens/shop_suspended_screen.dart';
+import 'package:stockly/features/dashboard/domain/entities/expiring_item.dart';
+import 'package:stockly/features/dashboard/presentation/screens/dashboard_screen.dart';
+import 'package:stockly/features/dashboard/presentation/screens/expiring_soon_screen.dart';
 import 'package:stockly/features/invoices/presentation/providers/invoice_route_query.dart';
 import 'package:stockly/features/invoices/presentation/screens/invoice_detail_screen.dart';
 import 'package:stockly/features/invoices/presentation/screens/invoice_line_editor_screen.dart';
@@ -28,14 +30,16 @@ import 'package:stockly/features/products/presentation/screens/product_list_scre
 import 'package:stockly/features/products/presentation/screens/stock_adjustment_screen.dart';
 import 'package:stockly/features/products/presentation/screens/stock_count_screen.dart';
 import 'package:stockly/features/products/presentation/screens/unit_form_screen.dart';
+import 'package:stockly/features/sales/presentation/screens/quick_sale_screen.dart';
+import 'package:stockly/features/sales/presentation/screens/sale_detail_screen.dart';
+import 'package:stockly/features/sales/presentation/screens/sale_list_screen.dart';
 import 'package:stockly/features/settings/presentation/screens/settings_screen.dart';
 import 'package:stockly/features/splash/presentation/providers/splash_notifier.dart';
 import 'package:stockly/features/splash/presentation/providers/splash_state.dart';
 import 'package:stockly/features/splash/presentation/screens/splash_screen.dart';
 
-/// Every route of design §3.1. Sprint 4 screens (dashboard, sales) show a
-/// [PlaceholderScreen]. Sprint 3 has three tabs (products, invoices,
-/// settings); dashboard and sales join the shell in Sprint 4.
+/// Every route of design §3.1. The shell has five tabs: dashboard (home),
+/// products, invoices, sales and settings.
 final routerProvider = Provider<GoRouter>((ref) {
   final refresh = RouterRefresh(ref);
   final routes = _RouteTable(GlobalKey<NavigatorState>());
@@ -62,29 +66,12 @@ final routerProvider = Provider<GoRouter>((ref) {
 /// [path] relative to its [parent] route.
 String _child(String path, String parent) => path.substring(parent.length + 1);
 
-Widget _placeholder(BuildContext context, GoRouterState state) =>
-    const PlaceholderScreen();
-
 /// The route tree. Full-screen flows (capture, review, quick sale) use the
 /// root navigator so the tab bar is hidden.
 final class _RouteTable {
   new(this.rootNavigatorKey);
 
   final GlobalKey<NavigatorState> rootNavigatorKey;
-
-  GoRoute _route(
-    String path,
-    String name, {
-    String? parent,
-    bool fullScreen = false,
-    List<RouteBase> routes = const [],
-  }) => GoRoute(
-    path: parent == null ? path : _child(path, parent),
-    name: name,
-    parentNavigatorKey: fullScreen ? rootNavigatorKey : null,
-    builder: _placeholder,
-    routes: routes,
-  );
 
   List<RouteBase> get all => [
     GoRoute(
@@ -111,40 +98,63 @@ final class _RouteTable {
       builder: (context, state, navigationShell) =>
           HomeShell(navigationShell: navigationShell),
       branches: [
+        StatefulShellBranch(routes: [_dashboardRoute]),
         StatefulShellBranch(routes: [_productsRoute]),
         StatefulShellBranch(routes: [_invoicesRoute]),
+        StatefulShellBranch(routes: [_salesRoute]),
         StatefulShellBranch(routes: [_settingsRoute]),
       ],
     ),
-    _route(
-      RoutePaths.dashboard,
-      RouteNames.dashboard,
-      routes: [
-        _route(
-          RoutePaths.expiringSoon,
-          RouteNames.expiringSoon,
-          parent: RoutePaths.dashboard,
-        ),
-      ],
-    ),
-    _route(
-      RoutePaths.sales,
-      RouteNames.sales,
-      routes: [
-        _route(
-          RoutePaths.quickSale,
-          RouteNames.quickSale,
-          parent: RoutePaths.sales,
-          fullScreen: true,
-        ),
-        _route(
-          RoutePaths.saleDetail,
-          RouteNames.saleDetail,
-          parent: RoutePaths.sales,
-        ),
-      ],
-    ),
   ];
+
+  GoRoute get _dashboardRoute => GoRoute(
+    path: RoutePaths.dashboard,
+    name: RouteNames.dashboard,
+    builder: (context, state) => const DashboardScreen(),
+    routes: [
+      _screen(
+        RoutePaths.expiringSoon,
+        RouteNames.expiringSoon,
+        RoutePaths.dashboard,
+        (state) => ExpiringSoonScreen(initialDays: _days(state)),
+      ),
+    ],
+  );
+
+  /// The `days` query: one of the offered windows, else the default.
+  static int _days(GoRouterState state) {
+    final days = int.tryParse(
+      state.uri.queryParameters[RoutePaths.daysParameter] ?? '',
+    );
+    return ExpiringSoonWindow.choices.contains(days)
+        ? days!
+        : ExpiringSoonWindow.defaultDays;
+  }
+
+  GoRoute get _salesRoute => GoRoute(
+    path: RoutePaths.sales,
+    name: RouteNames.sales,
+    builder: (context, state) => const SaleListScreen(),
+    routes: [
+      GoRoute(
+        path: _child(RoutePaths.quickSale, RoutePaths.sales),
+        name: RouteNames.quickSale,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) => const QuickSaleScreen(),
+      ),
+      _screen(
+        RoutePaths.saleDetail,
+        RouteNames.saleDetail,
+        RoutePaths.sales,
+        (state) => SaleDetailScreen(
+          saleId: state.pathParameters[RoutePaths.saleIdParameter]!,
+          alreadyRecorded:
+              state.uri.queryParameters[RoutePaths.repeatParameter] ==
+              RoutePaths.trueValue,
+        ),
+      ),
+    ],
+  );
 
   GoRoute get _productsRoute => GoRoute(
     path: RoutePaths.products,

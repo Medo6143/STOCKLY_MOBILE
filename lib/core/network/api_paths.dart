@@ -54,9 +54,25 @@ abstract final class ApiPaths {
 
   /// I4.
   static String invoiceItems(String invoiceId) => '${invoice(invoiceId)}/items';
+
+  /// I5.
+  static String invoiceConfirm(String invoiceId) =>
+      '${invoice(invoiceId)}/confirm';
+
+  /// S1 (POST) and S2 (GET).
+  static const String sales = '/api/sales';
+
+  /// S3.
+  static String sale(String saleId) => '$sales/${Uri.encodeComponent(saleId)}';
+
+  /// D1.
+  static const String dashboardSummary = '/api/dashboard/summary';
+
+  /// D2.
+  static const String dashboardExpiringSoon = '/api/dashboard/expiring-soon';
 }
 
-/// Query parameter names of the contract (§1.3, P1, P12, I2).
+/// Query parameter names of the contract (§1.3, P1, P12, I2, S2, D2).
 abstract final class ApiQuery {
   static const String page = 'page';
   static const String pageSize = 'pageSize';
@@ -65,6 +81,9 @@ abstract final class ApiQuery {
   static const String includeArchived = 'includeArchived';
   static const String barcode = 'barcode';
   static const String status = 'status';
+  static const String from = 'from';
+  static const String to = 'to';
+  static const String days = 'days';
 }
 
 /// Multipart field names of I1.

@@ -6,8 +6,7 @@ import 'package:stockly/features/invoices/domain/entities/invoice_draft.dart';
 import 'package:stockly/features/invoices/domain/entities/invoice_list_item.dart';
 import 'package:stockly/features/invoices/domain/entities/invoice_status.dart';
 
-/// Contract I2–I4. Uploads (I1) go through the scan queue; confirm (I5)
-/// arrives in Sprint 4.
+/// Contract I2–I5. Uploads (I1) go through the scan queue.
 abstract interface class InvoicesRepository {
   /// I2, newest first; [status] `null` lists every status.
   Future<Result<Paged<InvoiceListItem>, Failure>> getInvoices({
@@ -24,4 +23,8 @@ abstract interface class InvoicesRepository {
     String invoiceId,
     InvoiceDraft draft,
   );
+
+  /// I5: receives the stock of every line. Idempotent: a confirmed
+  /// invoice comes back unchanged.
+  Future<Result<InvoiceDetail, Failure>> confirm(String invoiceId);
 }

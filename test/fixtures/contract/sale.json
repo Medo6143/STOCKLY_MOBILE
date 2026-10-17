@@ -1,0 +1,30 @@
+{
+  "id": "0192f0a0-6c1e-7b3a-9d2e-5a1e00000001",
+  "clientRequestId": "0192f0a0-6c1e-7b3a-9d2e-5a1e00000099",
+  "totalAmount": "28.00",
+  "note": null,
+  "priceOverridden": true,
+  "items": [
+    {
+      "id": "0192f0a0-6c1e-7b3a-9d2e-5a1e10000001",
+      "productId": "0192f0a0-6c1e-7b3a-9d2e-a00000000001",
+      "productName": "بنادول اكسترا",
+      "productUnitId": "0192f0a0-6c1e-7b3a-9d2e-b00000000002",
+      "unitName": "شريط",
+      "quantity": "2.000",
+      "listUnitPrice": "15.00",
+      "unitPrice": "14.00",
+      "priceOverridden": true,
+      "lineTotal": "28.00",
+      "balanceAfter": "-1.000"
+    }
+  ],
+  "createdAt": "2026-10-12T07:00:00Z",
+  "createdByUserId": "0192f0a0-6c1e-7b3a-9d2e-4f5a6b7c8d02",
+  "warnings": [
+    {
+      "code": "Stock.NegativeBalance",
+      "productId": "0192f0a0-6c1e-7b3a-9d2e-a00000000001"
+    }
+  ]
+}

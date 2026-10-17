@@ -5,6 +5,7 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:dio/dio.dart';
+import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:stockly/core/config/app_config.dart';
 import 'package:stockly/core/decimal/money.dart';
@@ -18,20 +19,30 @@ import 'package:stockly/core/logging/app_logger.dart';
 import 'package:stockly/core/network/api_paths.dart';
 import 'package:stockly/core/network/dio_client.dart';
 import 'package:stockly/core/network/token_refresher.dart';
+import 'package:stockly/core/offline/app_database.dart';
 import 'package:stockly/core/session/session_signals.dart';
+import 'package:stockly/core/time/clock.dart';
 import 'package:stockly/features/auth/data/datasources/auth_remote_data_source.dart';
 import 'package:stockly/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:stockly/features/auth/domain/entities/app_language.dart';
 import 'package:stockly/features/auth/domain/entities/register_input.dart';
 import 'package:stockly/features/auth/domain/entities/shop_role.dart';
 import 'package:stockly/features/auth/domain/entities/shop_type.dart';
+import 'package:stockly/features/dashboard/data/datasources/dashboard_remote_data_source.dart';
+import 'package:stockly/features/dashboard/data/repositories/dashboard_repository_impl.dart';
 import 'package:stockly/features/products/data/datasources/products_remote_data_source.dart';
 import 'package:stockly/features/products/data/repositories/products_repository_impl.dart';
+import 'package:stockly/features/products/domain/entities/product_detail.dart';
 import 'package:stockly/features/products/domain/entities/product_draft.dart';
 import 'package:stockly/features/products/domain/entities/product_query.dart';
 import 'package:stockly/features/products/domain/entities/stock_change_drafts.dart';
 import 'package:stockly/features/products/domain/entities/stock_movement_reason.dart';
 import 'package:stockly/features/products/domain/entities/unit_draft.dart';
+import 'package:stockly/features/sales/data/datasources/pending_sales_local_data_source.dart';
+import 'package:stockly/features/sales/data/datasources/sales_remote_data_source.dart';
+import 'package:stockly/features/sales/data/repositories/sales_repository_impl.dart';
+import 'package:stockly/features/sales/domain/entities/sale_request.dart';
+import 'package:stockly/features/sales/domain/entities/sale_submission.dart';
 
 import '../helpers/test_doubles.dart';
 
@@ -197,6 +208,70 @@ Future<void> _fullFlow(String language) async {
       isFalse,
     );
   }
+
+  // A sale of the product, then the same sale again (S1, ADR-0006): the
+  // repeat answers 200 with the same sale. Then the sales list and detail
+  // (S2, S3), the dashboard (D1, D2) and the barcode lookup (P12).
+  final database = AppDatabase(NativeDatabase.memory());
+  addTearDown(database.close);
+  final sales = SalesRepositoryImpl(
+    remote: SalesRemoteDataSource(dio),
+    local: PendingSalesLocalDataSource(
+      database.pendingSalesDao,
+      const SystemClock(),
+    ),
+  );
+  final saleRequest = SaleRequest(
+    clientRequestId: uuid.v4(),
+    note: 'Live test',
+    items: [
+      SaleRequestItem(
+        productId: product.id,
+        productUnitId: product.baseUnit.id,
+        quantity: Quantity.fromApi('1.000'),
+        unitPrice: null,
+      ),
+    ],
+  );
+  final created = _ok(
+    await sales.submit(
+      saleRequest,
+      shopId: registered.shop.id,
+      userId: registered.user.id,
+    ),
+    'sale',
+  );
+  expect(created, isA<SaleCreated>());
+  expect(created.sale.items.single.balanceAfter, Quantity.fromApi('3.000'));
+  final repeat = _ok(
+    await sales.submit(
+      saleRequest,
+      shopId: registered.shop.id,
+      userId: registered.user.id,
+    ),
+    'sale repeat',
+  );
+  expect(repeat, isA<SaleAlreadyRecorded>());
+  expect(repeat.sale.id, created.sale.id);
+  expect(await sales.pendingSale(registered.shop.id), isNull);
+  final saleList = _ok(
+    await sales.getSales(from: null, page: 1, pageSize: 100),
+    'sales',
+  );
+  expect(saleList.items.map((s) => s.id), contains(created.sale.id));
+  final saleDetail = _ok(await sales.getSale(created.sale.id), 'sale detail');
+  expect(saleDetail.id, created.sale.id);
+  expect(saleDetail.items.single.productId, product.id);
+  final dashboard = DashboardRepositoryImpl(DashboardRemoteDataSource(dio));
+  final summary = _ok(await dashboard.getSummary(), 'dashboard');
+  expect(summary.productCount, greaterThanOrEqualTo(1));
+  _ok(
+    await dashboard.getExpiringSoon(days: 60, page: 1, pageSize: 20),
+    'expiring soon',
+  );
+  final lookup = _ok(await products.lookupBarcode(barcode), 'lookup');
+  expect(lookup.product.id, product.id);
+  expect(lookup.unit.isBase, isTrue);
 
   // A failing request: the code is stable, title/detail follow
   // Accept-Language (contract §1.5).

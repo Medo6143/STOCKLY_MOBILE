@@ -4,6 +4,7 @@ import 'package:stockly/core/error/api_error_code.dart';
 import 'package:stockly/core/error/failure.dart';
 import 'package:stockly/core/error/result.dart';
 import 'package:stockly/core/time/calendar_date.dart';
+import 'package:stockly/features/dashboard/presentation/providers/dashboard_summary_notifier.dart';
 import 'package:stockly/features/invoices/domain/entities/invoice_detail.dart';
 import 'package:stockly/features/invoices/domain/entities/invoice_draft.dart';
 import 'package:stockly/features/invoices/domain/entities/invoice_input_rules.dart';
@@ -11,10 +12,11 @@ import 'package:stockly/features/invoices/presentation/providers/invoice_detail_
 import 'package:stockly/features/invoices/presentation/providers/invoice_list_notifier.dart';
 import 'package:stockly/features/invoices/presentation/providers/invoice_review_state.dart';
 import 'package:stockly/features/invoices/presentation/providers/invoices_providers.dart';
+import 'package:stockly/features/products/presentation/providers/product_list_notifier.dart';
 
 /// Review of one invoice (design §11 review rules): loads I3, keeps the
-/// edited draft in memory and saves it with I4. The server's answer
-/// replaces the draft.
+/// edited draft in memory, saves it with I4 and confirms it with I5 (a
+/// dirty draft is saved first). The server's answer replaces the draft.
 final class InvoiceReviewNotifier extends AsyncNotifier<InvoiceReviewState> {
   new(this.invoiceId);
 
@@ -38,7 +40,7 @@ final class InvoiceReviewNotifier extends AsyncNotifier<InvoiceReviewState> {
 
   void _edit(InvoiceReviewState Function(InvoiceReviewState current) change) {
     final current = state.value;
-    if (current == null || current.isReadOnly || current.isSaving) {
+    if (current == null || current.isReadOnly || current.isBusy) {
       return;
     }
     state = AsyncData(change(current).copyWith(isDirty: true));
@@ -127,6 +129,72 @@ final class InvoiceReviewNotifier extends AsyncNotifier<InvoiceReviewState> {
     }
   }
 
+  /// Confirms the invoice with I5 (design §11 Sprint 4): a dirty draft is
+  /// saved first and nothing is confirmed when that save fails. Lines
+  /// without a product are flagged on the device. Retrying is safe: the
+  /// server returns a confirmed invoice unchanged.
+  Future<void> confirm() async {
+    var current = state.value;
+    if (current == null || !current.canConfirm) {
+      return;
+    }
+    if (current.isDirty) {
+      await save();
+      current = state.value;
+      if (!ref.mounted ||
+          current == null ||
+          current.isDirty ||
+          current.failure != null ||
+          current.lineErrors.isNotEmpty) {
+        return;
+      }
+    }
+    final unresolved = current.draft.unresolvedLineNos;
+    if (unresolved.isNotEmpty) {
+      state = AsyncData(
+        current.copyWith(lineErrors: unresolved.toSet(), failure: null),
+      );
+      return;
+    }
+    state = AsyncData(
+      current.copyWith(
+        isConfirming: true,
+        failure: null,
+        lineErrors: const {},
+        lineMessages: const {},
+      ),
+    );
+    final result = await ref
+        .read(confirmInvoiceUseCaseProvider)
+        .call(invoiceId);
+    if (!ref.mounted) {
+      return;
+    }
+    final latest = state.value ?? current;
+    switch (result) {
+      case Ok(value: final invoice):
+        ref
+          ..invalidate(invoiceListProvider)
+          ..invalidate(invoiceDetailProvider(invoiceId))
+          ..invalidate(productListProvider)
+          ..invalidate(dashboardSummaryProvider);
+        state = AsyncData(
+          _fresh(invoice).copyWith(
+            savedCount: latest.savedCount,
+            confirmedCount: latest.confirmedCount + 1,
+          ),
+        );
+      case Err(:final failure):
+        state = AsyncData(
+          await _afterFailure(
+            latest.copyWith(isConfirming: false),
+            failure,
+            latest.draft,
+          ),
+        );
+    }
+  }
+
   Future<InvoiceReviewState> _afterFailure(
     InvoiceReviewState latest,
     Failure failure,
@@ -138,7 +206,10 @@ final class InvoiceReviewNotifier extends AsyncNotifier<InvoiceReviewState> {
         return failed.copyWith(lineMessages: _lineMessages(fieldErrors, sent));
       case ApiFailure(code: ApiErrorCode.invoiceLineProductRequired):
         return failed.copyWith(lineErrors: sent.unresolvedLineNos.toSet());
-      case ApiFailure(code: ApiErrorCode.invoiceNotEditable):
+      case ApiFailure(
+        code: ApiErrorCode.invoiceNotEditable ||
+            ApiErrorCode.invoiceNotConfirmable,
+      ):
         // The invoice moved on (for example confirmed elsewhere): show it
         // as it is now, read-only.
         final reloaded = await ref
