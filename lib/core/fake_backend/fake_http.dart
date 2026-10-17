@@ -4,6 +4,26 @@ import 'package:flutter/foundation.dart';
 import 'package:stockly/core/error/api_error_code.dart';
 import 'package:stockly/core/network/request_extras.dart';
 
+/// One file part of a multipart request.
+@immutable
+final class FakeFile {
+  const new({required this.length, required this.contentType});
+
+  final int length;
+
+  /// The part's `Content-Type`, for example `image/jpeg`.
+  final String? contentType;
+}
+
+/// A `multipart/form-data` body (I1): text fields and file parts.
+@immutable
+final class FakeForm {
+  const new({required this.fields, required this.files});
+
+  final Map<String, String> fields;
+  final Map<String, FakeFile> files;
+}
+
 /// A request as the fake backend sees it.
 @immutable
 final class FakeRequest {
@@ -16,6 +36,7 @@ final class FakeRequest {
     required this.correlationId,
     this.query = const {},
     this.params = const {},
+    this.form,
   });
 
   final String method;
@@ -30,6 +51,9 @@ final class FakeRequest {
 
   /// The decoded JSON body, or `null` when there is none.
   final Object? body;
+
+  /// The multipart body, or `null` when the request is not multipart.
+  final FakeForm? form;
 
   /// `ar` or `en` from `Accept-Language` (default `ar`, contract §1.5).
   final String language;
@@ -56,6 +80,7 @@ final class FakeRequest {
   FakeRequest copyWith({
     required Object? body,
     required Map<String, String> params,
+    FakeForm? form,
   }) => FakeRequest(
     method: method,
     path: path,
@@ -65,6 +90,7 @@ final class FakeRequest {
     correlationId: correlationId,
     query: query,
     params: params,
+    form: form ?? this.form,
   );
 }
 

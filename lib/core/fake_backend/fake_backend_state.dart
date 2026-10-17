@@ -1,4 +1,5 @@
 import 'package:decimal/decimal.dart';
+import 'package:stockly/core/fake_backend/fake_invoice_records.dart';
 import 'package:stockly/core/fake_backend/fake_product_records.dart';
 
 /// Contract `ShopRole` values.
@@ -121,6 +122,9 @@ final class FakeBackendState {
 
   /// Append-only, oldest first.
   final List<FakeMovement> movements = [];
+
+  /// Invoices of every shop; the tenant filter is the shop of the token.
+  final List<FakeInvoice> invoices = [];
 
   /// Units referenced by invoice or sale lines (`ProductUnit.InUse`).
   final Set<String> unitsInUse = {};

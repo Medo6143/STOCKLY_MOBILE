@@ -10,6 +10,7 @@ abstract class FakeBackendPanelState with _$FakeBackendPanelState {
     required bool offline,
     required bool lockoutEnabled,
     required bool rateLimitEnabled,
+    required bool scanQuotaExhausted,
     ApiErrorCode? failNextWith,
   }) = _FakeBackendPanelState;
 }

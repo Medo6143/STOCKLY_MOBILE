@@ -80,6 +80,12 @@ class FakeBackendPanel extends ConsumerWidget {
             value: panel.rateLimitEnabled,
             onChanged: (value) => notifier.setRateLimit(enabled: value),
           ),
+          SwitchListTile(
+            title: Text(l10n.fakePanelScanQuota),
+            value: panel.scanQuotaExhausted,
+            onChanged: (value) =>
+                notifier.setScanQuotaExhausted(exhausted: value),
+          ),
         ],
       ),
     );

@@ -9,6 +9,7 @@ import 'package:stockly/core/fake_backend/fake_backend_controls.dart';
 import 'package:stockly/core/fake_backend/fake_backend_state.dart';
 import 'package:stockly/core/fake_backend/fake_http.dart';
 import 'package:stockly/core/fake_backend/handlers/fake_auth_handler.dart';
+import 'package:stockly/core/fake_backend/handlers/fake_invoices_handler.dart';
 import 'package:stockly/core/fake_backend/handlers/fake_products_handler.dart';
 import 'package:stockly/core/ids/uuid_generator.dart';
 import 'package:stockly/core/network/request_extras.dart';
@@ -40,6 +41,15 @@ final class FakeBackendAdapter implements HttpClientAdapter {
       auth,
       FakeProductsHandler(
         state: state,
+        clock: clock,
+        uuid: uuid,
+        problems: _problems,
+        authenticate: auth.authenticate,
+      ),
+      FakeInvoicesHandler(
+        state: state,
+        config: config,
+        controls: controls,
         clock: clock,
         uuid: uuid,
         problems: _problems,
@@ -105,7 +115,7 @@ final class FakeBackendAdapter implements HttpClientAdapter {
     final forced = controls.failNextWith;
     controls.failNextWith = null;
     final response = forced == null
-        ? _dispatch(request, bytes, headers)
+        ? _dispatch(request, bytes, headers, _formOf(options.data))
         : _problems.forced(request, forced, retryAfter: _config.authWindow);
     return _toResponseBody(response, correlationId);
   }
@@ -122,6 +132,7 @@ final class FakeBackendAdapter implements HttpClientAdapter {
     FakeRequest bare,
     List<int> bytes,
     Map<String, Object?> headers,
+    FakeForm? form,
   ) {
     final candidates = [
       for (final route in _routes)
@@ -145,6 +156,11 @@ final class FakeBackendAdapter implements HttpClientAdapter {
       );
     }
     final (route, params) = matching.first;
+    if (form != null) {
+      return route.handle(
+        bare.copyWith(body: null, params: params, form: form),
+      );
+    }
     if (bytes.isEmpty) {
       return route.handle(bare.copyWith(body: null, params: params));
     }
@@ -180,6 +196,21 @@ final class FakeBackendAdapter implements HttpClientAdapter {
       },
     );
   }
+
+  /// The parts of a multipart body (design §12.1: the adapter reads
+  /// `FormData` for the scan upload).
+  static FakeForm? _formOf(Object? data) => data is FormData
+      ? FakeForm(
+          fields: {for (final field in data.fields) field.key: field.value},
+          files: {
+            for (final file in data.files)
+              file.key: FakeFile(
+                length: file.value.length,
+                contentType: file.value.contentType?.mimeType,
+              ),
+          },
+        )
+      : null;
 
   Future<List<int>> _readAll(Stream<Uint8List>? stream) async {
     if (stream == null) {
