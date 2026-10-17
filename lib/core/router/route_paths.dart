@@ -43,11 +43,15 @@ abstract final class RoutePaths {
   static const String unitIdParameter = 'unitId';
   static const String invoiceIdParameter = 'invoiceId';
   static const String saleIdParameter = 'saleId';
+  static const String lineNoParameter = 'lineNo';
 
   /// Query parameters of `/products`: `lowStock=true`, `archived=true`.
   static const String lowStockParameter = 'lowStock';
   static const String archivedParameter = 'archived';
   static const String trueValue = 'true';
+
+  /// Query parameter of `/invoices`: a contract `InvoiceStatus` name.
+  static const String statusParameter = 'status';
 
   /// `/products/<productId>`.
   static String productDetailOf(String productId) => '$products/$productId';

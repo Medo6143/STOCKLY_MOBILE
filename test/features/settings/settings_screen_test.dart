@@ -17,6 +17,7 @@ import 'package:stockly/core/widgets/loading_state.dart';
 import 'package:stockly/features/auth/domain/entities/session.dart';
 import 'package:stockly/features/auth/presentation/providers/auth_notifier.dart';
 import 'package:stockly/features/auth/presentation/providers/auth_state.dart';
+import 'package:stockly/features/invoices/presentation/providers/pending_scans_providers.dart';
 import 'package:stockly/features/settings/presentation/screens/settings_screen.dart';
 import 'package:stockly/l10n/generated/app_localizations.dart';
 
@@ -36,6 +37,7 @@ void main() {
     Session? session,
     FakeBackendAdapter? fake,
     ThemeMode themeMode = ThemeMode.light,
+    int pending = 0,
   }) async {
     tester.view
       ..physicalSize = const Size(1080, 3000)
@@ -53,6 +55,7 @@ void main() {
         ),
         currentSessionProvider.overrideWithValue(session),
         fakeBackendProvider.overrideWithValue(fake),
+        pendingScanCountProvider.overrideWith((ref) => Stream.value(pending)),
       ],
     );
     return ProviderScope.containerOf(
@@ -162,6 +165,32 @@ void main() {
     expect(container.read(authProvider).value, const AuthState.signedOut());
   }, variant: localeVariant);
 
+  testWidgets('SignOut_WithPendingScans_AsksFirst', (tester) async {
+    when(() => repository.logout()).thenAnswer((_) async {});
+    final container = await pumpSettings(
+      tester,
+      session: ownerSession,
+      pending: 2,
+    );
+    await tester.pump();
+
+    await tester.tap(signOutButton());
+    await tester.pumpAndSettle();
+    expect(find.text(l10n().settingsSignOutPendingTitle), findsOneWidget);
+    expect(find.text(l10n().settingsSignOutPendingBody(2)), findsOneWidget);
+    await tester.tap(find.text(l10n().commonCancel));
+    await tester.pumpAndSettle();
+    verifyNever(() => repository.logout());
+
+    await tester.tap(signOutButton());
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(l10n().settingsSignOutAnyway));
+    await tester.pumpAndSettle();
+
+    verify(() => repository.logout()).called(1);
+    expect(container.read(authProvider).value, const AuthState.signedOut());
+  }, variant: localeVariant);
+
   testWidgets('VersionLongPress_RealMode_NoPanel', (tester) async {
     await pumpSettings(tester, session: ownerSession);
 
@@ -193,6 +222,9 @@ void main() {
     expect(adapter.controls.offline, isTrue);
     expect(adapter.controls.lockoutEnabled, isFalse);
     expect(adapter.controls.rateLimitEnabled, isFalse);
+    await tester.tap(find.text(l.fakePanelScanQuota));
+    await tester.pump();
+    expect(adapter.controls.scanQuotaExhausted, isTrue);
 
     await tester.tap(find.text(l.fakePanelFailNextNone));
     await tester.pumpAndSettle();

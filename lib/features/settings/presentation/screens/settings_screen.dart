@@ -10,13 +10,15 @@ import 'package:stockly/core/widgets/async_state_view.dart';
 import 'package:stockly/features/auth/domain/entities/session.dart';
 import 'package:stockly/features/auth/presentation/providers/auth_notifier.dart';
 import 'package:stockly/features/auth/presentation/providers/sign_out_notifier.dart';
+import 'package:stockly/features/invoices/presentation/providers/pending_scans_providers.dart';
 import 'package:stockly/features/settings/presentation/widgets/settings_labels.dart';
 import 'package:stockly/l10n/generated/app_localizations.dart';
 
 /// Language, theme, shop and account info, sign out and the app version
 /// (design §11). States: loading = the sign-out spinner (and the moment the
 /// session is gone); empty = n/a; error = none blocks sign out, it always
-/// clears the device; data = the settings list. In fake mode a long press
+/// clears the device; data = the settings list. Signing out with scans
+/// still in the queue asks first (design §6.7). In fake mode a long press
 /// on the version opens the fake backend panel (design §12.1).
 class SettingsScreen extends ConsumerWidget {
   const new({super.key});
@@ -49,6 +51,7 @@ class _SettingsList extends ConsumerWidget {
     final textTheme = Theme.of(context).textTheme;
     final signingOut = ref.watch(signOutProvider).inProgress;
     final fakeMode = ref.watch(fakeBackendProvider) != null;
+    final pending = ref.watch(pendingScanCountProvider).value ?? 0;
     final gutter = EdgeInsetsDirectional.symmetric(horizontal: spacing.md);
     Widget header(String text) => Padding(
       padding: EdgeInsetsDirectional.fromSTEB(
@@ -125,7 +128,7 @@ class _SettingsList extends ConsumerWidget {
           child: OutlinedButton.icon(
             onPressed: signingOut
                 ? null
-                : ref.read(signOutProvider.notifier).signOut,
+                : () => _signOut(context, ref, pending: pending),
             icon: signingOut
                 ? SizedBox.square(
                     dimension: spacing.md,
@@ -153,6 +156,39 @@ class _SettingsList extends ConsumerWidget {
         ),
       ],
     );
+  }
+
+  /// Queued scans stay on the device and upload when this shop signs in
+  /// again; the user confirms first (design §6.7).
+  Future<void> _signOut(
+    BuildContext context,
+    WidgetRef ref, {
+    required int pending,
+  }) async {
+    if (pending > 0) {
+      final l10n = AppLocalizations.of(context);
+      final confirmed = await showDialog<bool>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text(l10n.settingsSignOutPendingTitle),
+          content: Text(l10n.settingsSignOutPendingBody(pending)),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: Text(l10n.commonCancel),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: Text(l10n.settingsSignOutAnyway),
+            ),
+          ],
+        ),
+      );
+      if (!(confirmed ?? false)) {
+        return;
+      }
+    }
+    await ref.read(signOutProvider.notifier).signOut();
   }
 
   Future<void> _openFakePanel(BuildContext context, WidgetRef ref) =>

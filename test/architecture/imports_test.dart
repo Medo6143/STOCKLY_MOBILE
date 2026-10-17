@@ -4,8 +4,28 @@ import 'source_files.dart';
 
 /// Features that use the app-wide session providers of the auth feature.
 /// Products reads `isOwnerProvider` for the Owner-only actions (design
-/// §2.3, §11).
-const Set<String> _sessionConsumers = {'splash', 'settings', 'products'};
+/// §2.3, §11); invoices scopes the scan queue and the capture to the
+/// signed-in shop (design §2.3 `pendingScansProvider`, §6.7).
+const Set<String> _sessionConsumers = {
+  'splash',
+  'settings',
+  'products',
+  'invoices',
+};
+
+/// The only other cross-feature provider files a feature may import, each
+/// required by the design.
+const Map<String, Set<String>> _sharedProviders = {
+  // Design §2.3: the review's product picker and unit choice read the
+  // catalogue through the products use-case providers.
+  'invoices': {
+    'package:stockly/features/products/presentation/providers/products_providers.dart',
+  },
+  // Design §6.7: sign out warns about the shop's scans not uploaded yet.
+  'settings': {
+    'package:stockly/features/invoices/presentation/providers/pending_scans_providers.dart',
+  },
+};
 
 /// Design §1.1 and §13.4.
 void main() {
@@ -87,7 +107,12 @@ void main() {
             target.startsWith(
               'package:stockly/features/auth/presentation/providers/',
             );
-        if (match != null && match.group(1) != own && !usesSessionProviders) {
+        final usesSharedProviders =
+            _sharedProviders[own]?.contains(target) ?? false;
+        if (match != null &&
+            match.group(1) != own &&
+            !usesSessionProviders &&
+            !usesSharedProviders) {
           violations.add('$path -> $target');
         }
       }
