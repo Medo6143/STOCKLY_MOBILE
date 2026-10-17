@@ -24,5 +24,6 @@ abstract final class RouteNames {
   static const String sales = 'sales';
   static const String quickSale = 'quickSale';
   static const String saleDetail = 'saleDetail';
+  static const String profile = 'profile';
   static const String settings = 'settings';
 }

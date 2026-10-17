@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:stockly/core/router/auth_redirect.dart';
+import 'package:stockly/core/router/fade_through_branches.dart';
 import 'package:stockly/core/router/home_shell.dart';
 import 'package:stockly/core/router/route_names.dart';
 import 'package:stockly/core/router/route_paths.dart';
 import 'package:stockly/core/router/router_refresh.dart';
+import 'package:stockly/core/router/stockly_pages.dart';
 import 'package:stockly/core/widgets/not_found_screen.dart';
 import 'package:stockly/features/auth/presentation/providers/auth_notifier.dart';
 import 'package:stockly/features/auth/presentation/providers/auth_state.dart';
@@ -33,13 +35,16 @@ import 'package:stockly/features/products/presentation/screens/unit_form_screen.
 import 'package:stockly/features/sales/presentation/screens/quick_sale_screen.dart';
 import 'package:stockly/features/sales/presentation/screens/sale_detail_screen.dart';
 import 'package:stockly/features/sales/presentation/screens/sale_list_screen.dart';
+import 'package:stockly/features/settings/presentation/screens/profile_screen.dart';
 import 'package:stockly/features/settings/presentation/screens/settings_screen.dart';
 import 'package:stockly/features/splash/presentation/providers/splash_notifier.dart';
 import 'package:stockly/features/splash/presentation/providers/splash_state.dart';
 import 'package:stockly/features/splash/presentation/screens/splash_screen.dart';
 
 /// Every route of design §3.1. The shell has five tabs: dashboard (home),
-/// products, invoices, sales and settings.
+/// products, invoices, sales and profile; settings live under the profile.
+/// Pushed screens slide in from the end edge, top-level screens and tab
+/// switches fade through (design-refresh brief).
 final routerProvider = Provider<GoRouter>((ref) {
   final refresh = RouterRefresh(ref);
   final routes = _RouteTable(GlobalKey<NavigatorState>());
@@ -77,32 +82,45 @@ final class _RouteTable {
     GoRoute(
       path: RoutePaths.splash,
       name: RouteNames.splash,
-      builder: (context, state) => const SplashScreen(),
+      pageBuilder: (context, state) =>
+          StocklyPages.fadeThrough(context, state, const SplashScreen()),
     ),
     GoRoute(
       path: RoutePaths.login,
       name: RouteNames.login,
-      builder: (context, state) => const LoginScreen(),
+      pageBuilder: (context, state) =>
+          StocklyPages.fadeThrough(context, state, const LoginScreen()),
     ),
     GoRoute(
       path: RoutePaths.register,
       name: RouteNames.register,
-      builder: (context, state) => const RegisterScreen(),
+      pageBuilder: (context, state) =>
+          StocklyPages.fadeThrough(context, state, const RegisterScreen()),
     ),
     GoRoute(
       path: RoutePaths.suspended,
       name: RouteNames.suspended,
-      builder: (context, state) => const ShopSuspendedScreen(),
+      pageBuilder: (context, state) =>
+          StocklyPages.fadeThrough(context, state, const ShopSuspendedScreen()),
     ),
-    StatefulShellRoute.indexedStack(
+    GoRoute(
+      path: RoutePaths.legacySettings,
+      redirect: (context, state) => RoutePaths.settings,
+    ),
+    StatefulShellRoute(
       builder: (context, state, navigationShell) =>
           HomeShell(navigationShell: navigationShell),
+      navigatorContainerBuilder: (context, navigationShell, children) =>
+          FadeThroughBranches(
+            currentIndex: navigationShell.currentIndex,
+            children: children,
+          ),
       branches: [
         StatefulShellBranch(routes: [_dashboardRoute]),
         StatefulShellBranch(routes: [_productsRoute]),
         StatefulShellBranch(routes: [_invoicesRoute]),
         StatefulShellBranch(routes: [_salesRoute]),
-        StatefulShellBranch(routes: [_settingsRoute]),
+        StatefulShellBranch(routes: [_profileRoute]),
       ],
     ),
   ];
@@ -140,7 +158,8 @@ final class _RouteTable {
         path: _child(RoutePaths.quickSale, RoutePaths.sales),
         name: RouteNames.quickSale,
         parentNavigatorKey: rootNavigatorKey,
-        builder: (context, state) => const QuickSaleScreen(),
+        pageBuilder: (context, state) =>
+            StocklyPages.push(context, state, const QuickSaleScreen()),
       ),
       _screen(
         RoutePaths.saleDetail,
@@ -239,7 +258,8 @@ final class _RouteTable {
   }) => GoRoute(
     path: _child(path, parent),
     name: name,
-    builder: (context, state) => build(state),
+    pageBuilder: (context, state) =>
+        StocklyPages.push(context, state, build(state)),
     routes: routes,
   );
 
@@ -256,7 +276,8 @@ final class _RouteTable {
         path: _child(RoutePaths.scanCapture, RoutePaths.invoices),
         name: RouteNames.scanCapture,
         parentNavigatorKey: rootNavigatorKey,
-        builder: (context, state) => const ScanCaptureScreen(),
+        pageBuilder: (context, state) =>
+            StocklyPages.push(context, state, const ScanCaptureScreen()),
       ),
       _screen(
         RoutePaths.scanQueue,
@@ -274,8 +295,11 @@ final class _RouteTable {
             path: _child(RoutePaths.invoiceReview, RoutePaths.invoiceDetail),
             name: RouteNames.invoiceReview,
             parentNavigatorKey: rootNavigatorKey,
-            builder: (context, state) =>
-                InvoiceReviewScreen(invoiceId: _invoiceId(state)),
+            pageBuilder: (context, state) => StocklyPages.push(
+              context,
+              state,
+              InvoiceReviewScreen(invoiceId: _invoiceId(state)),
+            ),
             routes: [
               GoRoute(
                 path: _child(
@@ -284,18 +308,22 @@ final class _RouteTable {
                 ),
                 name: RouteNames.invoiceLineEdit,
                 parentNavigatorKey: rootNavigatorKey,
-                builder: (context, state) {
+                pageBuilder: (context, state) {
                   final lineNo = int.tryParse(
                     state.pathParameters[RoutePaths.lineNoParameter] ?? '',
                   );
-                  return lineNo == null || lineNo < 1
-                      ? NotFoundScreen(
-                          onGoHome: () => context.go(RoutePaths.home),
-                        )
-                      : InvoiceLineEditorScreen(
-                          invoiceId: _invoiceId(state),
-                          lineNo: lineNo,
-                        );
+                  return StocklyPages.push(
+                    context,
+                    state,
+                    lineNo == null || lineNo < 1
+                        ? NotFoundScreen(
+                            onGoHome: () => context.go(RoutePaths.home),
+                          )
+                        : InvoiceLineEditorScreen(
+                            invoiceId: _invoiceId(state),
+                            lineNo: lineNo,
+                          ),
+                  );
                 },
               ),
             ],
@@ -308,9 +336,17 @@ final class _RouteTable {
   static String _invoiceId(GoRouterState state) =>
       state.pathParameters[RoutePaths.invoiceIdParameter]!;
 
-  GoRoute get _settingsRoute => GoRoute(
-    path: RoutePaths.settings,
-    name: RouteNames.settings,
-    builder: (context, state) => const SettingsScreen(),
+  GoRoute get _profileRoute => GoRoute(
+    path: RoutePaths.profile,
+    name: RouteNames.profile,
+    builder: (context, state) => const ProfileScreen(),
+    routes: [
+      _screen(
+        RoutePaths.settings,
+        RouteNames.settings,
+        RoutePaths.profile,
+        (state) => const SettingsScreen(),
+      ),
+    ],
   );
 }
