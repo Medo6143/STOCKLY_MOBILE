@@ -51,6 +51,10 @@ Confirming an invoice receives its stock (boxes are counted in strips) and creat
 
 Debug panel: sign in, open **Settings** and **long-press the version text** at the bottom (fake mode only). It can switch the device offline, fail the next request with a chosen error code, expire the access token now, suspend the shop, turn the account lockout and the login/register rate limit on or off, and use up the daily scan quota.
 
+### Screens
+
+The app has five tabs: **Home** (dashboard), **Products**, **Invoices**, **Sales** and **Profile**. The home screen and the profile open with a navy gradient header (shop name on the home screen, avatar with initials, name, email, phone and role on the profile) with cards overlapping its edge; dashboard numbers count up. Lists are rounded cards with a tinted badge and soft status chips, forms group their fields in titled cards with full-width pill buttons, and loading shows shimmering skeletons shaped like the content. Settings (language, theme, version, sign out) moved under **Profile → Settings** (`/profile/settings`; the old `/settings` link redirects there), so the debug panel is at **Profile → Settings**, long-press the version. Pushed screens slide in from the end edge (the left in Arabic), tabs fade through, and invoice confirm and recorded sales show an animated check. With the system's "Remove animations" / "Reduce motion" on, every animation shows its final frame.
+
 ### Live API test
 
 `test/live/live_api_test.dart` (tag `live`) runs the app's real Dio stack, data sources and repositories against a running backend: register, login, `me`, a product with opening stock, a unit, an adjustment, a stock count, the low-stock list, movements, a sale of the product and the same sale again (`200`, same id), the sales list and detail, the dashboard summary and expiring-soon list, the barcode lookup, refresh and logout, once in Arabic and once in English. Without the define it is skipped, so `flutter test` stays offline.
