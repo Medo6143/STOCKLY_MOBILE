@@ -6,10 +6,12 @@ import 'source_files.dart';
 /// Products reads `isOwnerProvider` for the Owner-only actions (design
 /// §2.3, §11); invoices scopes the scan queue and the capture to the
 /// signed-in shop (design §2.3 `pendingScansProvider`, §6.7); sales scopes
-/// the pending sales to the signed-in shop (design §6.8).
+/// the pending sales to the signed-in shop (design §6.8); the dashboard
+/// header shows the shop name (design-refresh brief).
 const Set<String> _sessionConsumers = {
   'splash',
   'settings',
+  'dashboard',
   'products',
   'invoices',
   'sales',

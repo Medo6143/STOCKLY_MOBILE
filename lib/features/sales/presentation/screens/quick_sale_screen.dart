@@ -16,6 +16,7 @@ import 'package:stockly/core/widgets/form_banner.dart';
 import 'package:stockly/core/widgets/ltr_isolate.dart';
 import 'package:stockly/core/widgets/money_text.dart';
 import 'package:stockly/core/widgets/offline_banner.dart';
+import 'package:stockly/core/widgets/snack_bars.dart';
 import 'package:stockly/features/products/domain/entities/product_list_item.dart';
 import 'package:stockly/features/sales/domain/entities/cart_line.dart';
 import 'package:stockly/features/sales/domain/entities/sale_input_rules.dart';
@@ -133,6 +134,7 @@ class _QuickSaleScreenState extends ConsumerState<QuickSaleScreen> {
       if (previous != null &&
           next.submissionCount > previous.submissionCount &&
           submission != null) {
+        showSuccessSnackBar(context, l10n.salesRecorded);
         context.goNamed(
           RouteNames.saleDetail,
           pathParameters: {RoutePaths.saleIdParameter: submission.sale.id},

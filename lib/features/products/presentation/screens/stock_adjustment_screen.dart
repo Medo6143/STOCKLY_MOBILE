@@ -6,8 +6,9 @@ import 'package:stockly/core/widgets/async_state_view.dart';
 import 'package:stockly/core/widgets/decimal_field.dart';
 import 'package:stockly/core/widgets/failure_message.dart';
 import 'package:stockly/core/widgets/form_banner.dart';
+import 'package:stockly/core/widgets/loading_state.dart';
 import 'package:stockly/core/widgets/ltr_isolate.dart';
-import 'package:stockly/core/widgets/quantity_text.dart';
+import 'package:stockly/core/widgets/section_card.dart';
 import 'package:stockly/core/widgets/snack_bars.dart';
 import 'package:stockly/features/products/domain/entities/product_detail.dart';
 import 'package:stockly/features/products/domain/entities/product_field.dart';
@@ -15,6 +16,7 @@ import 'package:stockly/features/products/presentation/providers/product_detail_
 import 'package:stockly/features/products/presentation/providers/stock_adjustment_notifier.dart';
 import 'package:stockly/features/products/presentation/providers/stock_change_states.dart';
 import 'package:stockly/features/products/presentation/widgets/products_labels.dart';
+import 'package:stockly/features/products/presentation/widgets/stock_product_header.dart';
 import 'package:stockly/features/products/presentation/widgets/submit_button.dart';
 import 'package:stockly/features/products/presentation/widgets/unit_picker.dart';
 import 'package:stockly/l10n/generated/app_localizations.dart';
@@ -38,6 +40,7 @@ class StockAdjustmentScreen extends ConsumerWidget {
         title: Text(AppLocalizations.of(context).stockAdjustTitle),
       ),
       body: AsyncStateView<ProductDetail>(
+        loading: const LoadingState(shape: LoadingShape.form),
         value: ref.watch(provider),
         onRetry: () => ref.invalidate(provider),
         data: (context, product) => _AdjustmentForm(product: product),
@@ -107,50 +110,45 @@ class _AdjustmentFormState extends ConsumerState<_AdjustmentForm> {
           FormBanner(message: failureMessage(l10n, banner)),
           gap,
         ],
-        Text(product.name, style: Theme.of(context).textTheme.titleLarge),
-        SizedBox(height: spacing.xs),
-        Text(
-          l10n.stockCurrentQuantity,
-          style: Theme.of(context).textTheme.bodyMedium
-              ?.copyWith(color: context.colors.muted),
-        ),
-        QuantityText(
-          product.quantity,
-          unit: base.name,
-          isLow: product.isLowStock,
-        ),
+        StockProductHeader(product: product),
         gap,
-        UnitPicker(
-          units: product.units,
-          value: _unitId,
-          enabled: enabled,
-          onChanged: (value) => setState(() => _unitId = value),
-          errorText: productFieldError(l10n, ProductField.stockUnit, errors),
-        ),
-        gap,
-        DecimalField(
-          controller: _change,
-          label: l10n.stockAdjustChange,
-          enabled: enabled,
-          signed: true,
-          errorText: productFieldError(
-            l10n,
-            ProductField.quantityChange,
-            errors,
-          ),
-        ),
-        gap,
-        TextField(
-          controller: _note,
-          enabled: enabled,
-          maxLines: null,
-          textInputAction: TextInputAction.done,
-          decoration: InputDecoration(
-            labelText: l10n.stockAdjustNote,
-            hintText: l10n.stockAdjustNoteHint,
-            errorText: productFieldError(l10n, ProductField.note, errors),
-            errorMaxLines: 3,
-          ),
+        SectionCard(
+          children: [
+            UnitPicker(
+              units: product.units,
+              value: _unitId,
+              enabled: enabled,
+              onChanged: (value) => setState(() => _unitId = value),
+              errorText: productFieldError(
+                l10n,
+                ProductField.stockUnit,
+                errors,
+              ),
+            ),
+            DecimalField(
+              controller: _change,
+              label: l10n.stockAdjustChange,
+              enabled: enabled,
+              signed: true,
+              errorText: productFieldError(
+                l10n,
+                ProductField.quantityChange,
+                errors,
+              ),
+            ),
+            TextField(
+              controller: _note,
+              enabled: enabled,
+              maxLines: null,
+              textInputAction: TextInputAction.done,
+              decoration: InputDecoration(
+                labelText: l10n.stockAdjustNote,
+                hintText: l10n.stockAdjustNoteHint,
+                errorText: productFieldError(l10n, ProductField.note, errors),
+                errorMaxLines: 3,
+              ),
+            ),
+          ],
         ),
         SizedBox(height: spacing.xl),
         SubmitButton(

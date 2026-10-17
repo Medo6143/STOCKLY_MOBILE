@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:stockly/core/theme/app_theme.dart';
+import 'package:stockly/core/widgets/surface_card.dart';
 import 'package:stockly/l10n/generated/app_localizations.dart';
 
 /// "N scans waiting to upload" at the top of the invoice list, linking to
@@ -21,16 +22,25 @@ class PendingScansCard extends StatelessWidget {
         spacing.md,
         0,
       ),
-      child: Card(
+      child: SurfaceCard(
+        onTap: onTap,
         color: colors.warningSoft,
-        margin: EdgeInsetsDirectional.zero,
-        child: ListTile(
-          onTap: onTap,
-          leading: Icon(Icons.cloud_upload_outlined, color: colors.warning),
-          title: Text(
-            AppLocalizations.of(context).scanQueuePendingCount(count),
-          ),
-          trailing: Icon(Icons.adaptive.arrow_forward, color: colors.muted),
+        padding: EdgeInsetsDirectional.symmetric(
+          horizontal: spacing.md,
+          vertical: spacing.sm,
+        ),
+        child: Row(
+          children: [
+            Icon(Icons.cloud_upload_outlined, color: colors.warning),
+            SizedBox(width: spacing.sm),
+            Expanded(
+              child: Text(
+                AppLocalizations.of(context).scanQueuePendingCount(count),
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+            ),
+            Icon(Icons.chevron_right_rounded, color: colors.muted),
+          ],
         ),
       ),
     );

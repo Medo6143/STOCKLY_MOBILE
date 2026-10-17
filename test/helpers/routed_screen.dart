@@ -41,6 +41,7 @@ Future<void> pumpRoutedScreen(
   required List<Override> overrides,
   ThemeMode themeMode = ThemeMode.light,
   bool online = true,
+  bool disableAnimations = false,
 }) async {
   tester.view
     ..physicalSize = const Size(1080, 2600)
@@ -85,6 +86,11 @@ Future<void> pumpRoutedScreen(
         theme: AppTheme.light(),
         darkTheme: AppTheme.dark(),
         themeMode: themeMode,
+        builder: (context, child) => MediaQuery(
+          data: MediaQuery.of(context)
+              .copyWith(disableAnimations: disableAnimations),
+          child: child!,
+        ),
       ),
     ),
   );

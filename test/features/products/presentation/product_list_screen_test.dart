@@ -12,6 +12,7 @@ import 'package:stockly/core/widgets/loading_state.dart';
 import 'package:stockly/features/products/domain/entities/product_list_item.dart';
 import 'package:stockly/features/products/domain/entities/product_query.dart';
 import 'package:stockly/features/products/presentation/screens/product_list_screen.dart';
+import 'package:stockly/features/products/presentation/widgets/product_hero_tags.dart';
 import 'package:stockly/features/products/presentation/widgets/product_list_tile.dart';
 
 import '../../../helpers/products_doubles.dart';
@@ -56,11 +57,13 @@ void main() {
     WidgetTester tester, {
     ProductQuery query = const ProductQuery(),
     ThemeMode themeMode = ThemeMode.light,
+    bool disableAnimations = false,
   }) => pumpProductScreen(
     tester,
     ProductListScreen(initialQuery: query),
     repository: repository,
     themeMode: themeMode,
+    disableAnimations: disableAnimations,
   );
 
   testWidgets('Loading_FirstPage', (tester) async {
@@ -210,6 +213,59 @@ void main() {
     await tester.pump();
     await tester.pump();
     expect(find.byType(ProductListTile), findsNWidgets(2));
+  }, variant: localeVariant);
+
+  testWidgets('Stagger_FirstPageOnly_NextPageAppearsAtOnce', (tester) async {
+    stub(
+      (_, p) => p == 1
+          ? Ok(page([items.first], totalCount: 21))
+          : Ok(page([items[1]], page: 2, totalCount: 21)),
+    );
+    Finder fading(String name) =>
+        find.ancestor(of: find.text(name), matching: find.byType(Opacity));
+
+    await pump(tester);
+    await tester.pump();
+
+    expect(fading(items.first.name), findsOneWidget);
+    await tester.pumpAndSettle();
+
+    expect(find.byType(ProductListTile), findsNWidgets(2));
+    expect(fading(items[1].name), findsNothing);
+  }, variant: localeVariant);
+
+  testWidgets('Hero_NameAndBadgeFlyToTheDetail', (tester) async {
+    stub((_, _) => Ok(page(items)));
+
+    await pump(tester);
+    await tester.pump();
+
+    for (final part in ProductHeroPart.values) {
+      expect(
+        find.byWidgetPredicate(
+          (w) => w is Hero && w.tag == productHeroTag(part, items.first.id),
+        ),
+        findsOneWidget,
+        reason: part.name,
+      );
+    }
+  }, variant: localeVariant);
+
+  testWidgets('ReduceMotion_FinalFrameNoTicking', (tester) async {
+    stub((_, _) => Ok(page(items)));
+
+    await pump(tester, disableAnimations: true);
+    await tester.pump();
+
+    expect(find.byType(ProductListTile), findsNWidgets(3));
+    expect(
+      find.ancestor(
+        of: find.byType(ProductListTile),
+        matching: find.byType(Opacity),
+      ),
+      findsNothing,
+    );
+    expect(tester.binding.transientCallbackCount, 0);
   }, variant: localeVariant);
 
   testWidgets('Rtl_RowsAndSearchFollowTheLanguage', (tester) async {

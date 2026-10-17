@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:stockly/core/router/route_paths.dart';
 import 'package:stockly/core/theme/app_theme.dart';
 import 'package:stockly/core/widgets/form_banner.dart';
+import 'package:stockly/core/widgets/primary_button.dart';
+import 'package:stockly/core/widgets/surface_card.dart';
 import 'package:stockly/features/auth/domain/entities/auth_field.dart';
 import 'package:stockly/features/auth/presentation/providers/auth_notifier.dart';
 import 'package:stockly/features/auth/presentation/providers/auth_state.dart';
@@ -82,38 +84,39 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 ),
                 SizedBox(height: spacing.md),
               ],
-              TextField(
-                controller: _email,
-                enabled: enabled,
-                keyboardType: TextInputType.emailAddress,
-                textDirection: TextDirection.ltr,
-                autocorrect: false,
-                autofillHints: const [AutofillHints.email],
-                textInputAction: TextInputAction.next,
-                decoration: InputDecoration(
-                  labelText: l10n.authEmailLabel,
-                  errorText: errorOf(AuthField.email),
+              SurfaceCard(
+                level: 2,
+                radius: context.radii.xxl,
+                child: Column(
+                  children: [
+                    TextField(
+                      controller: _email,
+                      enabled: enabled,
+                      keyboardType: TextInputType.emailAddress,
+                      textDirection: TextDirection.ltr,
+                      autocorrect: false,
+                      autofillHints: const [AutofillHints.email],
+                      textInputAction: TextInputAction.next,
+                      decoration: InputDecoration(
+                        labelText: l10n.authEmailLabel,
+                        errorText: errorOf(AuthField.email),
+                      ),
+                    ),
+                    SizedBox(height: spacing.md),
+                    PasswordField(
+                      controller: _password,
+                      enabled: enabled,
+                      errorText: errorOf(AuthField.password),
+                      onSubmitted: (_) => _submit(),
+                    ),
+                  ],
                 ),
               ),
-              SizedBox(height: spacing.md),
-              PasswordField(
-                controller: _password,
-                enabled: enabled,
-                errorText: errorOf(AuthField.password),
-                onSubmitted: (_) => _submit(),
-              ),
               SizedBox(height: spacing.xl),
-              FilledButton(
+              PrimaryButton(
+                label: l10n.authLoginSubmit,
+                busy: form.isSubmitting,
                 onPressed: form.canSubmit ? _submit : null,
-                child: form.isSubmitting
-                    ? SizedBox.square(
-                        dimension: spacing.lg,
-                        child: CircularProgressIndicator(
-                          strokeWidth: spacing.xxs / 2,
-                          semanticsLabel: l10n.commonLoading,
-                        ),
-                      )
-                    : Text(l10n.authLoginSubmit),
               ),
               SizedBox(height: spacing.md),
               Wrap(

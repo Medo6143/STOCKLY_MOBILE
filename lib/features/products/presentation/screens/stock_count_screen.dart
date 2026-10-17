@@ -6,14 +6,16 @@ import 'package:stockly/core/widgets/async_state_view.dart';
 import 'package:stockly/core/widgets/decimal_field.dart';
 import 'package:stockly/core/widgets/failure_message.dart';
 import 'package:stockly/core/widgets/form_banner.dart';
+import 'package:stockly/core/widgets/loading_state.dart';
 import 'package:stockly/core/widgets/ltr_isolate.dart';
-import 'package:stockly/core/widgets/quantity_text.dart';
+import 'package:stockly/core/widgets/section_card.dart';
 import 'package:stockly/features/products/domain/entities/product_detail.dart';
 import 'package:stockly/features/products/domain/entities/product_field.dart';
 import 'package:stockly/features/products/domain/entities/stock_count_result.dart';
 import 'package:stockly/features/products/presentation/providers/product_detail_notifier.dart';
 import 'package:stockly/features/products/presentation/providers/stock_count_notifier.dart';
 import 'package:stockly/features/products/presentation/widgets/products_labels.dart';
+import 'package:stockly/features/products/presentation/widgets/stock_product_header.dart';
 import 'package:stockly/features/products/presentation/widgets/submit_button.dart';
 import 'package:stockly/features/products/presentation/widgets/unit_picker.dart';
 import 'package:stockly/l10n/generated/app_localizations.dart';
@@ -34,6 +36,7 @@ class StockCountScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: Text(AppLocalizations.of(context).stockCountTitle)),
       body: AsyncStateView<ProductDetail>(
+        loading: const LoadingState(shape: LoadingShape.form),
         value: ref.watch(provider),
         onRetry: () => ref.invalidate(provider),
         data: (context, product) => _CountForm(product: product),
@@ -116,37 +119,33 @@ class _CountFormState extends ConsumerState<_CountForm> {
           ),
           gap,
         ],
-        Text(product.name, style: Theme.of(context).textTheme.titleLarge),
-        SizedBox(height: spacing.xs),
-        Text(
-          l10n.stockCurrentQuantity,
-          style: Theme.of(context).textTheme.bodyMedium
-              ?.copyWith(color: colors.muted),
-        ),
-        QuantityText(
-          product.quantity,
-          unit: product.baseUnit.name,
-          isLow: product.isLowStock,
-        ),
+        StockProductHeader(product: product),
         gap,
-        UnitPicker(
-          units: product.units,
-          value: _unitId,
-          enabled: enabled,
-          onChanged: (value) => setState(() => _unitId = value),
-          errorText: productFieldError(l10n, ProductField.stockUnit, errors),
-        ),
-        gap,
-        DecimalField(
-          controller: _counted,
-          label: l10n.stockCountQuantity,
-          enabled: enabled,
-          textInputAction: TextInputAction.done,
-          errorText: productFieldError(
-            l10n,
-            ProductField.countedQuantity,
-            errors,
-          ),
+        SectionCard(
+          children: [
+            UnitPicker(
+              units: product.units,
+              value: _unitId,
+              enabled: enabled,
+              onChanged: (value) => setState(() => _unitId = value),
+              errorText: productFieldError(
+                l10n,
+                ProductField.stockUnit,
+                errors,
+              ),
+            ),
+            DecimalField(
+              controller: _counted,
+              label: l10n.stockCountQuantity,
+              enabled: enabled,
+              textInputAction: TextInputAction.done,
+              errorText: productFieldError(
+                l10n,
+                ProductField.countedQuantity,
+                errors,
+              ),
+            ),
+          ],
         ),
         SizedBox(height: spacing.xl),
         SubmitButton(

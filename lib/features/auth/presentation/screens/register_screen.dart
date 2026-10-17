@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:stockly/core/router/route_paths.dart';
 import 'package:stockly/core/theme/app_theme.dart';
 import 'package:stockly/core/widgets/form_banner.dart';
+import 'package:stockly/core/widgets/primary_button.dart';
+import 'package:stockly/core/widgets/section_card.dart';
 import 'package:stockly/features/auth/domain/entities/auth_field.dart';
 import 'package:stockly/features/auth/presentation/providers/register_form_notifier.dart';
 import 'package:stockly/features/auth/presentation/providers/register_form_state.dart';
@@ -70,7 +72,6 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final spacing = context.spacing;
-    final textTheme = Theme.of(context).textTheme;
     final form = ref.watch(registerFormProvider);
     final enabled = !form.isSubmitting;
     final banner = form.failure;
@@ -87,20 +88,17 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       TextInputType? keyboardType,
       Iterable<String>? autofillHints,
       bool ltr = false,
-    }) => Padding(
-      padding: EdgeInsetsDirectional.only(bottom: spacing.md),
-      child: TextField(
-        controller: _text[field],
-        enabled: enabled,
-        keyboardType: keyboardType,
-        textDirection: ltr ? TextDirection.ltr : null,
-        autofillHints: autofillHints,
-        textInputAction: TextInputAction.next,
-        decoration: InputDecoration(
-          labelText: label,
-          errorText: errorOf(field),
-          errorMaxLines: 3,
-        ),
+    }) => TextField(
+      controller: _text[field],
+      enabled: enabled,
+      keyboardType: keyboardType,
+      textDirection: ltr ? TextDirection.ltr : null,
+      autofillHints: autofillHints,
+      textInputAction: TextInputAction.next,
+      decoration: InputDecoration(
+        labelText: label,
+        errorText: errorOf(field),
+        errorMaxLines: 3,
       ),
     );
     return Scaffold(
@@ -124,72 +122,70 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 ),
                 SizedBox(height: spacing.md),
               ],
-              Text(l10n.authRegisterAboutYou, style: textTheme.titleMedium),
-              SizedBox(height: spacing.sm),
-              field(
-                AuthField.fullName,
-                l10n.authFullNameLabel,
-                autofillHints: const [AutofillHints.name],
+              SectionCard(
+                title: l10n.authRegisterAboutYou,
+                icon: Icons.person_outline_rounded,
+                children: [
+                  field(
+                    AuthField.fullName,
+                    l10n.authFullNameLabel,
+                    autofillHints: const [AutofillHints.name],
+                  ),
+                  field(
+                    AuthField.email,
+                    l10n.authEmailLabel,
+                    keyboardType: TextInputType.emailAddress,
+                    autofillHints: const [AutofillHints.email],
+                    ltr: true,
+                  ),
+                  PasswordField(
+                    controller: _text[AuthField.password]!,
+                    enabled: enabled,
+                    errorText: errorOf(AuthField.password),
+                    autofillHints: const [AutofillHints.newPassword],
+                    textInputAction: TextInputAction.next,
+                  ),
+                  field(
+                    AuthField.phone,
+                    l10n.authPhoneLabel,
+                    keyboardType: TextInputType.phone,
+                    autofillHints: const [AutofillHints.telephoneNumber],
+                    ltr: true,
+                  ),
+                ],
               ),
-              field(
-                AuthField.email,
-                l10n.authEmailLabel,
-                keyboardType: TextInputType.emailAddress,
-                autofillHints: const [AutofillHints.email],
-                ltr: true,
+              SizedBox(height: spacing.md),
+              SectionCard(
+                title: l10n.authRegisterYourShop,
+                icon: Icons.storefront_outlined,
+                children: [
+                  field(AuthField.shopName, l10n.authShopNameLabel),
+                  ShopTypePicker(
+                    selected: form.shopType,
+                    enabled: enabled,
+                    errorText: errorOf(AuthField.shopType),
+                    onSelected: ref
+                        .read(registerFormProvider.notifier)
+                        .selectShopType,
+                  ),
+                  field(
+                    AuthField.shopPhone,
+                    l10n.authShopPhoneLabel,
+                    keyboardType: TextInputType.phone,
+                    ltr: true,
+                  ),
+                  field(
+                    AuthField.shopGovernorate,
+                    l10n.authShopGovernorateLabel,
+                  ),
+                  field(AuthField.shopAddress, l10n.authShopAddressLabel),
+                ],
               ),
-              Padding(
-                padding: EdgeInsetsDirectional.only(bottom: spacing.md),
-                child: PasswordField(
-                  controller: _text[AuthField.password]!,
-                  enabled: enabled,
-                  errorText: errorOf(AuthField.password),
-                  autofillHints: const [AutofillHints.newPassword],
-                  textInputAction: TextInputAction.next,
-                ),
-              ),
-              field(
-                AuthField.phone,
-                l10n.authPhoneLabel,
-                keyboardType: TextInputType.phone,
-                autofillHints: const [AutofillHints.telephoneNumber],
-                ltr: true,
-              ),
-              SizedBox(height: spacing.sm),
-              Text(l10n.authRegisterYourShop, style: textTheme.titleMedium),
-              SizedBox(height: spacing.sm),
-              field(AuthField.shopName, l10n.authShopNameLabel),
-              Padding(
-                padding: EdgeInsetsDirectional.only(bottom: spacing.md),
-                child: ShopTypePicker(
-                  selected: form.shopType,
-                  enabled: enabled,
-                  errorText: errorOf(AuthField.shopType),
-                  onSelected: ref
-                      .read(registerFormProvider.notifier)
-                      .selectShopType,
-                ),
-              ),
-              field(
-                AuthField.shopPhone,
-                l10n.authShopPhoneLabel,
-                keyboardType: TextInputType.phone,
-                ltr: true,
-              ),
-              field(AuthField.shopGovernorate, l10n.authShopGovernorateLabel),
-              field(AuthField.shopAddress, l10n.authShopAddressLabel),
-              SizedBox(height: spacing.sm),
-              FilledButton(
+              SizedBox(height: spacing.xl),
+              PrimaryButton(
+                label: l10n.authRegisterSubmit,
+                busy: form.isSubmitting,
                 onPressed: form.canSubmit ? _submit : null,
-                child: form.isSubmitting
-                    ? SizedBox.square(
-                        dimension: spacing.lg,
-                        child: CircularProgressIndicator(
-                          strokeWidth: spacing.xxs / 2,
-                          semanticsLabel: l10n.commonLoading,
-                        ),
-                      )
-                    : Text(l10n.authRegisterSubmit),
               ),
               SizedBox(height: spacing.md),
               Wrap(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:stockly/core/theme/app_theme.dart';
 import 'package:stockly/l10n/generated/app_localizations.dart';
 
 /// The search box of the product list. The list debounces [onChanged].
@@ -22,6 +23,7 @@ class ProductSearchField extends StatelessWidget {
       onChanged: onChanged,
       textInputAction: TextInputAction.search,
       decoration: InputDecoration(
+        fillColor: context.colors.raisedSurface,
         hintText: l10n.productsSearchHint,
         prefixIcon: const Icon(Icons.search_rounded),
         suffixIcon: ValueListenableBuilder(
