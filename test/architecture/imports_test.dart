@@ -5,22 +5,35 @@ import 'source_files.dart';
 /// Features that use the app-wide session providers of the auth feature.
 /// Products reads `isOwnerProvider` for the Owner-only actions (design
 /// §2.3, §11); invoices scopes the scan queue and the capture to the
-/// signed-in shop (design §2.3 `pendingScansProvider`, §6.7).
+/// signed-in shop (design §2.3 `pendingScansProvider`, §6.7); sales scopes
+/// the pending sales to the signed-in shop (design §6.8).
 const Set<String> _sessionConsumers = {
   'splash',
   'settings',
   'products',
   'invoices',
+  'sales',
 };
+
+const String _productsProviders =
+    'package:stockly/features/products/presentation/providers/products_providers.dart';
+const String _productList =
+    'package:stockly/features/products/presentation/providers/product_list_notifier.dart';
+const String _dashboardSummary =
+    'package:stockly/features/dashboard/presentation/providers/dashboard_summary_notifier.dart';
 
 /// The only other cross-feature provider files a feature may import, each
 /// required by the design.
 const Map<String, Set<String>> _sharedProviders = {
   // Design §2.3: the review's product picker and unit choice read the
   // catalogue through the products use-case providers.
-  'invoices': {
-    'package:stockly/features/products/presentation/providers/products_providers.dart',
-  },
+  // Design §2.3: invoice confirm invalidates the product list and the
+  // dashboard.
+  'invoices': {_productsProviders, _productList, _dashboardSummary},
+  // Design §2.3: the quick sale looks products up through the products
+  // use-case providers (P12, P1, P2); a sale invalidates the product list
+  // and the dashboard.
+  'sales': {_productsProviders, _productList, _dashboardSummary},
   // Design §6.7: sign out warns about the shop's scans not uploaded yet.
   'settings': {
     'package:stockly/features/invoices/presentation/providers/pending_scans_providers.dart',

@@ -13,10 +13,20 @@ final class EmptyStateAction {
 
 /// Shown when a list or screen has no data (rule 34).
 class EmptyState extends StatelessWidget {
-  const new({this.title, this.body, this.action, super.key});
+  const new({
+    this.title,
+    this.body,
+    this.action,
+    this.secondaryAction,
+    super.key,
+  });
 
   /// The generic empty state ("Nothing here yet").
-  const new generic({super.key}) : title = null, body = null, action = null;
+  const new generic({super.key})
+    : title = null,
+      body = null,
+      action = null,
+      secondaryAction = null;
 
   /// Defaults to `commonEmptyTitle`.
   final String? title;
@@ -25,12 +35,16 @@ class EmptyState extends StatelessWidget {
   final String? body;
   final EmptyStateAction? action;
 
+  /// A second, less prominent call to action under [action].
+  final EmptyStateAction? secondaryAction;
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final spacing = context.spacing;
     final textTheme = Theme.of(context).textTheme;
     final action = this.action;
+    final secondaryAction = this.secondaryAction;
     return Center(
       child: SingleChildScrollView(
         padding: EdgeInsetsDirectional.all(spacing.xl),
@@ -61,6 +75,13 @@ class EmptyState extends StatelessWidget {
               FilledButton(
                 onPressed: action.onPressed,
                 child: Text(action.label),
+              ),
+            ],
+            if (secondaryAction != null) ...[
+              SizedBox(height: spacing.xs),
+              OutlinedButton(
+                onPressed: secondaryAction.onPressed,
+                child: Text(secondaryAction.label),
               ),
             ],
           ],

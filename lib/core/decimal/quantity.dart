@@ -22,6 +22,10 @@ final class Quantity implements Comparable<Quantity> {
 
   static const int scale = 3;
   static final Quantity zero = Quantity._(Decimal.zero);
+  static final Quantity one = Quantity._(Decimal.one);
+
+  /// This quantity plus [other].
+  Quantity operator +(Quantity other) => Quantity._(value + other.value);
 
   final Decimal value;
 
