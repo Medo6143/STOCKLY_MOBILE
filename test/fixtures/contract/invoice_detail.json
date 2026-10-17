@@ -1,0 +1,34 @@
+{
+  "id": "0192f0a0-6c1e-7b3a-9d2e-4f5a6b7c8e01",
+  "clientRequestId": "0192f0a0-6c1e-7b3a-9d2e-4f5a6b7c8f01",
+  "status": "NeedsReview",
+  "supplierId": null,
+  "supplierName": "شركة الأدوية المتحدة",
+  "invoiceNumber": "INV-1043",
+  "invoiceDate": "2026-10-10",
+  "totalAmount": "1250.00",
+  "computedTotal": "1200.00",
+  "warnings": ["TotalMismatch"],
+  "failureReason": null,
+  "items": [
+    {
+      "id": "0192f0a0-6c1e-7b3a-9d2e-4f5a6b7c8e11",
+      "lineNo": 1,
+      "rawName": "بنادول اكسترا ٢٠ قرص",
+      "productId": "0192f0a0-6c1e-7b3a-9d2e-4f5a6b7c8d9e",
+      "productName": "بنادول اكسترا",
+      "productUnitId": "0192f0a0-6c1e-7b3a-9d2e-4f5a6b7c8da0",
+      "unitName": "شريط",
+      "quantity": "10.000",
+      "unitPrice": "120.00",
+      "lineTotal": "1200.00",
+      "expiryDate": "2027-03-31",
+      "batchNo": "B12",
+      "matchConfidence": "0.85",
+      "newProduct": { "name": "سيتال شراب", "baseUnitName": "زجاجة", "sellPrice": "25.00" }
+    }
+  ],
+  "createdAt": "2026-10-12T07:00:00Z",
+  "processedAt": "2026-10-12T07:00:06Z",
+  "confirmedAt": null
+}

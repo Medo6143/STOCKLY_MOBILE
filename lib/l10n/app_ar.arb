@@ -1027,5 +1027,529 @@
   "movementReasonInvoiceReversal": "إلغاء فاتورة",
   "@movementReasonInvoiceReversal": {
     "description": "Movement reason."
+  },
+  "commonDelete": "مسح",
+  "@commonDelete": {
+    "description": "Delete action."
+  },
+  "commonOfflineBanner": "مفيش إنترنت. الفواتير محفوظة وهتترفع لوحدها.",
+  "@commonOfflineBanner": {
+    "description": "Banner while the device is offline."
+  },
+  "invoicesScanAction": "صوّر فاتورة",
+  "@invoicesScanAction": {
+    "description": "Button that opens the invoice camera."
+  },
+  "invoicesListEmptyTitle": "مفيش فواتير لسه",
+  "@invoicesListEmptyTitle": {
+    "description": "Empty invoice list title."
+  },
+  "invoicesListEmptyBody": "صوّر فاتورة المورد، وبعد ما تراجعها المخزون يتظبط.",
+  "@invoicesListEmptyBody": {
+    "description": "Empty invoice list body."
+  },
+  "invoicesListFilteredEmptyTitle": "مفيش فواتير بالحالة دي",
+  "@invoicesListFilteredEmptyTitle": {
+    "description": "Empty invoice list with a status filter."
+  },
+  "invoicesListFilteredEmptyBody": "اختار حالة تانية أو اعرض الكل.",
+  "@invoicesListFilteredEmptyBody": {
+    "description": "Body of the empty filtered invoice list."
+  },
+  "invoicesFilterAll": "الكل",
+  "@invoicesFilterAll": {
+    "description": "Invoice status filter: every status."
+  },
+  "invoicesStatusProcessing": "بنقراها",
+  "@invoicesStatusProcessing": {
+    "description": "Invoice status Processing."
+  },
+  "invoicesStatusNeedsReview": "محتاجة مراجعة",
+  "@invoicesStatusNeedsReview": {
+    "description": "Invoice status NeedsReview."
+  },
+  "invoicesStatusConfirmed": "اتأكدت",
+  "@invoicesStatusConfirmed": {
+    "description": "Invoice status Confirmed."
+  },
+  "invoicesStatusFailed": "فشلت",
+  "@invoicesStatusFailed": {
+    "description": "Invoice status Failed."
+  },
+  "invoicesWarningTotalMismatch": "إجمالي الفاتورة مش مطابق لمجموع البنود.",
+  "@invoicesWarningTotalMismatch": {
+    "description": "Invoice warning TotalMismatch."
+  },
+  "invoicesWarningItemCapExceeded": "الفاتورة فيها أكتر من 100 بند، واتقرا أول 100 بس.",
+  "@invoicesWarningItemCapExceeded": {
+    "description": "Invoice warning ItemCapExceeded."
+  },
+  "invoicesWarningUnreadableLines": "فيه بنود متقريتش. راجعها على الورقة.",
+  "@invoicesWarningUnreadableLines": {
+    "description": "Invoice warning UnreadableLines."
+  },
+  "invoicesWarningDuplicateInvoiceNumber": "رقم الفاتورة ده متسجل قبل كده.",
+  "@invoicesWarningDuplicateInvoiceNumber": {
+    "description": "Invoice warning DuplicateInvoiceNumber."
+  },
+  "invoicesUnknownSupplier": "مورد مش معروف",
+  "@invoicesUnknownSupplier": {
+    "description": "Invoice without a supplier name."
+  },
+  "invoicesHasWarnings": "فيها تنبيهات",
+  "@invoicesHasWarnings": {
+    "description": "Semantics label of the warnings icon."
+  },
+  "invoicesItemCount": "{count, plural, =0{مفيش بنود} =1{بند واحد} =2{بندين} few{{count} بنود} many{{count} بند} other{{count} بند}}",
+  "@invoicesItemCount": {
+    "description": "Number of lines of an invoice.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "invoicesFieldRequired": "الحقل ده مطلوب.",
+  "@invoicesFieldRequired": {
+    "description": "A required review field is empty."
+  },
+  "invoicesFieldInvalidNumber": "اكتب رقم صحيح.",
+  "@invoicesFieldInvalidNumber": {
+    "description": "A review number field is not a number."
+  },
+  "scanQueuePendingCount": "{count, plural, =0{مفيش فواتير مستنية} =1{فاتورة واحدة مستنية تترفع} =2{فاتورتين مستنيين يترفعوا} few{{count} فواتير مستنية تترفع} many{{count} فاتورة مستنية تترفع} other{{count} فاتورة مستنية تترفع}}",
+  "@scanQueuePendingCount": {
+    "description": "Card above the invoice list linking to the upload queue.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
+  "scanCaptureTitle": "تصوير فاتورة",
+  "@scanCaptureTitle": {
+    "description": "Title of the capture screen."
+  },
+  "scanCaptureEmptyTitle": "صوّر فاتورة المورد",
+  "@scanCaptureEmptyTitle": {
+    "description": "Capture screen before a photo is taken."
+  },
+  "scanCaptureEmptyBody": "خلي الفاتورة كلها باينة في نور كويس.",
+  "@scanCaptureEmptyBody": {
+    "description": "Hint on the capture screen."
+  },
+  "scanCaptureTakePhoto": "افتح الكاميرا",
+  "@scanCaptureTakePhoto": {
+    "description": "Opens the camera."
+  },
+  "scanCaptureFromGallery": "اختار من الصور",
+  "@scanCaptureFromGallery": {
+    "description": "Picks a photo from the gallery."
+  },
+  "scanCaptureUsePhoto": "استخدم الصورة",
+  "@scanCaptureUsePhoto": {
+    "description": "Queues the previewed photo."
+  },
+  "scanCaptureRetake": "صوّر تاني",
+  "@scanCaptureRetake": {
+    "description": "Takes another photo."
+  },
+  "scanCaptureSaving": "جاري الحفظ…",
+  "@scanCaptureSaving": {
+    "description": "The photo is being compressed and queued."
+  },
+  "scanCaptureUploading": "جاري الرفع…",
+  "@scanCaptureUploading": {
+    "description": "The first upload of a scan."
+  },
+  "scanCaptureSavedForLater": "اتحفظت. هتترفع لوحدها في الخلفية.",
+  "@scanCaptureSavedForLater": {
+    "description": "The scan is queued and uploads later."
+  },
+  "scanCapturePreviewLabel": "صورة الفاتورة",
+  "@scanCapturePreviewLabel": {
+    "description": "Semantics label of an invoice photo."
+  },
+  "scanQueueTitle": "مستني الرفع",
+  "@scanQueueTitle": {
+    "description": "Title of the upload queue screen."
+  },
+  "scanQueueEmptyTitle": "كل الفواتير اترفعت",
+  "@scanQueueEmptyTitle": {
+    "description": "Empty upload queue title."
+  },
+  "scanQueueEmptyBody": "مفيش صور مستنية.",
+  "@scanQueueEmptyBody": {
+    "description": "Empty upload queue body."
+  },
+  "scanQueueRetryNow": "حاول دلوقتي",
+  "@scanQueueRetryNow": {
+    "description": "Uploads every waiting scan now."
+  },
+  "scanQueueStatusQueued": "مستنية تترفع",
+  "@scanQueueStatusQueued": {
+    "description": "Queued scan."
+  },
+  "scanQueueStatusUploading": "جاري الرفع…",
+  "@scanQueueStatusUploading": {
+    "description": "Scan being uploaded."
+  },
+  "scanQueueStatusWaitingForInternet": "مستنية الإنترنت",
+  "@scanQueueStatusWaitingForInternet": {
+    "description": "Scan waiting while offline."
+  },
+  "scanQueueStatusWaitingRetry": "الرفع فشل، هنحاول تاني الساعة {time}",
+  "@scanQueueStatusWaitingRetry": {
+    "description": "Scan waiting after a failed upload.",
+    "placeholders": {
+      "time": {
+        "type": "String",
+        "example": "07:30"
+      }
+    }
+  },
+  "scanQueueStatusRateLimited": "صور كتير دلوقتي. هنحاول تاني بعد {seconds} ثانية.",
+  "@scanQueueStatusRateLimited": {
+    "description": "Scan waiting for the per-minute limit.",
+    "placeholders": {
+      "seconds": {
+        "type": "String",
+        "example": "30"
+      }
+    }
+  },
+  "scanQueueStatusQuotaExceeded": "خلصت حد الفواتير النهارده. هتترفع بعد نص الليل بتوقيت القاهرة.",
+  "@scanQueueStatusQuotaExceeded": {
+    "description": "Scan waiting for the daily quota."
+  },
+  "scanQueueCapturedAt": "اتصورت {time}",
+  "@scanQueueCapturedAt": {
+    "description": "When a queued scan was taken.",
+    "placeholders": {
+      "time": {
+        "type": "String",
+        "example": "Oct 12, 2026 07:00"
+      }
+    }
+  },
+  "scanQueueDeleteTitle": "تمسح الصورة؟",
+  "@scanQueueDeleteTitle": {
+    "description": "Title of the delete dialog."
+  },
+  "scanQueueDeleteBody": "الصورة دي لسه مترفعتش وهتتمسح من الموبايل.",
+  "@scanQueueDeleteBody": {
+    "description": "Body of the delete dialog."
+  },
+  "invoiceDetailTitle": "الفاتورة",
+  "@invoiceDetailTitle": {
+    "description": "Title of the invoice screen."
+  },
+  "invoiceProcessingTitle": "بنقرا الفاتورة…",
+  "@invoiceProcessingTitle": {
+    "description": "While the AI reads the invoice."
+  },
+  "invoiceProcessingBody": "ده بياخد ثواني.",
+  "@invoiceProcessingBody": {
+    "description": "Body while the AI reads the invoice."
+  },
+  "invoiceProcessingStillTitle": "لسه بنقراها",
+  "@invoiceProcessingStillTitle": {
+    "description": "The invoice is still processing after a minute."
+  },
+  "invoiceProcessingStillBody": "ممكن تخرج، وهتلاقيها في القائمة لما تخلص.",
+  "@invoiceProcessingStillBody": {
+    "description": "Body when processing takes long."
+  },
+  "invoiceProcessingRefresh": "تحديث",
+  "@invoiceProcessingRefresh": {
+    "description": "Checks the invoice again."
+  },
+  "invoiceNeedsReviewTitle": "الفاتورة جاهزة للمراجعة",
+  "@invoiceNeedsReviewTitle": {
+    "description": "The invoice waits for review."
+  },
+  "invoiceNeedsReviewBody": "راجع البنود قبل ما المخزون يتظبط.",
+  "@invoiceNeedsReviewBody": {
+    "description": "Body of the ready-for-review state."
+  },
+  "invoiceOpenReview": "راجع البنود",
+  "@invoiceOpenReview": {
+    "description": "Opens the review screen."
+  },
+  "invoiceConfirmedTitle": "الفاتورة اتأكدت",
+  "@invoiceConfirmedTitle": {
+    "description": "A confirmed invoice."
+  },
+  "invoiceConfirmedAt": "اتأكدت {time}",
+  "@invoiceConfirmedAt": {
+    "description": "When the invoice was confirmed.",
+    "placeholders": {
+      "time": {
+        "type": "String",
+        "example": "Oct 12, 2026 07:00"
+      }
+    }
+  },
+  "invoiceFailedTitle": "معرفناش نقرا الفاتورة",
+  "@invoiceFailedTitle": {
+    "description": "The AI could not read the invoice."
+  },
+  "invoiceFailedBody": "صوّرها تاني في نور أحسن.",
+  "@invoiceFailedBody": {
+    "description": "Failed invoice without a reason."
+  },
+  "invoiceFailedReason": "السبب: {reason}",
+  "@invoiceFailedReason": {
+    "description": "The server reason a scan failed.",
+    "placeholders": {
+      "reason": {
+        "type": "String",
+        "example": "Image is blurry"
+      }
+    }
+  },
+  "invoiceFailedScanAgain": "صوّر تاني",
+  "@invoiceFailedScanAgain": {
+    "description": "Opens the camera for a new scan."
+  },
+  "invoiceSupplierLabel": "المورد",
+  "@invoiceSupplierLabel": {
+    "description": "Supplier field."
+  },
+  "invoiceNumberLabel": "رقم الفاتورة",
+  "@invoiceNumberLabel": {
+    "description": "Invoice number field."
+  },
+  "invoiceDateLabel": "تاريخ الفاتورة",
+  "@invoiceDateLabel": {
+    "description": "Invoice date field."
+  },
+  "invoiceTotalLabel": "إجمالي الفاتورة",
+  "@invoiceTotalLabel": {
+    "description": "Invoice total field."
+  },
+  "invoiceComputedTotalLabel": "مجموع البنود",
+  "@invoiceComputedTotalLabel": {
+    "description": "Total computed from the lines."
+  },
+  "invoiceLinesHeader": "البنود",
+  "@invoiceLinesHeader": {
+    "description": "Header above the invoice lines."
+  },
+  "invoiceReviewTitle": "مراجعة الفاتورة",
+  "@invoiceReviewTitle": {
+    "description": "Title of the review screen."
+  },
+  "invoiceReviewEmptyTitle": "متقريش أي بنود",
+  "@invoiceReviewEmptyTitle": {
+    "description": "Review of an invoice without lines."
+  },
+  "invoiceReviewEmptyBody": "ضيف البنود بإيدك.",
+  "@invoiceReviewEmptyBody": {
+    "description": "Body of the review without lines."
+  },
+  "invoiceReviewAddLine": "إضافة بند",
+  "@invoiceReviewAddLine": {
+    "description": "Adds a line to the invoice."
+  },
+  "invoiceReviewMaxLines": "الفاتورة فيها 100 بند، ده الحد الأقصى.",
+  "@invoiceReviewMaxLines": {
+    "description": "The line limit is reached."
+  },
+  "invoiceReviewSaved": "اتحفظت",
+  "@invoiceReviewSaved": {
+    "description": "The review was saved."
+  },
+  "invoiceReviewReadOnly": "الفاتورة دي مينفعش تتعدل دلوقتي.",
+  "@invoiceReviewReadOnly": {
+    "description": "The invoice is not waiting for review."
+  },
+  "invoiceReviewPickDate": "اختار تاريخ",
+  "@invoiceReviewPickDate": {
+    "description": "Empty date field."
+  },
+  "invoiceReviewClearDate": "مسح التاريخ",
+  "@invoiceReviewClearDate": {
+    "description": "Clears a date field."
+  },
+  "invoiceLineNo": "بند {number}",
+  "@invoiceLineNo": {
+    "description": "Title of an invoice line.",
+    "placeholders": {
+      "number": {
+        "type": "String",
+        "example": "3"
+      }
+    }
+  },
+  "invoiceLineNewTitle": "بند جديد",
+  "@invoiceLineNewTitle": {
+    "description": "Title of the editor of a new line."
+  },
+  "invoiceLineUnresolved": "مش مربوط بمنتج",
+  "@invoiceLineUnresolved": {
+    "description": "A line without a product."
+  },
+  "invoiceLineNewProduct": "منتج جديد: {name}",
+  "@invoiceLineNewProduct": {
+    "description": "A line that creates a product.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "سيتال شراب"
+      }
+    }
+  },
+  "invoiceLineConfidence": "تطابق {percent}٪",
+  "@invoiceLineConfidence": {
+    "description": "How sure the AI is of the product match.",
+    "placeholders": {
+      "percent": {
+        "type": "String",
+        "example": "85"
+      }
+    }
+  },
+  "invoiceLineExpiry": "الصلاحية {date}",
+  "@invoiceLineExpiry": {
+    "description": "Expiry date of a line.",
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "Mar 31, 2027"
+      }
+    }
+  },
+  "invoiceLineBatch": "تشغيلة {batch}",
+  "@invoiceLineBatch": {
+    "description": "Batch number of a line.",
+    "placeholders": {
+      "batch": {
+        "type": "String",
+        "example": "B12"
+      }
+    }
+  },
+  "invoiceLineQuantityPrice": "{quantity} × {price}",
+  "@invoiceLineQuantityPrice": {
+    "description": "Quantity times unit price of a line.",
+    "placeholders": {
+      "quantity": {
+        "type": "String",
+        "example": "10"
+      },
+      "price": {
+        "type": "String",
+        "example": "120.00 ج.م"
+      }
+    }
+  },
+  "invoiceLineRemove": "حذف البند",
+  "@invoiceLineRemove": {
+    "description": "Removes a line from the draft."
+  },
+  "invoiceLineRawName": "الاسم في الفاتورة",
+  "@invoiceLineRawName": {
+    "description": "Raw name field of a line."
+  },
+  "invoiceLineProduct": "المنتج",
+  "@invoiceLineProduct": {
+    "description": "Product field of a line."
+  },
+  "invoiceLineChooseProduct": "اختار منتج",
+  "@invoiceLineChooseProduct": {
+    "description": "Opens the product picker."
+  },
+  "invoiceLineChangeProduct": "تغيير",
+  "@invoiceLineChangeProduct": {
+    "description": "Changes the product of a line."
+  },
+  "invoiceLineUnit": "الوحدة",
+  "@invoiceLineUnit": {
+    "description": "Unit field of a line."
+  },
+  "invoiceLineQuantity": "الكمية",
+  "@invoiceLineQuantity": {
+    "description": "Quantity field of a line."
+  },
+  "invoiceLineUnitPrice": "سعر الوحدة",
+  "@invoiceLineUnitPrice": {
+    "description": "Unit price field of a line."
+  },
+  "invoiceLineExpiryLabel": "تاريخ الصلاحية",
+  "@invoiceLineExpiryLabel": {
+    "description": "Expiry date field of a line."
+  },
+  "invoiceLineBatchLabel": "رقم التشغيلة",
+  "@invoiceLineBatchLabel": {
+    "description": "Batch field of a line."
+  },
+  "invoiceLineDone": "تم",
+  "@invoiceLineDone": {
+    "description": "Puts the line into the draft."
+  },
+  "invoiceLineNewProductHeader": "منتج جديد",
+  "@invoiceLineNewProductHeader": {
+    "description": "Header of the new product form."
+  },
+  "invoiceLineNewProductHint": "هيتعمل لما تأكد الفاتورة، والكمية بوحدته الأساسية.",
+  "@invoiceLineNewProductHint": {
+    "description": "Hint of the new product form."
+  },
+  "invoiceLineNewProductName": "اسم المنتج",
+  "@invoiceLineNewProductName": {
+    "description": "Name of the new product."
+  },
+  "invoiceLineNewProductBaseUnit": "الوحدة الأساسية",
+  "@invoiceLineNewProductBaseUnit": {
+    "description": "Base unit of the new product."
+  },
+  "invoiceLineNewProductSellPrice": "سعر البيع",
+  "@invoiceLineNewProductSellPrice": {
+    "description": "Sell price of the new product."
+  },
+  "productPickerTitle": "اختار منتج",
+  "@productPickerTitle": {
+    "description": "Title of the product picker."
+  },
+  "productPickerSearch": "دوّر على منتج",
+  "@productPickerSearch": {
+    "description": "Search hint of the product picker."
+  },
+  "productPickerEmptyTitle": "مفيش منتجات مطابقة",
+  "@productPickerEmptyTitle": {
+    "description": "Empty product picker."
+  },
+  "productPickerEmptyBody": "جرّب اسم تاني أو اعمل منتج جديد.",
+  "@productPickerEmptyBody": {
+    "description": "Body of the empty product picker."
+  },
+  "productPickerCreateNew": "منتج جديد",
+  "@productPickerCreateNew": {
+    "description": "The line creates a new product."
+  },
+  "settingsSignOutPendingTitle": "فيه فواتير لسه مترفعتش",
+  "@settingsSignOutPendingTitle": {
+    "description": "Sign-out warning title when scans are queued."
+  },
+  "settingsSignOutPendingBody": "{count, plural, =0{مفيش فواتير مستنية.} =1{فاتورة واحدة لسه مترفعتش. هتترفع لما تدخل على المحل ده تاني.} =2{فاتورتين لسه مترفعوش. هيترفعوا لما تدخل على المحل ده تاني.} few{{count} فواتير لسه مترفعتش. هتترفع لما تدخل على المحل ده تاني.} many{{count} فاتورة لسه مترفعتش. هتترفع لما تدخل على المحل ده تاني.} other{{count} فاتورة لسه مترفعتش. هتترفع لما تدخل على المحل ده تاني.}}",
+  "@settingsSignOutPendingBody": {
+    "description": "Sign-out warning body (design §6.7).",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
+  "settingsSignOutAnyway": "اخرج برضه",
+  "@settingsSignOutAnyway": {
+    "description": "Confirms sign out with queued scans."
+  },
+  "fakePanelScanQuota": "حد الفواتير اليومي خلص",
+  "@fakePanelScanQuota": {
+    "description": "Debug panel: the next scans get Scan.DailyQuotaExceeded."
   }
 }

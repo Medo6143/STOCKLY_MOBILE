@@ -14,6 +14,7 @@ final class FakeBackendPanelNotifier extends Notifier<FakeBackendPanelState> {
       offline: controls.offline,
       lockoutEnabled: controls.lockoutEnabled,
       rateLimitEnabled: controls.rateLimitEnabled,
+      scanQuotaExhausted: controls.scanQuotaExhausted,
       failNextWith: controls.failNextWith,
     );
   }
@@ -38,6 +39,11 @@ final class FakeBackendPanelNotifier extends Notifier<FakeBackendPanelState> {
   void setRateLimit({required bool enabled}) {
     _adapter.controls.rateLimitEnabled = enabled;
     state = state.copyWith(rateLimitEnabled: enabled);
+  }
+
+  void setScanQuotaExhausted({required bool exhausted}) {
+    _adapter.controls.scanQuotaExhausted = exhausted;
+    state = state.copyWith(scanQuotaExhausted: exhausted);
   }
 
   void expireAccessToken() => _adapter.expireAccessTokens();

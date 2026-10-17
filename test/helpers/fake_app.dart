@@ -21,6 +21,7 @@ import 'package:stockly/core/storage/secure_token_storage.dart';
 import 'package:stockly/core/storage/stored_session.dart';
 import 'package:stockly/core/time/clock.dart';
 
+import 'invoices_doubles.dart';
 import 'test_doubles.dart';
 
 const AppConfig fakeConfig = AppConfig(
@@ -81,4 +82,5 @@ List<Override> fakeAppOverrides({
   deviceLocaleProvider.overrideWithValue(deviceLocale),
   appLoggerProvider.overrideWithValue(const NoopLogger()),
   if (clock != null) clockProvider.overrideWithValue(clock),
+  ...quietScanQueueOverrides(),
 ];

@@ -13,6 +13,13 @@ import 'package:stockly/features/auth/presentation/providers/auth_state.dart';
 import 'package:stockly/features/auth/presentation/screens/login_screen.dart';
 import 'package:stockly/features/auth/presentation/screens/register_screen.dart';
 import 'package:stockly/features/auth/presentation/screens/shop_suspended_screen.dart';
+import 'package:stockly/features/invoices/presentation/providers/invoice_route_query.dart';
+import 'package:stockly/features/invoices/presentation/screens/invoice_detail_screen.dart';
+import 'package:stockly/features/invoices/presentation/screens/invoice_line_editor_screen.dart';
+import 'package:stockly/features/invoices/presentation/screens/invoice_list_screen.dart';
+import 'package:stockly/features/invoices/presentation/screens/invoice_review_screen.dart';
+import 'package:stockly/features/invoices/presentation/screens/scan_capture_screen.dart';
+import 'package:stockly/features/invoices/presentation/screens/scan_queue_screen.dart';
 import 'package:stockly/features/products/domain/entities/product_query.dart';
 import 'package:stockly/features/products/presentation/screens/movement_list_screen.dart';
 import 'package:stockly/features/products/presentation/screens/product_detail_screen.dart';
@@ -25,9 +32,8 @@ import 'package:stockly/features/settings/presentation/screens/settings_screen.d
 import 'package:stockly/features/splash/presentation/providers/splash_notifier.dart';
 import 'package:stockly/features/splash/presentation/providers/splash_state.dart';
 import 'package:stockly/features/splash/presentation/screens/splash_screen.dart';
-import 'package:stockly/l10n/generated/app_localizations.dart';
 
-/// Every route of design §3.1. Screens that later briefs build show a
+/// Every route of design §3.1. Sprint 4 screens (dashboard, sales) show a
 /// [PlaceholderScreen]. Sprint 3 has three tabs (products, invoices,
 /// settings); dashboard and sales join the shell in Sprint 4.
 final routerProvider = Provider<GoRouter>((ref) {
@@ -230,36 +236,57 @@ final class _RouteTable {
   GoRoute get _invoicesRoute => GoRoute(
     path: RoutePaths.invoices,
     name: RouteNames.invoices,
-    builder: (context, state) =>
-        PlaceholderScreen(title: AppLocalizations.of(context).navInvoices),
-    routes: [
-      _route(
-        RoutePaths.scanCapture,
-        RouteNames.scanCapture,
-        parent: RoutePaths.invoices,
-        fullScreen: true,
+    builder: (context, state) => InvoiceListScreen(
+      initialStatus: InvoiceRouteQuery.parse(
+        state.uri.queryParameters[RoutePaths.statusParameter],
       ),
-      _route(
+    ),
+    routes: [
+      GoRoute(
+        path: _child(RoutePaths.scanCapture, RoutePaths.invoices),
+        name: RouteNames.scanCapture,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) => const ScanCaptureScreen(),
+      ),
+      _screen(
         RoutePaths.scanQueue,
         RouteNames.scanQueue,
-        parent: RoutePaths.invoices,
+        RoutePaths.invoices,
+        (state) => const ScanQueueScreen(),
       ),
-      _route(
+      _screen(
         RoutePaths.invoiceDetail,
         RouteNames.invoiceDetail,
-        parent: RoutePaths.invoices,
+        RoutePaths.invoices,
+        (state) => InvoiceDetailScreen(invoiceId: _invoiceId(state)),
         routes: [
-          _route(
-            RoutePaths.invoiceReview,
-            RouteNames.invoiceReview,
-            parent: RoutePaths.invoiceDetail,
-            fullScreen: true,
+          GoRoute(
+            path: _child(RoutePaths.invoiceReview, RoutePaths.invoiceDetail),
+            name: RouteNames.invoiceReview,
+            parentNavigatorKey: rootNavigatorKey,
+            builder: (context, state) =>
+                InvoiceReviewScreen(invoiceId: _invoiceId(state)),
             routes: [
-              _route(
-                RoutePaths.invoiceLineEdit,
-                RouteNames.invoiceLineEdit,
-                parent: RoutePaths.invoiceReview,
-                fullScreen: true,
+              GoRoute(
+                path: _child(
+                  RoutePaths.invoiceLineEdit,
+                  RoutePaths.invoiceReview,
+                ),
+                name: RouteNames.invoiceLineEdit,
+                parentNavigatorKey: rootNavigatorKey,
+                builder: (context, state) {
+                  final lineNo = int.tryParse(
+                    state.pathParameters[RoutePaths.lineNoParameter] ?? '',
+                  );
+                  return lineNo == null || lineNo < 1
+                      ? NotFoundScreen(
+                          onGoHome: () => context.go(RoutePaths.home),
+                        )
+                      : InvoiceLineEditorScreen(
+                          invoiceId: _invoiceId(state),
+                          lineNo: lineNo,
+                        );
+                },
               ),
             ],
           ),
@@ -267,6 +294,9 @@ final class _RouteTable {
       ),
     ],
   );
+
+  static String _invoiceId(GoRouterState state) =>
+      state.pathParameters[RoutePaths.invoiceIdParameter]!;
 
   GoRoute get _settingsRoute => GoRoute(
     path: RoutePaths.settings,

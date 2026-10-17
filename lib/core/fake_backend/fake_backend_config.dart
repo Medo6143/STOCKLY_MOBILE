@@ -16,6 +16,10 @@ final class FakeBackendConfig {
     this.rateLimitEnabled = true,
     this.authPermitLimit = defaultAuthPermitLimit,
     this.authWindow = defaultAuthWindow,
+    this.processingDelay = defaultProcessingDelay,
+    this.scanRateLimit = defaultScanRateLimit,
+    this.scanRateWindow = defaultScanRateWindow,
+    this.scanDailyQuota = defaultScanDailyQuota,
   });
 
   static const Duration defaultLatency = Duration(milliseconds: 400);
@@ -39,6 +43,16 @@ final class FakeBackendConfig {
   /// Contract §1.4 (v1.4): fixed one-minute window.
   static const Duration defaultAuthWindow = Duration(minutes: 1);
 
+  /// Design §12.1: a scan turns `NeedsReview` (or `Failed`) after 6 s.
+  static const Duration defaultProcessingDelay = Duration(seconds: 6);
+
+  /// Scans accepted per [scanRateWindow] and shop (`Scan.RateLimited`).
+  static const int defaultScanRateLimit = 10;
+  static const Duration defaultScanRateWindow = Duration(minutes: 1);
+
+  /// Scans per Cairo day and shop (`Scan.DailyQuotaExceeded`).
+  static const int defaultScanDailyQuota = 50;
+
   /// Simulated network delay of every response.
   final Duration latency;
   final Duration accessTokenLifetime;
@@ -55,4 +69,10 @@ final class FakeBackendConfig {
   /// Requests allowed per [authWindow], per endpoint.
   final int authPermitLimit;
   final Duration authWindow;
+
+  /// How long the fake AI takes to read a scan, on the fake clock.
+  final Duration processingDelay;
+  final int scanRateLimit;
+  final Duration scanRateWindow;
+  final int scanDailyQuota;
 }

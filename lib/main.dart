@@ -5,6 +5,8 @@ import 'package:stockly/app.dart';
 import 'package:stockly/core/config/app_config.dart';
 import 'package:stockly/core/media/app_directories.dart';
 import 'package:stockly/core/platform/native_splash.dart';
+import 'package:stockly/features/invoices/data/sync/background_sync_entrypoint.dart';
+import 'package:workmanager/workmanager.dart' show Workmanager;
 
 Future<void> main() => bootstrap();
 
@@ -16,6 +18,8 @@ Future<void> bootstrap() async {
   final config = AppConfig.fromEnvironment()
     ..ensureValidFor(releaseMode: kReleaseMode);
   final directories = await resolveAppDirectories();
+  // The background scan upload (design §6.5) runs in its own isolate.
+  await Workmanager().initialize(scanSyncCallbackDispatcher);
   runApp(
     ProviderScope(
       // A Failure is a final answer: retry is an explicit user action.

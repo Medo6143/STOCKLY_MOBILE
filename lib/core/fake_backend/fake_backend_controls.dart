@@ -19,4 +19,9 @@ final class FakeBackendControls {
 
   /// Login and register rate limiting (contract v1.4).
   bool rateLimitEnabled;
+
+  /// The daily scan quota is used up: every new scan gets
+  /// `429 Scan.DailyQuotaExceeded` (design §12.1 "set the daily quota to
+  /// 0").
+  bool scanQuotaExhausted = false;
 }

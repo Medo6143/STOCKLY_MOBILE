@@ -1,0 +1,10 @@
+# Test tags (design §13).
+#
+# `live` (test/live/) talks to a running backend. It never runs in the
+# default `flutter test`: without `--dart-define=STOCKLY_LIVE_API=...` it is
+# skipped with a message, so the default run stays offline. Run it with
+#   flutter test --tags live --dart-define=STOCKLY_LIVE_API=http://127.0.0.1:5000
+# (package:test combines a config `exclude_tags: live` with `--tags live`
+# and would then select nothing, so the exclusion is the define check.)
+tags:
+  live:

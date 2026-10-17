@@ -14,6 +14,7 @@ import 'package:stockly/features/auth/domain/entities/session.dart';
 import 'package:stockly/features/auth/domain/repositories/auth_repository.dart';
 import 'package:stockly/features/auth/presentation/providers/auth_providers.dart';
 
+import 'invoices_doubles.dart';
 import 'test_doubles.dart';
 
 class MockAuthRepository extends Mock implements AuthRepository;
@@ -84,4 +85,5 @@ List<Override> authTestOverrides({
   deviceLocaleProvider.overrideWithValue(deviceLocale),
   appLoggerProvider.overrideWithValue(const NoopLogger()),
   if (clock != null) clockProvider.overrideWithValue(clock),
+  ...quietScanQueueOverrides(),
 ];

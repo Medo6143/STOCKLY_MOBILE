@@ -1,0 +1,18 @@
+{
+  "items": [
+    {
+      "id": "0192f0a0-6c1e-7b3a-9d2e-4f5a6b7c8e01",
+      "status": "NeedsReview",
+      "supplierName": "شركة الأدوية المتحدة",
+      "invoiceNumber": "INV-1043",
+      "invoiceDate": "2026-10-10",
+      "totalAmount": "1250.00",
+      "itemCount": 1,
+      "warnings": ["TotalMismatch"],
+      "createdAt": "2026-10-12T07:00:00Z"
+    }
+  ],
+  "page": 1,
+  "pageSize": 20,
+  "totalCount": 1
+}
