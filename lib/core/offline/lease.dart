@@ -7,6 +7,9 @@ import 'package:stockly/core/time/clock.dart';
 /// Names of the cross-isolate leases.
 abstract final class LeaseNames {
   static const String authRefresh = 'auth_refresh';
+
+  /// Only one isolate uploads queued scans at a time (design §6.4).
+  static const String scanSync = 'scan_sync';
 }
 
 /// Lease timings.

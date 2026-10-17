@@ -14,6 +14,7 @@ class DecimalField extends StatelessWidget {
     this.helperText,
     this.readOnly = false,
     this.textInputAction = TextInputAction.next,
+    this.onChanged,
     super.key,
   });
 
@@ -25,6 +26,7 @@ class DecimalField extends StatelessWidget {
   final String? helperText;
   final bool readOnly;
   final TextInputAction textInputAction;
+  final ValueChanged<String>? onChanged;
 
   static final RegExp _unsigned = RegExp('[0-9٠-٩۰-۹.٫,٬]');
   static final RegExp _signed = RegExp('[0-9٠-٩۰-۹.٫,٬-]');
@@ -32,6 +34,7 @@ class DecimalField extends StatelessWidget {
   @override
   Widget build(BuildContext context) => TextField(
     controller: controller,
+    onChanged: onChanged,
     enabled: enabled,
     readOnly: readOnly,
     keyboardType: TextInputType.numberWithOptions(

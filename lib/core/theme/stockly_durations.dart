@@ -10,6 +10,7 @@ final class StocklyDurations extends ThemeExtension<StocklyDurations> {
     this.slow = const Duration(milliseconds: 500),
     this.searchDebounce = const Duration(milliseconds: 300),
     this.snackbar = const Duration(seconds: 4),
+    this.scanBeam = const Duration(milliseconds: 1500),
   });
 
   static const StocklyDurations standard = StocklyDurations();
@@ -25,6 +26,9 @@ final class StocklyDurations extends ThemeExtension<StocklyDurations> {
   final Duration searchDebounce;
   final Duration snackbar;
 
+  /// One pass of the scan beam while the AI reads an invoice.
+  final Duration scanBeam;
+
   @override
   StocklyDurations copyWith({
     Duration? fast,
@@ -32,12 +36,14 @@ final class StocklyDurations extends ThemeExtension<StocklyDurations> {
     Duration? slow,
     Duration? searchDebounce,
     Duration? snackbar,
+    Duration? scanBeam,
   }) => StocklyDurations(
     fast: fast ?? this.fast,
     medium: medium ?? this.medium,
     slow: slow ?? this.slow,
     searchDebounce: searchDebounce ?? this.searchDebounce,
     snackbar: snackbar ?? this.snackbar,
+    scanBeam: scanBeam ?? this.scanBeam,
   );
 
   @override
