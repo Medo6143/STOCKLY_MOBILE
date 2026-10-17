@@ -11,6 +11,12 @@ final class StocklyDurations extends ThemeExtension<StocklyDurations> {
     this.searchDebounce = const Duration(milliseconds: 300),
     this.snackbar = const Duration(seconds: 4),
     this.scanBeam = const Duration(milliseconds: 1500),
+    this.stagger = const Duration(milliseconds: 40),
+    this.entrance = const Duration(milliseconds: 400),
+    this.counter = const Duration(milliseconds: 900),
+    this.page = const Duration(milliseconds: 320),
+    this.shimmer = const Duration(milliseconds: 1400),
+    this.success = const Duration(milliseconds: 650),
   });
 
   static const StocklyDurations standard = StocklyDurations();
@@ -29,6 +35,26 @@ final class StocklyDurations extends ThemeExtension<StocklyDurations> {
   /// One pass of the scan beam while the AI reads an invoice.
   final Duration scanBeam;
 
+  // Derived (design-refresh brief), brand approval pending.
+
+  /// The delay between two items of a staggered entrance.
+  final Duration stagger;
+
+  /// Fade and slide of an item entering the screen.
+  final Duration entrance;
+
+  /// A dashboard number counting up to its value.
+  final Duration counter;
+
+  /// Page transitions: pushes and tab switches.
+  final Duration page;
+
+  /// One pass of the skeleton shimmer.
+  final Duration shimmer;
+
+  /// The success check drawing itself.
+  final Duration success;
+
   @override
   StocklyDurations copyWith({
     Duration? fast,
@@ -37,6 +63,12 @@ final class StocklyDurations extends ThemeExtension<StocklyDurations> {
     Duration? searchDebounce,
     Duration? snackbar,
     Duration? scanBeam,
+    Duration? stagger,
+    Duration? entrance,
+    Duration? counter,
+    Duration? page,
+    Duration? shimmer,
+    Duration? success,
   }) => StocklyDurations(
     fast: fast ?? this.fast,
     medium: medium ?? this.medium,
@@ -44,6 +76,12 @@ final class StocklyDurations extends ThemeExtension<StocklyDurations> {
     searchDebounce: searchDebounce ?? this.searchDebounce,
     snackbar: snackbar ?? this.snackbar,
     scanBeam: scanBeam ?? this.scanBeam,
+    stagger: stagger ?? this.stagger,
+    entrance: entrance ?? this.entrance,
+    counter: counter ?? this.counter,
+    page: page ?? this.page,
+    shimmer: shimmer ?? this.shimmer,
+    success: success ?? this.success,
   );
 
   @override

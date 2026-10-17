@@ -4,6 +4,7 @@ import 'package:stockly/core/theme/app_theme.dart';
 import 'package:stockly/core/time/date_formatter.dart';
 import 'package:stockly/core/widgets/ltr_isolate.dart';
 import 'package:stockly/core/widgets/money_text.dart';
+import 'package:stockly/core/widgets/surface_card.dart';
 import 'package:stockly/features/invoices/domain/entities/invoice_draft.dart';
 import 'package:stockly/l10n/generated/app_localizations.dart';
 
@@ -62,65 +63,76 @@ class InvoiceLineTile extends StatelessWidget {
         ),
     ];
     final danger = hasError || messages.isNotEmpty;
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        border: BorderDirectional(bottom: BorderSide(color: colors.line)),
+    return Padding(
+      padding: EdgeInsetsDirectional.fromSTEB(
+        spacing.md,
+        0,
+        spacing.md,
+        spacing.sm,
       ),
-      child: ListTile(
-        onTap: onTap,
-        tileColor: danger ? colors.dangerSoft : null,
-        contentPadding: EdgeInsetsDirectional.symmetric(horizontal: spacing.md),
-        title: Text(
-          '${l10n.invoiceLineNo(ltrIsolate('${line.lineNo}'))} · '
-          '${line.rawName}',
-        ),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              product,
-              style: textTheme.bodyMedium?.copyWith(
-                color: unresolved || hasError ? colors.danger : colors.ink,
-              ),
-            ),
-            Text(
-              l10n.invoiceLineQuantityPrice(
-                ltrIsolate(DecimalFormatter.formatQuantity(line.quantity)),
-                l10n.moneyAmount(
-                  ltrIsolate(DecimalFormatter.formatMoney(line.unitPrice)),
+      child: SurfaceCard(
+        color: danger ? colors.dangerSoft : null,
+        padding: EdgeInsetsDirectional.symmetric(vertical: spacing.xxs),
+        child: ListTile(
+          onTap: onTap,
+          contentPadding: EdgeInsetsDirectional.symmetric(
+            horizontal: spacing.md,
+          ),
+          title: Text(
+            '${l10n.invoiceLineNo(ltrIsolate('${line.lineNo}'))} · '
+            '${line.rawName}',
+          ),
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                product,
+                style: textTheme.bodyMedium?.copyWith(
+                  color: unresolved || hasError ? colors.danger : colors.ink,
                 ),
               ),
-              style: context.typo.numberSmall.copyWith(color: colors.muted),
-            ),
-            if (details.isNotEmpty)
               Text(
-                details.join(' · '),
-                style: textTheme.bodySmall?.copyWith(color: colors.muted),
+                l10n.invoiceLineQuantityPrice(
+                  ltrIsolate(DecimalFormatter.formatQuantity(line.quantity)),
+                  l10n.moneyAmount(
+                    ltrIsolate(DecimalFormatter.formatMoney(line.unitPrice)),
+                  ),
+                ),
+                style: context.typo.numberSmall.copyWith(color: colors.muted),
               ),
-            if (hasError)
-              Text(
-                l10n.errorInvoiceLineProductRequired,
-                style: textTheme.bodySmall?.copyWith(color: colors.danger),
-              ),
-            for (final message in messages)
-              Text(
-                message,
-                style: textTheme.bodySmall?.copyWith(color: colors.danger),
-              ),
-            SizedBox(height: spacing.xxs),
-          ],
-        ),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (lineTotal != null) MoneyText(lineTotal),
-            if (onRemove != null)
-              IconButton(
-                tooltip: l10n.invoiceLineRemove,
-                onPressed: onRemove,
-                icon: Icon(Icons.delete_outline_rounded, color: colors.danger),
-              ),
-          ],
+              if (details.isNotEmpty)
+                Text(
+                  details.join(' · '),
+                  style: textTheme.bodySmall?.copyWith(color: colors.muted),
+                ),
+              if (hasError)
+                Text(
+                  l10n.errorInvoiceLineProductRequired,
+                  style: textTheme.bodySmall?.copyWith(color: colors.danger),
+                ),
+              for (final message in messages)
+                Text(
+                  message,
+                  style: textTheme.bodySmall?.copyWith(color: colors.danger),
+                ),
+              SizedBox(height: spacing.xxs),
+            ],
+          ),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (lineTotal != null) MoneyText(lineTotal),
+              if (onRemove != null)
+                IconButton(
+                  tooltip: l10n.invoiceLineRemove,
+                  onPressed: onRemove,
+                  icon: Icon(
+                    Icons.delete_outline_rounded,
+                    color: colors.danger,
+                  ),
+                ),
+            ],
+          ),
         ),
       ),
     );

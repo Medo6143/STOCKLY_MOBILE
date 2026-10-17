@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:stockly/core/theme/app_theme.dart';
 import 'package:stockly/l10n/generated/app_localizations.dart';
 
-/// The wordmark, a title and a subtitle at the top of the auth screens.
+/// The brand at the top of the auth screens: a mint gradient tile with the
+/// app's icon next to the wordmark, then a title and a subtitle.
 class AuthHeader extends StatelessWidget {
   const new({required this.title, required this.subtitle, super.key});
 
@@ -17,11 +18,30 @@ class AuthHeader extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          AppLocalizations.of(context).appName,
-          style: context.typo.wordmark.copyWith(color: colors.ink),
+        Row(
+          children: [
+            Container(
+              width: spacing.huge,
+              height: spacing.huge,
+              decoration: BoxDecoration(
+                borderRadius: context.radii.circular(context.radii.md),
+                gradient: LinearGradient(
+                  begin: AlignmentDirectional.topStart,
+                  end: AlignmentDirectional.bottomEnd,
+                  colors: [colors.heroStart, colors.heroEnd],
+                ),
+                boxShadow: context.elevation.level1,
+              ),
+              child: Icon(Icons.receipt_long_rounded, color: colors.mint),
+            ),
+            SizedBox(width: spacing.sm),
+            Text(
+              AppLocalizations.of(context).appName,
+              style: context.typo.wordmark.copyWith(color: colors.ink),
+            ),
+          ],
         ),
-        SizedBox(height: spacing.lg),
+        SizedBox(height: spacing.xl),
         Text(title, style: textTheme.headlineMedium),
         SizedBox(height: spacing.xxs),
         Text(

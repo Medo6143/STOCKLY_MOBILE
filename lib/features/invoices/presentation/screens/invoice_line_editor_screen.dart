@@ -7,6 +7,7 @@ import 'package:stockly/core/widgets/async_state_view.dart';
 import 'package:stockly/core/widgets/decimal_field.dart';
 import 'package:stockly/core/widgets/empty_state.dart';
 import 'package:stockly/core/widgets/failure_message.dart';
+import 'package:stockly/core/widgets/loading_state.dart';
 import 'package:stockly/core/widgets/ltr_isolate.dart';
 import 'package:stockly/features/invoices/domain/entities/invoice_draft.dart';
 import 'package:stockly/features/invoices/domain/entities/invoice_input_rules.dart';
@@ -46,6 +47,7 @@ class InvoiceLineEditorScreen extends ConsumerWidget {
         ),
       ),
       body: AsyncStateView<InvoiceReviewState>(
+        loading: const LoadingState(shape: LoadingShape.form),
         value: ref.watch(provider),
         onRetry: () => ref.invalidate(provider),
         isEmpty: (s) =>

@@ -96,6 +96,10 @@ void main() {
       expect(_redirect(_owner, RoutePaths.splash), RoutePaths.home);
       expect(
         _redirect(_owner, '/splash?from=%2Fsettings'),
+        RoutePaths.legacySettings,
+      );
+      expect(
+        _redirect(_owner, '/splash?from=%2Fprofile%2Fsettings'),
         RoutePaths.settings,
       );
       expect(_redirect(_staff, '/splash?from=%2Flogin'), RoutePaths.home);

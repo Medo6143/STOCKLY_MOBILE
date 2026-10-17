@@ -64,7 +64,7 @@
   },
   "navSettings": "الإعدادات",
   "@navSettings": {
-    "description": "Bottom navigation tab."
+    "description": "Settings screen title and the profile action that opens it."
   },
   "notFoundTitle": "الصفحة مش موجودة",
   "@notFoundTitle": {
@@ -1917,5 +1917,41 @@
   "expiringExpiredChip": "انتهى",
   "@expiringExpiredChip": {
     "description": "Marks a line whose expiry date has passed."
+  },
+  "navProfile": "حسابي",
+  "@navProfile": {
+    "description": "Bottom navigation tab: the profile page."
+  },
+  "dashboardHeaderSubtitle": "نظرة سريعة على محلك النهارده",
+  "@dashboardHeaderSubtitle": {
+    "description": "Dashboard header line under the shop name."
+  },
+  "profileSettingsSubtitle": "اللغة والمظهر",
+  "@profileSettingsSubtitle": {
+    "description": "Profile action under Settings."
+  },
+  "profileSignOutSubtitle": "تقدر تدخل تاني في أي وقت",
+  "@profileSignOutSubtitle": {
+    "description": "Profile action under Sign out."
+  },
+  "profilePhone": "الموبايل",
+  "@profilePhone": {
+    "description": "Profile: the user's phone number, read by screen readers."
+  },
+  "salesRecorded": "البيع اتسجل",
+  "@salesRecorded": {
+    "description": "Snackbar with the success check after a sale is recorded."
+  },
+  "productsFormSectionProduct": "المنتج",
+  "@productsFormSectionProduct": {
+    "description": "Product form section: name and base unit."
+  },
+  "productsFormSectionPricing": "الأسعار والمخزون",
+  "@productsFormSectionPricing": {
+    "description": "Product form section: prices, threshold and opening stock."
+  },
+  "productsFormSectionDetails": "الباركود والتصنيف",
+  "@productsFormSectionDetails": {
+    "description": "Product form section: barcode and category."
   }
 }

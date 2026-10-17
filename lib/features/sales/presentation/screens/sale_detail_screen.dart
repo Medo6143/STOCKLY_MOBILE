@@ -3,9 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stockly/core/theme/app_theme.dart';
 import 'package:stockly/core/time/date_formatter.dart';
 import 'package:stockly/core/widgets/async_state_view.dart';
+import 'package:stockly/core/widgets/leading_badge.dart';
+import 'package:stockly/core/widgets/loading_state.dart';
 import 'package:stockly/core/widgets/ltr_isolate.dart';
 import 'package:stockly/core/widgets/money_text.dart';
 import 'package:stockly/core/widgets/snack_bars.dart';
+import 'package:stockly/core/widgets/surface_card.dart';
 import 'package:stockly/features/sales/domain/entities/sale.dart';
 import 'package:stockly/features/sales/presentation/providers/sale_detail_notifier.dart';
 import 'package:stockly/features/sales/presentation/widgets/negative_stock_warning.dart';
@@ -31,6 +34,7 @@ class SaleDetailScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: Text(l10n.salesDetailTitle)),
       body: AsyncStateView<Sale>(
+        loading: const LoadingState(shape: LoadingShape.detail),
         value: ref.watch(provider),
         onRetry: () => ref.invalidate(provider),
         data: (context, sale) =>
@@ -85,53 +89,54 @@ class _SaleView extends StatelessWidget {
           ),
         Padding(
           padding: gutter,
-          child: Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+          child: SurfaceCard(
+            level: 2,
+            radius: context.radii.xxl,
+            padding: EdgeInsetsDirectional.all(spacing.lg),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
                   children: [
-                    Text(
-                      l10n.salesTotalLabel,
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                    MoneyText(
-                      sale.totalAmount,
-                      style: context.typo.numberLarge.copyWith(
-                        color: colors.ink,
+                    const LeadingBadge(icon: Icons.receipt_rounded),
+                    SizedBox(width: spacing.sm),
+                    Expanded(
+                      child: Text(
+                        l10n.salesTotalLabel,
+                        style: Theme.of(context).textTheme.titleMedium,
                       ),
+                    ),
+                    Text(
+                      ltrIsolate(
+                        DateFormatter.dateTime(sale.createdAt, language),
+                      ),
+                      style: Theme.of(context).textTheme.bodySmall
+                          ?.copyWith(color: colors.muted),
                     ),
                   ],
                 ),
-              ),
-              Text(
-                ltrIsolate(DateFormatter.dateTime(sale.createdAt, language)),
-                style: Theme.of(context).textTheme.bodySmall
-                    ?.copyWith(color: colors.muted),
-              ),
-            ],
+                SizedBox(height: spacing.md),
+                MoneyText(
+                  sale.totalAmount,
+                  style: context.typo.numberLarge.copyWith(color: colors.ink),
+                ),
+                if (sale.priceOverridden) ...[
+                  SizedBox(height: spacing.xs),
+                  Text(
+                    l10n.salesHasOverride,
+                    style: Theme.of(context).textTheme.bodySmall
+                        ?.copyWith(color: colors.warning),
+                  ),
+                ],
+                if (note != null) ...[
+                  SizedBox(height: spacing.xs),
+                  Text(l10n.salesNoteValue(note)),
+                ],
+              ],
+            ),
           ),
         ),
-        if (sale.priceOverridden)
-          Padding(
-            padding: gutter,
-            child: Text(
-              l10n.salesHasOverride,
-              style: Theme.of(context).textTheme.bodySmall
-                  ?.copyWith(color: colors.warning),
-            ),
-          ),
-        if (note != null)
-          Padding(
-            padding: EdgeInsetsDirectional.fromSTEB(
-              spacing.md,
-              spacing.xs,
-              spacing.md,
-              0,
-            ),
-            child: Text(l10n.salesNoteValue(note)),
-          ),
-        SizedBox(height: spacing.md),
+        SizedBox(height: spacing.lg),
         Padding(
           padding: gutter,
           child: Text(

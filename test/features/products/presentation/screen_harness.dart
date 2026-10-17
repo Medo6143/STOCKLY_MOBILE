@@ -33,6 +33,7 @@ Future<void> pumpProductScreen(
   required MockProductsRepository repository,
   Session? session,
   ThemeMode themeMode = ThemeMode.light,
+  bool disableAnimations = false,
 }) async {
   tester.view
     ..physicalSize = const Size(1080, 2600)
@@ -44,6 +45,7 @@ Future<void> pumpProductScreen(
     locale: localeVariant.currentValue!,
     themeMode: themeMode,
     overrides: productOverrides(repository, session: session),
+    disableAnimations: disableAnimations,
   );
 }
 

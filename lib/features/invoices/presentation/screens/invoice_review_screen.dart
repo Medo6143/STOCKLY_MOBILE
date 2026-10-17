@@ -11,6 +11,7 @@ import 'package:stockly/core/widgets/decimal_field.dart';
 import 'package:stockly/core/widgets/empty_state.dart';
 import 'package:stockly/core/widgets/failure_message.dart';
 import 'package:stockly/core/widgets/form_banner.dart';
+import 'package:stockly/core/widgets/loading_state.dart';
 import 'package:stockly/core/widgets/ltr_isolate.dart';
 import 'package:stockly/core/widgets/money_text.dart';
 import 'package:stockly/core/widgets/snack_bars.dart';
@@ -59,7 +60,7 @@ class InvoiceReviewScreen extends ConsumerWidget {
       if (confirmedBefore != null &&
           confirmedAfter != null &&
           confirmedAfter > confirmedBefore) {
-        showMessageSnackBar(context, l10n.invoiceReviewConfirmed);
+        showSuccessSnackBar(context, l10n.invoiceReviewConfirmed);
         context.goNamed(
           RouteNames.invoiceDetail,
           pathParameters: {RoutePaths.invoiceIdParameter: invoiceId},
@@ -117,6 +118,7 @@ class InvoiceReviewScreen extends ConsumerWidget {
             )
           : null,
       body: AsyncStateView<InvoiceReviewState>(
+        loading: const LoadingState(shape: LoadingShape.detail),
         value: value,
         onRetry: () => ref.invalidate(provider),
         isEmpty: (s) => s.draft.lines.isEmpty,

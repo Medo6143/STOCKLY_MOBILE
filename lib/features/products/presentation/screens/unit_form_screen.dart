@@ -11,6 +11,8 @@ import 'package:stockly/core/widgets/empty_state.dart';
 import 'package:stockly/core/widgets/error_state.dart';
 import 'package:stockly/core/widgets/failure_message.dart';
 import 'package:stockly/core/widgets/form_banner.dart';
+import 'package:stockly/core/widgets/loading_state.dart';
+import 'package:stockly/core/widgets/section_card.dart';
 import 'package:stockly/core/widgets/snack_bars.dart';
 import 'package:stockly/features/products/domain/entities/product_detail.dart';
 import 'package:stockly/features/products/domain/entities/product_field.dart';
@@ -54,6 +56,7 @@ class UnitFormScreen extends ConsumerWidget {
         ),
       ),
       body: AsyncStateView<ProductDetail>(
+        loading: const LoadingState(shape: LoadingShape.form),
         value: ref.watch(provider),
         onRetry: () => ref.invalidate(provider),
         isEmpty: (product) => product.isArchived,
@@ -175,50 +178,61 @@ class _UnitFormState extends ConsumerState<_UnitForm> {
           FormBanner(message: failureMessage(l10n, banner)),
           gap,
         ],
-        TextField(
-          controller: _name,
-          enabled: enabled,
-          textInputAction: TextInputAction.next,
-          decoration: InputDecoration(
-            labelText: l10n.unitsFormName,
-            errorText: productFieldError(l10n, ProductField.unitName, errors),
-            errorMaxLines: 3,
-          ),
-        ),
-        gap,
-        DecimalField(
-          controller: _factor,
-          label: l10n.unitsFormFactor(widget.product.baseUnit.name),
-          enabled: enabled,
-          readOnly: isBase,
-          helperText: isBase ? l10n.unitsFormFactorBaseFixed : null,
-          errorText: productFieldError(l10n, ProductField.unitFactor, errors),
-        ),
-        gap,
-        DecimalField(
-          controller: _sellPrice,
-          label: l10n.unitsFormSellPrice,
-          enabled: enabled,
-          errorText: productFieldError(
-            l10n,
-            ProductField.unitSellPrice,
-            errors,
-          ),
-        ),
-        gap,
-        TextField(
-          controller: _barcode,
-          enabled: enabled,
-          textDirection: TextDirection.ltr,
-          decoration: InputDecoration(
-            labelText: l10n.productsFormBarcode,
-            errorText: productFieldError(
-              l10n,
-              ProductField.unitBarcode,
-              errors,
+        SectionCard(
+          title: widget.product.name,
+          icon: Icons.layers_outlined,
+          children: [
+            TextField(
+              controller: _name,
+              enabled: enabled,
+              textInputAction: TextInputAction.next,
+              decoration: InputDecoration(
+                labelText: l10n.unitsFormName,
+                errorText: productFieldError(
+                  l10n,
+                  ProductField.unitName,
+                  errors,
+                ),
+                errorMaxLines: 3,
+              ),
             ),
-            errorMaxLines: 3,
-          ),
+            DecimalField(
+              controller: _factor,
+              label: l10n.unitsFormFactor(widget.product.baseUnit.name),
+              enabled: enabled,
+              readOnly: isBase,
+              helperText: isBase ? l10n.unitsFormFactorBaseFixed : null,
+              errorText: productFieldError(
+                l10n,
+                ProductField.unitFactor,
+                errors,
+              ),
+            ),
+            DecimalField(
+              controller: _sellPrice,
+              label: l10n.unitsFormSellPrice,
+              enabled: enabled,
+              errorText: productFieldError(
+                l10n,
+                ProductField.unitSellPrice,
+                errors,
+              ),
+            ),
+            TextField(
+              controller: _barcode,
+              enabled: enabled,
+              textDirection: TextDirection.ltr,
+              decoration: InputDecoration(
+                labelText: l10n.productsFormBarcode,
+                errorText: productFieldError(
+                  l10n,
+                  ProductField.unitBarcode,
+                  errors,
+                ),
+                errorMaxLines: 3,
+              ),
+            ),
+          ],
         ),
         SizedBox(height: spacing.xl),
         SubmitButton(
@@ -229,6 +243,9 @@ class _UnitFormState extends ConsumerState<_UnitForm> {
         if (unit != null && !isBase) ...[
           SizedBox(height: spacing.sm),
           OutlinedButton.icon(
+            style: OutlinedButton.styleFrom(
+              foregroundColor: context.colors.danger,
+            ),
             onPressed: enabled ? _delete : null,
             icon: form.isDeleting
                 ? SizedBox.square(

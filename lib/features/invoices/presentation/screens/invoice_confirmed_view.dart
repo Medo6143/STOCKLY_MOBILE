@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:stockly/core/theme/app_theme.dart';
 import 'package:stockly/core/time/date_formatter.dart';
 import 'package:stockly/core/widgets/ltr_isolate.dart';
+import 'package:stockly/core/widgets/success_check.dart';
+import 'package:stockly/core/widgets/surface_card.dart';
 import 'package:stockly/features/invoices/domain/entities/invoice_detail.dart';
 import 'package:stockly/features/invoices/domain/entities/invoice_draft.dart';
 import 'package:stockly/features/invoices/presentation/widgets/invoice_header_summary.dart';
@@ -28,32 +30,39 @@ class InvoiceConfirmedView extends StatelessWidget {
       children: [
         Padding(
           padding: EdgeInsetsDirectional.symmetric(horizontal: spacing.md),
-          child: Row(
-            children: [
-              Icon(Icons.verified_outlined, color: colors.mint),
-              SizedBox(width: spacing.xs),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      l10n.invoiceConfirmedTitle,
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                    if (confirmedAt != null)
-                      Text(
-                        l10n.invoiceConfirmedAt(
-                          ltrIsolate(
-                            DateFormatter.dateTime(confirmedAt, language),
-                          ),
-                        ),
-                        style: Theme.of(context).textTheme.bodySmall
-                            ?.copyWith(color: colors.muted),
-                      ),
-                  ],
+          child: SurfaceCard(
+            color: colors.mintSoft,
+            level: 0,
+            child: Row(
+              children: [
+                SuccessCheck(
+                  size: spacing.xxxl,
+                  semanticLabel: l10n.invoiceConfirmedTitle,
                 ),
-              ),
-            ],
+                SizedBox(width: spacing.sm),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        l10n.invoiceConfirmedTitle,
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      if (confirmedAt != null)
+                        Text(
+                          l10n.invoiceConfirmedAt(
+                            ltrIsolate(
+                              DateFormatter.dateTime(confirmedAt, language),
+                            ),
+                          ),
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(color: colors.muted),
+                        ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
         Padding(

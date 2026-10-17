@@ -30,7 +30,12 @@ abstract final class RoutePaths {
   static const String quickSale = '/sales/new';
   static const String saleDetail = '/sales/:saleId';
 
-  static const String settings = '/settings';
+  static const String profile = '/profile';
+  static const String settings = '/profile/settings';
+
+  /// Settings before the profile tab existed; redirects to [settings] so
+  /// old links keep working.
+  static const String legacySettings = '/settings';
 
   /// Home after sign-in (design §3.1, Sprint 4).
   static const String home = dashboard;

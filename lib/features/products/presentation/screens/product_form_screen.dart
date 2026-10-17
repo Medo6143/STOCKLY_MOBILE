@@ -11,7 +11,9 @@ import 'package:stockly/core/widgets/decimal_field.dart';
 import 'package:stockly/core/widgets/empty_state.dart';
 import 'package:stockly/core/widgets/failure_message.dart';
 import 'package:stockly/core/widgets/form_banner.dart';
+import 'package:stockly/core/widgets/loading_state.dart';
 import 'package:stockly/core/widgets/owner_only.dart';
+import 'package:stockly/core/widgets/section_card.dart';
 import 'package:stockly/core/widgets/snack_bars.dart';
 import 'package:stockly/features/products/domain/entities/product_detail.dart';
 import 'package:stockly/features/products/domain/entities/product_field.dart';
@@ -48,6 +50,7 @@ class ProductFormScreen extends ConsumerWidget {
       body: productId == null
           ? const _ProductForm(product: null)
           : AsyncStateView<ProductDetail>(
+              loading: const LoadingState(shape: LoadingShape.form),
               value: ref.watch(productDetailProvider(productId)),
               onRetry: () => ref.invalidate(productDetailProvider(productId)),
               isEmpty: (product) => product.isArchived,
@@ -210,54 +213,67 @@ class _ProductFormState extends ConsumerState<_ProductForm> {
           ),
           gap,
         ],
-        text(_name, l10n.productsFormName, ProductField.name),
-        gap,
-        if (isCreate) ...[
-          text(
-            _baseUnitName,
-            l10n.productsFormBaseUnitName,
-            ProductField.baseUnitName,
-          ),
-          gap,
-        ],
-        number(_costPrice, l10n.productsFormCostPrice, ProductField.costPrice),
-        gap,
-        if (isCreate) ...[
-          number(
-            _sellPrice,
-            l10n.productsFormSellPrice,
-            ProductField.baseUnitSellPrice,
-          ),
-          gap,
-        ],
-        number(
-          _threshold,
-          isCreate
-              ? l10n.productsFormThreshold
-              : l10n.productsFormThresholdRequired,
-          ProductField.lowStockThreshold,
-        ),
-        gap,
-        if (isCreate)
-          OwnerOnly(
-            child: Padding(
-              padding: EdgeInsetsDirectional.only(bottom: spacing.md),
-              child: number(
-                _opening,
-                l10n.productsFormOpeningQuantity,
-                ProductField.openingQuantity,
-                helper: l10n.productsFormOpeningHint,
+        SectionCard(
+          title: l10n.productsFormSectionProduct,
+          icon: Icons.inventory_2_outlined,
+          children: [
+            text(_name, l10n.productsFormName, ProductField.name),
+            if (isCreate)
+              text(
+                _baseUnitName,
+                l10n.productsFormBaseUnitName,
+                ProductField.baseUnitName,
               ),
-            ),
-          ),
-        text(
-          _barcode,
-          l10n.productsFormBarcode,
-          ProductField.barcode,
-          ltr: true,
+          ],
         ),
         gap,
-        text(_category, l10n.productsFormCategory, ProductField.category),
+        SectionCard(
+          title: l10n.productsFormSectionPricing,
+          icon: Icons.payments_outlined,
+          children: [
+            number(
+              _costPrice,
+              l10n.productsFormCostPrice,
+              ProductField.costPrice,
+            ),
+            if (isCreate)
+              number(
+                _sellPrice,
+                l10n.productsFormSellPrice,
+                ProductField.baseUnitSellPrice,
+              ),
+            number(
+              _threshold,
+              isCreate
+                  ? l10n.productsFormThreshold
+                  : l10n.productsFormThresholdRequired,
+              ProductField.lowStockThreshold,
+            ),
+            if (isCreate)
+              OwnerOnly(
+                child: number(
+                  _opening,
+                  l10n.productsFormOpeningQuantity,
+                  ProductField.openingQuantity,
+                  helper: l10n.productsFormOpeningHint,
+                ),
+              ),
+          ],
+        ),
+        gap,
+        SectionCard(
+          title: l10n.productsFormSectionDetails,
+          icon: Icons.qr_code_rounded,
+          children: [
+            text(
+              _barcode,
+              l10n.productsFormBarcode,
+              ProductField.barcode,
+              ltr: true,
+            ),
+            text(_category, l10n.productsFormCategory, ProductField.category),
+          ],
+        ),
         SizedBox(height: spacing.xl),
         SubmitButton(
           label: isCreate

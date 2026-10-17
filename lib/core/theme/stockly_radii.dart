@@ -9,6 +9,7 @@ final class StocklyRadii extends ThemeExtension<StocklyRadii> {
     this.md = 14,
     this.lg = 16,
     this.xl = 20,
+    this.xxl = 24,
     this.pill = 999,
   });
 
@@ -29,6 +30,10 @@ final class StocklyRadii extends ThemeExtension<StocklyRadii> {
   /// App icon.
   final double xl;
 
+  /// Hero cards and sheets. Derived (design-refresh brief), brand approval
+  /// pending.
+  final double xxl;
+
   /// Segmented buttons, chips.
   final double pill;
 
@@ -42,6 +47,7 @@ final class StocklyRadii extends ThemeExtension<StocklyRadii> {
     double? md,
     double? lg,
     double? xl,
+    double? xxl,
     double? pill,
   }) => StocklyRadii(
     xs: xs ?? this.xs,
@@ -49,6 +55,7 @@ final class StocklyRadii extends ThemeExtension<StocklyRadii> {
     md: md ?? this.md,
     lg: lg ?? this.lg,
     xl: xl ?? this.xl,
+    xxl: xxl ?? this.xxl,
     pill: pill ?? this.pill,
   );
 

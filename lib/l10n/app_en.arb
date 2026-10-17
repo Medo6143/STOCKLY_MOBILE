@@ -500,5 +500,14 @@
   "salesBalanceAfter": "Stock after:",
   "salesFieldRequired": "This field is required.",
   "salesFieldInvalidNumber": "Enter a valid number.",
-  "expiringExpiredChip": "Expired"
+  "expiringExpiredChip": "Expired",
+  "navProfile": "Profile",
+  "dashboardHeaderSubtitle": "Your shop at a glance today",
+  "profileSettingsSubtitle": "Language and theme",
+  "profileSignOutSubtitle": "You can sign in again any time",
+  "profilePhone": "Phone",
+  "salesRecorded": "Sale recorded",
+  "productsFormSectionProduct": "Product",
+  "productsFormSectionPricing": "Prices and stock",
+  "productsFormSectionDetails": "Barcode and category"
 }

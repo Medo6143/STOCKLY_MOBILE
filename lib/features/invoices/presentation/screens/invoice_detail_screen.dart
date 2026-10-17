@@ -5,6 +5,7 @@ import 'package:stockly/core/router/route_names.dart';
 import 'package:stockly/core/router/route_paths.dart';
 import 'package:stockly/core/widgets/async_state_view.dart';
 import 'package:stockly/core/widgets/empty_state.dart';
+import 'package:stockly/core/widgets/loading_state.dart';
 import 'package:stockly/core/widgets/snack_bars.dart';
 import 'package:stockly/features/invoices/domain/entities/invoice_detail.dart';
 import 'package:stockly/features/invoices/domain/entities/invoice_status.dart';
@@ -63,6 +64,7 @@ class _InvoiceDetailScreenState extends ConsumerState<InvoiceDetailScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(l10n.invoiceDetailTitle)),
       body: AsyncStateView<InvoiceDetail>(
+        loading: const LoadingState(shape: LoadingShape.detail),
         value: ref.watch(provider),
         onRetry: () => ref.invalidate(provider),
         data: (context, invoice) => switch (invoice.status) {

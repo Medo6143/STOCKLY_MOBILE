@@ -10,6 +10,7 @@ import 'package:stockly/core/widgets/loading_state.dart';
 import 'package:stockly/features/auth/domain/entities/session.dart';
 import 'package:stockly/features/products/domain/entities/product_detail.dart';
 import 'package:stockly/features/products/presentation/screens/product_detail_screen.dart';
+import 'package:stockly/features/products/presentation/widgets/product_hero_tags.dart';
 import 'package:stockly/features/products/presentation/widgets/unit_list_tile.dart';
 
 import '../../../helpers/auth_doubles.dart';
@@ -108,6 +109,23 @@ void main() {
       l.productsDetailAddUnit,
     ]) {
       expect(button(label), findsOneWidget, reason: label);
+    }
+  }, variant: localeVariant);
+
+  testWidgets('Hero_SameTagsAsTheListRow', (tester) async {
+    stub(() => Ok(detail()));
+
+    await pump(tester);
+    await tester.pump();
+
+    for (final part in ProductHeroPart.values) {
+      expect(
+        find.byWidgetPredicate(
+          (w) => w is Hero && w.tag == productHeroTag(part, productId),
+        ),
+        findsOneWidget,
+        reason: part.name,
+      );
     }
   }, variant: localeVariant);
 

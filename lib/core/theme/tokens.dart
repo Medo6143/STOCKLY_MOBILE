@@ -36,6 +36,16 @@ abstract final class Tokens {
   static const double dangerSoftAlpha = 0.12;
   static const double warningSoftAlpha = 0.16;
 
+  // Derived (design-refresh brief, brand approval pending): the mint glow
+  // on hero headers, the muted text on them, the dark raised surface (ink
+  // at 4% over the surface) and the skeleton shimmer highlight.
+  static const double lightHeroGlowAlpha = 0.30;
+  static const double darkHeroGlowAlpha = 0.18;
+  static const double onHeroMutedAlpha = 0.72;
+  static const double heroDecorationAlpha = 0.07;
+  static const double darkRaisedSurfaceAlpha = 0.04;
+  static const double shimmerHighlightAlpha = 0.55;
+
   // Splash mark (`--s-paper`, `--s-ink`, `--s-mint`).
   static const Color lightMarkPaper = Color(0xFFFFFFFF);
   static const Color lightMarkInk = Color(0xFF12233D);

@@ -3,6 +3,7 @@ import 'package:stockly/core/theme/app_theme.dart';
 import 'package:stockly/core/time/date_formatter.dart';
 import 'package:stockly/core/widgets/ltr_isolate.dart';
 import 'package:stockly/core/widgets/money_text.dart';
+import 'package:stockly/core/widgets/surface_card.dart';
 import 'package:stockly/features/invoices/domain/entities/invoice_detail.dart';
 import 'package:stockly/l10n/generated/app_localizations.dart';
 
@@ -32,24 +33,26 @@ class InvoiceHeaderSummary extends StatelessWidget {
         ],
       ),
     );
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        row(
-          l10n.invoiceSupplierLabel,
-          Text(invoice.supplierName ?? l10n.invoicesUnknownSupplier),
-        ),
-        if (number != null)
-          row(l10n.invoiceNumberLabel, Text(ltrIsolate(number))),
-        if (date != null)
+    return SurfaceCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
           row(
-            l10n.invoiceDateLabel,
-            Text(ltrIsolate(DateFormatter.date(date, language))),
+            l10n.invoiceSupplierLabel,
+            Text(invoice.supplierName ?? l10n.invoicesUnknownSupplier),
           ),
-        if (total != null) row(l10n.invoiceTotalLabel, MoneyText(total)),
-        if (computed != null)
-          row(l10n.invoiceComputedTotalLabel, MoneyText(computed)),
-      ],
+          if (number != null)
+            row(l10n.invoiceNumberLabel, Text(ltrIsolate(number))),
+          if (date != null)
+            row(
+              l10n.invoiceDateLabel,
+              Text(ltrIsolate(DateFormatter.date(date, language))),
+            ),
+          if (total != null) row(l10n.invoiceTotalLabel, MoneyText(total)),
+          if (computed != null)
+            row(l10n.invoiceComputedTotalLabel, MoneyText(computed)),
+        ],
+      ),
     );
   }
 }

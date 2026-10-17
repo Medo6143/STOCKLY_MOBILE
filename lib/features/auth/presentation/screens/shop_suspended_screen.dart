@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stockly/core/theme/app_theme.dart';
 import 'package:stockly/core/widgets/async_state_view.dart';
+import 'package:stockly/core/widgets/loading_state.dart';
 import 'package:stockly/features/auth/domain/entities/session.dart';
 import 'package:stockly/features/auth/presentation/providers/auth_notifier.dart';
 import 'package:stockly/features/auth/presentation/providers/sign_out_notifier.dart';
@@ -21,6 +22,7 @@ class ShopSuspendedScreen extends ConsumerWidget {
     return Scaffold(
       body: SafeArea(
         child: AsyncStateView<Session>(
+          loading: const LoadingState(shape: LoadingShape.detail),
           value: session == null
               ? const AsyncLoading<Session>()
               : AsyncData(session),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:stockly/core/theme/app_theme.dart';
 import 'package:stockly/core/widgets/money_text.dart';
 import 'package:stockly/core/widgets/quantity_text.dart';
+import 'package:stockly/core/widgets/surface_card.dart';
 import 'package:stockly/features/sales/domain/entities/sale.dart';
 import 'package:stockly/l10n/generated/app_localizations.dart';
 
@@ -19,42 +20,55 @@ class SaleItemTile extends StatelessWidget {
     final spacing = context.spacing;
     final colors = context.colors;
     final small = context.typo.numberSmall.copyWith(color: colors.muted);
-    return ListTile(
-      contentPadding: EdgeInsetsDirectional.symmetric(horizontal: spacing.md),
-      title: Text(item.productName),
-      subtitle: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          QuantityText(item.quantity, unit: item.unitName),
-          Wrap(
-            spacing: spacing.xs,
-            runSpacing: spacing.xxs,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            children: [
-              Text(l10n.salesUnitPriceLabel),
-              MoneyText(item.unitPrice, style: small),
-              if (item.priceOverridden) ...[
-                Text(l10n.salesListPriceLabel),
-                MoneyText(item.listUnitPrice, style: small),
-                Text(
-                  l10n.salesPriceOverridden,
-                  style: Theme.of(context).textTheme.labelMedium
-                      ?.copyWith(color: colors.warning),
-                ),
-              ],
-            ],
-          ),
-          Wrap(
-            spacing: spacing.xs,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            children: [
-              Text(l10n.salesBalanceAfter),
-              QuantityText(item.balanceAfter, style: small),
-            ],
-          ),
-        ],
+    return Padding(
+      padding: EdgeInsetsDirectional.fromSTEB(
+        spacing.md,
+        0,
+        spacing.md,
+        spacing.sm,
       ),
-      trailing: MoneyText(item.lineTotal),
+      child: SurfaceCard(
+        padding: EdgeInsetsDirectional.symmetric(vertical: spacing.xxs),
+        child: ListTile(
+          contentPadding: EdgeInsetsDirectional.symmetric(
+            horizontal: spacing.md,
+          ),
+          title: Text(item.productName),
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              QuantityText(item.quantity, unit: item.unitName),
+              Wrap(
+                spacing: spacing.xs,
+                runSpacing: spacing.xxs,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  Text(l10n.salesUnitPriceLabel),
+                  MoneyText(item.unitPrice, style: small),
+                  if (item.priceOverridden) ...[
+                    Text(l10n.salesListPriceLabel),
+                    MoneyText(item.listUnitPrice, style: small),
+                    Text(
+                      l10n.salesPriceOverridden,
+                      style: Theme.of(context).textTheme.labelMedium
+                          ?.copyWith(color: colors.warning),
+                    ),
+                  ],
+                ],
+              ),
+              Wrap(
+                spacing: spacing.xs,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  Text(l10n.salesBalanceAfter),
+                  QuantityText(item.balanceAfter, style: small),
+                ],
+              ),
+            ],
+          ),
+          trailing: MoneyText(item.lineTotal),
+        ),
+      ),
     );
   }
 }

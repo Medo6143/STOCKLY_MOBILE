@@ -46,14 +46,20 @@ class AsyncStateView<T> extends ConsumerWidget {
       final content = isEmpty?.call(current) ?? false
           ? empty ?? const EmptyState.generic()
           : data(context, current);
-      if (!value.isLoading) {
-        // A failed refresh keeps the data; the screen shows a snackbar.
-        return content;
-      }
-      return Column(
+      // A failed refresh keeps the data; the screen shows a snackbar. The
+      // content keeps its place in the tree while a refresh runs, so its
+      // state (scroll position, entrance animations) survives.
+      return Stack(
+        fit: StackFit.passthrough,
         children: [
-          const LinearProgressIndicator(),
-          Expanded(child: content),
+          content,
+          if (value.isLoading)
+            const PositionedDirectional(
+              top: 0,
+              start: 0,
+              end: 0,
+              child: LinearProgressIndicator(),
+            ),
         ],
       );
     }

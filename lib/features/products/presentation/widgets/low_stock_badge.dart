@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:stockly/core/theme/app_theme.dart';
+import 'package:stockly/core/widgets/status_pill.dart';
 
-/// A small pill: "Low stock" in the warning colors, or any other [label]
-/// with its own colors (for example "Archived").
+/// A small pill: "Low stock" in the soft warning colors, or any other
+/// [label] in neutral colors (for example "Archived").
 class LowStockBadge extends StatelessWidget {
   const new({required this.label, this.muted = false, super.key});
 
@@ -12,25 +12,8 @@ class LowStockBadge extends StatelessWidget {
   final bool muted;
 
   @override
-  Widget build(BuildContext context) {
-    final colors = context.colors;
-    final spacing = context.spacing;
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: muted ? colors.line : colors.warningSoft,
-        borderRadius: context.radii.circular(context.radii.pill),
-      ),
-      child: Padding(
-        padding: EdgeInsetsDirectional.symmetric(
-          horizontal: spacing.xs,
-          vertical: spacing.xxs / 2,
-        ),
-        child: Text(
-          label,
-          style: Theme.of(context).textTheme.labelSmall
-              ?.copyWith(color: muted ? colors.muted : colors.warning),
-        ),
-      ),
-    );
-  }
+  Widget build(BuildContext context) => StatusPill(
+    label: label,
+    tone: muted ? PillTone.neutral : PillTone.warning,
+  );
 }
