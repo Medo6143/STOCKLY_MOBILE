@@ -4,6 +4,9 @@ import 'package:stockly/features/auth/presentation/providers/auth_state.dart';
 
 const Set<String> _publicPaths = {RoutePaths.login, RoutePaths.register};
 
+/// Paths open both signed out and signed in.
+const Set<String> _openPaths = {RoutePaths.privacyPolicy};
+
 /// Paths that never resume after the splash.
 const Set<String> _entryPaths = {
   RoutePaths.splash,
@@ -41,7 +44,9 @@ String? authRedirect(
     case AuthUnknown():
       return null;
     case AuthSignedOut():
-      return _publicPaths.contains(path) ? null : RoutePaths.login;
+      return _publicPaths.contains(path) || _openPaths.contains(path)
+          ? null
+          : RoutePaths.login;
     case AuthSuspended():
       return path == RoutePaths.suspended ? null : RoutePaths.suspended;
     case AuthSignedIn(:final session):

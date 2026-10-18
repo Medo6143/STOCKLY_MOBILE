@@ -33,6 +33,7 @@ import 'package:stockly/features/products/presentation/screens/unit_form_screen.
 import 'package:stockly/features/sales/presentation/screens/quick_sale_screen.dart';
 import 'package:stockly/features/sales/presentation/screens/sale_detail_screen.dart';
 import 'package:stockly/features/sales/presentation/screens/sale_list_screen.dart';
+import 'package:stockly/features/settings/presentation/screens/privacy_policy_screen.dart';
 import 'package:stockly/features/settings/presentation/screens/profile_screen.dart';
 import 'package:stockly/features/settings/presentation/screens/settings_screen.dart';
 
@@ -63,6 +64,9 @@ Future<ProviderContainer> _startApp(
   await tester.pumpAndSettle();
   return ProviderScope.containerOf(tester.element(find.byType(StocklyApp)));
 }
+
+/// How far each drag scrolls while looking for a link below the fold.
+const double _scrollStep = 300;
 
 String _location(ProviderContainer container) => container
     .read(routerProvider)
@@ -291,6 +295,58 @@ void main() {
 
     expect(_location(container), RoutePaths.settings);
     expect(find.byType(SettingsScreen), findsOneWidget);
+  });
+
+  testWidgets('PrivacyPolicy_OpenSignedOutFromRegister', (tester) async {
+    final container = await _startApp(
+      tester,
+      tokens: InMemoryTokenStorage(),
+      state: FakeSeed.pharmacy(FakeClock().now()),
+    );
+    container.read(routerProvider).go(RoutePaths.register);
+    await tester.pumpAndSettle();
+
+    final l10n = l10nOf(const Locale('ar'));
+    await tester.scrollUntilVisible(
+      find.text(l10n.privacyPolicyTitle),
+      _scrollStep,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.tap(find.text(l10n.privacyPolicyTitle));
+    await tester.pumpAndSettle();
+
+    // Pushed over the current page.
+    expect(find.byType(PrivacyPolicyScreen), findsOneWidget);
+
+    await tester.tap(find.byType(BackButton));
+    await tester.pumpAndSettle();
+    expect(find.byType(PrivacyPolicyScreen), findsNothing);
+    expect(_location(container), RoutePaths.register);
+  });
+
+  testWidgets('PrivacyPolicy_OpenSignedInFromProfile', (tester) async {
+    final state = FakeSeed.pharmacy(FakeClock().now());
+    final tokens = await tester.runAsync(() => _signedInTokens(state));
+    final container = await _startApp(tester, tokens: tokens!, state: state);
+    container.read(routerProvider).go(RoutePaths.profile);
+    await tester.pumpAndSettle();
+
+    final l10n = l10nOf(const Locale('ar'));
+    await tester.scrollUntilVisible(
+      find.text(l10n.privacyPolicyTitle),
+      _scrollStep,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.tap(find.text(l10n.privacyPolicyTitle));
+    await tester.pumpAndSettle();
+
+    // Pushed over the current page.
+    expect(find.byType(PrivacyPolicyScreen), findsOneWidget);
+
+    await tester.tap(find.byType(BackButton));
+    await tester.pumpAndSettle();
+    expect(find.byType(PrivacyPolicyScreen), findsNothing);
+    expect(_location(container), RoutePaths.profile);
   });
 
   testWidgets('ProductRoutes_RenderTheProductScreens', (tester) async {

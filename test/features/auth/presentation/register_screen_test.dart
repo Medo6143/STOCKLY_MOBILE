@@ -3,10 +3,13 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:stockly/core/error/api_error_code.dart';
 import 'package:stockly/core/error/failure.dart';
 import 'package:stockly/core/error/result.dart';
+import 'package:stockly/core/router/route_names.dart';
+import 'package:stockly/core/theme/app_theme.dart';
 import 'package:stockly/core/widgets/form_banner.dart';
 import 'package:stockly/features/auth/domain/entities/register_input.dart';
 import 'package:stockly/features/auth/domain/entities/session.dart';
@@ -265,5 +268,54 @@ void main() {
     );
     expect(find.text(l10n().authFieldRequired), findsWidgets);
     expect(tester.takeException(), isNull);
+  }, variant: localeVariant);
+
+  testWidgets('PrivacyPolicy_LinkOpensThePolicy', (tester) async {
+    tester.view
+      ..physicalSize = const Size(1080, 4000)
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    const marker = 'privacy-screen';
+    final router = GoRouter(
+      routes: [
+        GoRoute(
+          path: '/',
+          builder: (context, state) => const RegisterScreen(),
+          routes: [
+            GoRoute(
+              path: 'privacy',
+              name: RouteNames.privacyPolicy,
+              builder: (context, state) => const Scaffold(body: Text(marker)),
+            ),
+          ],
+        ),
+      ],
+    );
+    addTearDown(router.dispose);
+    final locale = localeVariant.currentValue!;
+    await tester.pumpWidget(
+      ProviderScope(
+        retry: (_, _) => null,
+        overrides: authTestOverrides(
+          repository: repository,
+          clock: FakeClock(),
+          deviceLocale: locale,
+        ),
+        child: MaterialApp.router(
+          routerConfig: router,
+          locale: locale,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          theme: AppTheme.light(),
+        ),
+      ),
+    );
+
+    final l = l10n();
+    expect(find.text(l.authRegisterPrivacyNote), findsOneWidget);
+    await tester.tap(find.text(l.privacyPolicyTitle));
+    await tester.pumpAndSettle();
+
+    expect(find.text(marker), findsOneWidget);
   }, variant: localeVariant);
 }

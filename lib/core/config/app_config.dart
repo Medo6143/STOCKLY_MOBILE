@@ -45,11 +45,23 @@ final class AppConfig {
   /// Scheme and host only; data sources use paths starting with `/api/`.
   final String apiBaseUrl;
 
-  /// Release builds must talk to the real backend (design §12.1). A runtime
-  /// check, because `assert` is removed from release builds.
+  /// The only scheme a release build may talk to.
+  static const String releaseScheme = 'https';
+
+  /// Release builds must talk to the real backend (design §12.1) over
+  /// HTTPS: a release build without `STOCKLY_API_BASE_URL` gets the
+  /// `http://` emulator default and is refused too. A runtime check,
+  /// because `assert` is removed from release builds.
   void ensureValidFor({required bool releaseMode}) {
-    if (releaseMode && backendMode != BackendMode.real) {
+    if (!releaseMode) {
+      return;
+    }
+    if (backendMode != BackendMode.real) {
       throw StateError('Release builds must use STOCKLY_BACKEND=real.');
+    }
+    final uri = Uri.tryParse(apiBaseUrl);
+    if (uri == null || uri.scheme != releaseScheme || uri.host.isEmpty) {
+      throw StateError('Release builds need an https STOCKLY_API_BASE_URL.');
     }
   }
 }

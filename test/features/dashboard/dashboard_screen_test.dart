@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -224,4 +226,76 @@ void main() {
     expect(find.byType(TodaySalesCard), findsOneWidget);
     expect(tester.takeException(), isNull);
   }, variant: localeVariant);
+  group('StatusBarInset (edge-to-edge)', () {
+    const topInset = 48.0;
+
+    Future<void> pumpWithInset(
+      WidgetTester tester, {
+      ThemeMode themeMode = ThemeMode.light,
+    }) async {
+      answer(() async => Ok(summary()));
+      tester.view.padding = const FakeViewPadding(top: topInset);
+      await pump(tester, themeMode: themeMode);
+      // Short enough that the cards scroll.
+      tester.view.physicalSize = const Size(1080, 1200);
+      await tester.pumpAndSettle();
+    }
+
+    Finder title() => find.text(routedL10n().navDashboard);
+    Finder shop() => find.text(ownerSession.shop.name);
+
+    /// The status bar icons over the strip are light (white).
+    void expectLightStatusBarIcons(WidgetTester tester) {
+      final layer = tester.binding.renderViews.first.debugLayer!;
+      final style = layer.find<SystemUiOverlayStyle>(
+        const Offset(540, topInset / 2),
+      );
+      expect(style?.statusBarIconBrightness, Brightness.light);
+    }
+
+    /// Nothing of the scroll view reaches into the status bar.
+    void expectContentBelowInset(WidgetTester tester) {
+      final viewport = tester.getRect(find.byType(Scrollable).first);
+      expect(viewport.top, greaterThanOrEqualTo(topInset));
+    }
+
+    for (final themeMode in [ThemeMode.light, ThemeMode.dark]) {
+      testWidgets('AtRest_TitleAndShopBelowTheInset_${themeMode.name}', (
+        tester,
+      ) async {
+        await pumpWithInset(tester, themeMode: themeMode);
+
+        expect(tester.getRect(title()).top, greaterThanOrEqualTo(topInset));
+        expect(tester.getRect(shop()).top, greaterThanOrEqualTo(topInset));
+        expect(
+          tester.getRect(find.byIcon(Icons.storefront_rounded)).top,
+          greaterThanOrEqualTo(topInset),
+        );
+        expectContentBelowInset(tester);
+        expectLightStatusBarIcons(tester);
+      }, variant: localeVariant);
+    }
+
+    testWidgets('AfterScrolling_NothingUnderTheStatusBar', (tester) async {
+      await pumpWithInset(tester);
+
+      await tester.drag(find.byType(Scrollable).first, const Offset(0, -120));
+      await tester.pumpAndSettle();
+
+      // The header scrolled but stays clipped below the status bar.
+      expectContentBelowInset(tester);
+      expectLightStatusBarIcons(tester);
+      final hit = tester.hitTestOnBinding(const Offset(540, topInset / 2));
+      expect(
+        hit.path.any((entry) => entry.target is RenderParagraph),
+        isFalse,
+        reason: 'no header text paints under the status bar',
+      );
+
+      await tester.drag(find.byType(Scrollable).first, const Offset(0, 120));
+      await tester.pumpAndSettle();
+      expect(tester.getRect(title()).top, greaterThanOrEqualTo(topInset));
+      expect(tester.getRect(shop()).top, greaterThanOrEqualTo(topInset));
+    }, variant: localeVariant);
+  });
 }

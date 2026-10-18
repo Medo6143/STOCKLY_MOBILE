@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:stockly/core/router/route_names.dart';
 import 'package:stockly/core/router/route_paths.dart';
 import 'package:stockly/core/theme/app_theme.dart';
 import 'package:stockly/core/widgets/form_banner.dart';
@@ -20,6 +21,7 @@ import 'package:stockly/l10n/generated/app_localizations.dart';
 /// blank form with the shop type picker; error = email taken under the
 /// email, shop name or type under their fields, field errors, or a banner
 /// (rate limit with seconds left, network); data = the router moves home.
+/// A link above the submit button opens the privacy policy.
 class RegisterScreen extends ConsumerStatefulWidget {
   const new({super.key});
 
@@ -181,7 +183,20 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   field(AuthField.shopAddress, l10n.authShopAddressLabel),
                 ],
               ),
-              SizedBox(height: spacing.xl),
+              SizedBox(height: spacing.md),
+              Wrap(
+                alignment: WrapAlignment.center,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  Text(l10n.authRegisterPrivacyNote),
+                  TextButton(
+                    onPressed: () =>
+                        context.pushNamed(RouteNames.privacyPolicy),
+                    child: Text(l10n.privacyPolicyTitle),
+                  ),
+                ],
+              ),
+              SizedBox(height: spacing.md),
               PrimaryButton(
                 label: l10n.authRegisterSubmit,
                 busy: form.isSubmitting,

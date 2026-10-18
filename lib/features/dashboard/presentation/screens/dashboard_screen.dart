@@ -12,6 +12,7 @@ import 'package:stockly/core/widgets/entrance.dart';
 import 'package:stockly/core/widgets/entrance_scope.dart';
 import 'package:stockly/core/widgets/error_state.dart';
 import 'package:stockly/core/widgets/hero_header.dart';
+import 'package:stockly/core/widgets/hero_scroll_frame.dart';
 import 'package:stockly/core/widgets/leading_badge.dart';
 import 'package:stockly/core/widgets/loading_state.dart';
 import 'package:stockly/core/widgets/ltr_isolate.dart';
@@ -31,7 +32,8 @@ import 'package:stockly/l10n/generated/app_localizations.dart';
 /// loading = a card skeleton under the header; empty = a new shop without
 /// products, "Add your first product or scan an invoice" with both
 /// actions; error = retry; data = the cards, each opening its list, and
-/// "updated at". Pull to refresh.
+/// "updated at". Pull to refresh. The status bar strip stays navy with
+/// light icons and nothing scrolls under it (`HeroScrollFrame`).
 class DashboardScreen extends ConsumerWidget {
   const new({super.key});
 
@@ -59,37 +61,39 @@ class DashboardScreen extends ConsumerWidget {
         icon: const Icon(Icons.add_shopping_cart_rounded),
         label: Text(l10n.salesNewSale),
       ),
-      body: AsyncStateView<DashboardSummary>(
-        value: ref.watch(dashboardSummaryProvider),
-        onRetry: retry,
-        loading: const _DashboardFrame(
-          cards: LoadingState(
-            shape: LoadingShape.cards,
-            padding: EdgeInsetsDirectional.zero,
-          ),
-        ),
-        errorBuilder: (context, failure) => _DashboardFrame(
-          fill: ErrorState(failure: failure, onRetry: retry),
-        ),
-        isEmpty: (summary) => summary.isNewShop,
-        empty: _DashboardFrame(
-          fill: EmptyState(
-            icon: Icons.storefront_outlined,
-            title: l10n.dashboardEmptyTitle,
-            body: l10n.dashboardEmptyBody,
-            action: EmptyStateAction(
-              label: l10n.dashboardAddProduct,
-              onPressed: () => context.goNamed(RouteNames.productCreate),
-            ),
-            secondaryAction: EmptyStateAction(
-              label: l10n.invoicesScanAction,
-              onPressed: () => context.goNamed(RouteNames.scanCapture),
+      body: HeroScrollFrame(
+        child: AsyncStateView<DashboardSummary>(
+          value: ref.watch(dashboardSummaryProvider),
+          onRetry: retry,
+          loading: const _DashboardFrame(
+            cards: LoadingState(
+              shape: LoadingShape.cards,
+              padding: EdgeInsetsDirectional.zero,
             ),
           ),
-        ),
-        data: (context, summary) => RefreshIndicator(
-          onRefresh: () => _refresh(ref),
-          child: _DashboardFrame(cards: _SummaryCards(summary: summary)),
+          errorBuilder: (context, failure) => _DashboardFrame(
+            fill: ErrorState(failure: failure, onRetry: retry),
+          ),
+          isEmpty: (summary) => summary.isNewShop,
+          empty: _DashboardFrame(
+            fill: EmptyState(
+              icon: Icons.storefront_outlined,
+              title: l10n.dashboardEmptyTitle,
+              body: l10n.dashboardEmptyBody,
+              action: EmptyStateAction(
+                label: l10n.dashboardAddProduct,
+                onPressed: () => context.goNamed(RouteNames.productCreate),
+              ),
+              secondaryAction: EmptyStateAction(
+                label: l10n.invoicesScanAction,
+                onPressed: () => context.goNamed(RouteNames.scanCapture),
+              ),
+            ),
+          ),
+          data: (context, summary) => RefreshIndicator(
+            onRefresh: () => _refresh(ref),
+            child: _DashboardFrame(cards: _SummaryCards(summary: summary)),
+          ),
         ),
       ),
     );

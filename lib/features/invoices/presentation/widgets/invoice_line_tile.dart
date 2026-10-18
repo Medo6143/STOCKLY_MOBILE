@@ -4,14 +4,17 @@ import 'package:stockly/core/theme/app_theme.dart';
 import 'package:stockly/core/time/date_formatter.dart';
 import 'package:stockly/core/widgets/ltr_isolate.dart';
 import 'package:stockly/core/widgets/money_text.dart';
+import 'package:stockly/core/widgets/status_pill.dart';
 import 'package:stockly/core/widgets/surface_card.dart';
 import 'package:stockly/features/invoices/domain/entities/invoice_draft.dart';
 import 'package:stockly/l10n/generated/app_localizations.dart';
 
 /// One line of an invoice (design §11): raw name, chosen product and unit
 /// (or the new product), quantity × unit price, the server's line total,
-/// expiry, batch and match confidence. [hasError] highlights a line that
-/// needs a product; [messages] are the server's field messages.
+/// expiry, batch and match confidence. A match below
+/// [InvoiceRules.matchCheckThreshold] shows a "check this match" pill with
+/// the percent instead. [hasError] highlights a line that needs a product;
+/// [messages] are the server's field messages.
 class InvoiceLineTile extends StatelessWidget {
   const new({
     required this.line,
@@ -40,6 +43,7 @@ class InvoiceLineTile extends StatelessWidget {
     final expiry = line.expiryDate;
     final batch = line.batchNo;
     final confidence = line.matchConfidence;
+    final checkMatch = line.needsMatchCheck;
     final lineTotal = line.lineTotal;
     final choice = line.choice;
     final unresolved = choice is UnresolvedChoice;
@@ -57,7 +61,7 @@ class InvoiceLineTile extends StatelessWidget {
           ltrIsolate(DateFormatter.date(expiry, language)),
         ),
       if (batch != null) l10n.invoiceLineBatch(ltrIsolate(batch)),
-      if (confidence != null)
+      if (confidence != null && !checkMatch)
         l10n.invoiceLineConfidence(
           ltrIsolate(DecimalFormatter.formatConfidencePercent(confidence)),
         ),
@@ -100,6 +104,22 @@ class InvoiceLineTile extends StatelessWidget {
                 ),
                 style: context.typo.numberSmall.copyWith(color: colors.muted),
               ),
+              if (checkMatch && confidence != null) ...[
+                SizedBox(height: spacing.xxs),
+                Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: StatusPill(
+                    label: l10n.invoiceLineCheckMatch(
+                      ltrIsolate(
+                        DecimalFormatter.formatConfidencePercent(confidence),
+                      ),
+                    ),
+                    tone: PillTone.warning,
+                    icon: Icons.manage_search_rounded,
+                  ),
+                ),
+                SizedBox(height: spacing.xxs),
+              ],
               if (details.isNotEmpty)
                 Text(
                   details.join(' · '),

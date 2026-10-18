@@ -21,12 +21,19 @@ flutter run --dart-define=STOCKLY_BACKEND=fake
 # Against the API (scheme and host only; the app adds /api/...).
 flutter run --dart-define=STOCKLY_BACKEND=real --dart-define=STOCKLY_API_BASE_URL=http://10.0.2.2:5000
 
-# Checks
+# Checks (the same as CI, .github/workflows/mobile.yml)
 flutter analyze
-flutter test
 dart format --set-exit-if-changed lib test
+flutter test --coverage --exclude-tags live
+dart run tool/coverage_gate.dart   # >= 80% lines on lib/features/*/domain and */presentation/providers
 flutter build apk --debug --dart-define=STOCKLY_BACKEND=fake
 ```
+
+CI runs on every push and pull request with Flutter 3.47.7 and also fails on untranslated ARB messages (`build/untranslated_messages.json` must be `{}`).
+
+### Release
+
+Release builds need upload signing (`android/key.properties` from `android/key.properties.example`, or the `STOCKLY_UPLOAD_*` variables) and an `https` `STOCKLY_API_BASE_URL`; without them the build stops with a message, it never signs with the debug key. Steps, keystore creation and the Play Console internal track: [`docs/release/android.md`](docs/release/android.md). Privacy policy (also in the app under Profile → Privacy policy and on the register screen): [`docs/privacy/privacy-policy.md`](docs/privacy/privacy-policy.md).
 
 ### Run in fake mode
 
@@ -53,7 +60,7 @@ Debug panel: sign in, open **Settings** and **long-press the version text** at t
 
 ### Screens
 
-The app has five tabs: **Home** (dashboard), **Products**, **Invoices**, **Sales** and **Profile**. The home screen and the profile open with a navy gradient header (shop name on the home screen, avatar with initials, name, email, phone and role on the profile) with cards overlapping its edge; dashboard numbers count up. Lists are rounded cards with a tinted badge and soft status chips, forms group their fields in titled cards with full-width pill buttons, and loading shows shimmering skeletons shaped like the content. Settings (language, theme, version, sign out) moved under **Profile → Settings** (`/profile/settings`; the old `/settings` link redirects there), so the debug panel is at **Profile → Settings**, long-press the version. Pushed screens slide in from the end edge (the left in Arabic), tabs fade through, and invoice confirm and recorded sales show an animated check. With the system's "Remove animations" / "Reduce motion" on, every animation shows its final frame.
+The app has five tabs: **Home** (dashboard), **Products**, **Invoices**, **Sales** and **Profile**. The home screen and the profile open with a navy gradient header (shop name on the home screen, avatar with initials, name, email, phone and role on the profile) with cards overlapping its edge; dashboard numbers count up. Lists are rounded cards with a tinted badge and soft status chips, forms group their fields in titled cards with full-width pill buttons, and loading shows shimmering skeletons shaped like the content. Settings (language, theme, version, sign out) moved under **Profile → Settings** (`/profile/settings`; the old `/settings` link redirects there), so the debug panel is at **Profile → Settings**, long-press the version. Pushed screens slide in from the end edge (the left in Arabic), tabs fade through, and invoice confirm and recorded sales show an animated check. The navy strip behind the status bar stays fixed with light icons, so header content never scrolls under the clock. On review, a line matched to a product with less than 90% confidence shows a "Check this match" pill with the percent. With the system's "Remove animations" / "Reduce motion" on, every animation shows its final frame.
 
 ### Live API test
 

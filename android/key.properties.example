@@ -1,0 +1,9 @@
+# Copy to android/key.properties (git-ignored) for a local release build.
+# Never commit key.properties or the keystore. See docs/release/android.md.
+#
+# storeFile is relative to the android/ folder or absolute. Keep the
+# keystore outside the repository.
+storeFile=../../keys/stockly-upload.jks
+storePassword=<keystore password>
+keyAlias=upload
+keyPassword=<key password>

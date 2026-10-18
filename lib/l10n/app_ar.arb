@@ -1953,5 +1953,89 @@
   "productsFormSectionDetails": "الباركود والتصنيف",
   "@productsFormSectionDetails": {
     "description": "Product form section: barcode and category."
+  },
+  "invoiceLineCheckMatch": "راجع المطابقة · {percent}٪",
+  "@invoiceLineCheckMatch": {
+    "description": "Hint on a review line whose product match is below 90% sure.",
+    "placeholders": {
+      "percent": {
+        "type": "String",
+        "example": "85"
+      }
+    }
+  },
+  "privacyPolicyTitle": "سياسة الخصوصية",
+  "@privacyPolicyTitle": {
+    "description": "Privacy policy screen title and links."
+  },
+  "privacyPolicySubtitle": "إيه اللي بنجمعه وليه",
+  "@privacyPolicySubtitle": {
+    "description": "Profile action under Privacy policy."
+  },
+  "privacyIntro": "Stockly بيساعدك تدير مخزون محلك. الصفحة دي بتشرح البيانات اللي بنحتفظ بيها، وبنستخدمها في إيه، ومين بيشوفها.",
+  "@privacyIntro": {
+    "description": "Privacy policy introduction."
+  },
+  "privacyCollectedTitle": "البيانات اللي بنجمعها",
+  "@privacyCollectedTitle": {
+    "description": "Privacy section title."
+  },
+  "privacyCollectedAccount": "الحساب: اسمك وإيميلك ورقم موبايلك. كلمة السر بتتخزن مشفّرة ومحدش يقدر يقراها.",
+  "@privacyCollectedAccount": {
+    "description": "Privacy item: account data."
+  },
+  "privacyCollectedShop": "بيانات المحل: الاسم والنوع والتليفون والمحافظة والعنوان، والأصناف والوحدات والأسعار وحركات المخزون.",
+  "@privacyCollectedShop": {
+    "description": "Privacy item: shop data."
+  },
+  "privacyCollectedPhotos": "صور الفواتير: بنحتفظ بالصورة ٩٠ يوم وبعدها بتتمسح. السطور اللي اتقرت منها بتفضل مع الفاتورة.",
+  "@privacyCollectedPhotos": {
+    "description": "Privacy item: invoice photos and retention."
+  },
+  "privacyCollectedSales": "المبيعات: الأصناف والكميات والأسعار ووقت كل بيعة.",
+  "@privacyCollectedSales": {
+    "description": "Privacy item: sales."
+  },
+  "privacyProcessorsTitle": "مين بيشوف بياناتك",
+  "@privacyProcessorsTitle": {
+    "description": "Privacy section title."
+  },
+  "privacyProcessorsBody": "علشان نقرا الفاتورة، صورتها بتتبعت لمزوّد ذكاء اصطناعي عن طريق OpenRouter. بيقرا السطور ويرجّعها لنا بس. السيرفرات اللي شغّالة عليها الخدمة بتخزن بياناتك نيابة عننا.",
+  "@privacyProcessorsBody": {
+    "description": "Privacy section body: processors."
+  },
+  "privacyNeverTitle": "اللي عمرنا ما بنعمله",
+  "@privacyNeverTitle": {
+    "description": "Privacy section title."
+  },
+  "privacyNeverBody": "مفيش إعلانات في Stockly، ومش بنبيع بياناتك ولا بنشاركها مع حد غير اللي فوق.",
+  "@privacyNeverBody": {
+    "description": "Privacy section body: no ads, no selling."
+  },
+  "privacyDeviceTitle": "على موبايلك",
+  "@privacyDeviceTitle": {
+    "description": "Privacy section title."
+  },
+  "privacyDeviceBody": "بيانات الدخول بتتخزن في التخزين الآمن للموبايل. صور الفواتير والمبيعات اللي لسه ما اتبعتتش بتفضل على الموبايل لحد ما تتبعت.",
+  "@privacyDeviceBody": {
+    "description": "Privacy section body: data on the device."
+  },
+  "privacyDeletionTitle": "مسح بياناتك",
+  "@privacyDeletionTitle": {
+    "description": "Privacy section title."
+  },
+  "privacyDeletionBody": "عايز تمسح حسابك وبيانات محلك؟ ابعت طلب من إيميل حسابك إلى {email}.",
+  "@privacyDeletionBody": {
+    "description": "Privacy section body: deletion requests.",
+    "placeholders": {
+      "email": {
+        "type": "String",
+        "example": "privacy@stockly.example"
+      }
+    }
+  },
+  "authRegisterPrivacyNote": "لما تعمل حساب يبقى موافق على",
+  "@authRegisterPrivacyNote": {
+    "description": "Text before the privacy policy link on the register screen."
   }
 }
