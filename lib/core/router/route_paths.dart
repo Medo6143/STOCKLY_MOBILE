@@ -33,6 +33,10 @@ abstract final class RoutePaths {
   static const String profile = '/profile';
   static const String settings = '/profile/settings';
 
+  /// The privacy policy: open signed in (profile) and signed out
+  /// (register), so it sits outside the shell.
+  static const String privacyPolicy = '/privacy';
+
   /// Settings before the profile tab existed; redirects to [settings] so
   /// old links keep working.
   static const String legacySettings = '/settings';

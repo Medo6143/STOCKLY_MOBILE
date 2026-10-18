@@ -8,6 +8,7 @@ import 'package:stockly/core/widgets/async_state_view.dart';
 import 'package:stockly/core/widgets/entrance.dart';
 import 'package:stockly/core/widgets/entrance_scope.dart';
 import 'package:stockly/core/widgets/hero_header.dart';
+import 'package:stockly/core/widgets/hero_scroll_frame.dart';
 import 'package:stockly/core/widgets/leading_badge.dart';
 import 'package:stockly/core/widgets/loading_state.dart';
 import 'package:stockly/core/widgets/ltr_isolate.dart';
@@ -31,18 +32,22 @@ import 'package:stockly/l10n/generated/app_localizations.dart';
 /// session; without one the router leaves the tab, and the moment before
 /// shows the loading skeleton); error = the session could not be read,
 /// with retry (restores it); data = the header (avatar, name, email,
-/// phone, role), the shop card and the actions: settings and sign out
-/// (with the pending-scans warning, design §6.7).
+/// phone, role), the shop card and the actions: settings, the privacy
+/// policy and sign out (with the pending-scans warning, design §6.7).
 class ProfileScreen extends ConsumerWidget {
   const new({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) => Scaffold(
-    body: AsyncStateView<Session>(
-      value: ref.watch(profileSessionProvider),
-      loading: const SafeArea(child: LoadingState(shape: LoadingShape.profile)),
-      onRetry: () => ref.read(authProvider.notifier).restore(),
-      data: (context, session) => _ProfileBody(session: session),
+    body: HeroScrollFrame(
+      child: AsyncStateView<Session>(
+        value: ref.watch(profileSessionProvider),
+        loading: const SafeArea(
+          child: LoadingState(shape: LoadingShape.profile),
+        ),
+        onRetry: () => ref.read(authProvider.notifier).restore(),
+        data: (context, session) => _ProfileBody(session: session),
+      ),
     ),
   );
 }
@@ -65,6 +70,12 @@ class _ProfileBody extends ConsumerWidget {
         title: l10n.navSettings,
         subtitle: l10n.profileSettingsSubtitle,
         onTap: () => context.goNamed(RouteNames.settings),
+      ),
+      ActionTile(
+        icon: Icons.privacy_tip_outlined,
+        title: l10n.privacyPolicyTitle,
+        subtitle: l10n.privacyPolicySubtitle,
+        onTap: () => context.pushNamed(RouteNames.privacyPolicy),
       ),
       ActionTile(
         icon: Icons.logout_rounded,

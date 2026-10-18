@@ -15,6 +15,12 @@ part 'invoice_draft.freezed.dart';
 abstract final class InvoiceRules {
   /// At most this many lines per invoice.
   static const int maxLines = 100;
+
+  /// A line matched to an existing product with a confidence below this
+  /// asks the user to check the match (trigram matches score under 0.9).
+  static final MatchConfidence matchCheckThreshold = MatchConfidence.fromApi(
+    '0.90',
+  );
 }
 
 /// What a line points at (design §11 review rules): an existing product
@@ -75,6 +81,19 @@ abstract class InvoiceLineDraft with _$InvoiceLineDraft {
       lineTotal: item.lineTotal,
       matchConfidence: item.matchConfidence,
     );
+  }
+}
+
+/// Whether the user should check a line's product match.
+extension InvoiceLineMatchCheck on InvoiceLineDraft {
+  /// `true` for a line matched to an existing product by the server with
+  /// a confidence below [InvoiceRules.matchCheckThreshold]. A line the
+  /// user re-pointed has no confidence and never asks.
+  bool get needsMatchCheck {
+    final confidence = matchConfidence;
+    return choice is ExistingProductChoice &&
+        confidence != null &&
+        confidence.compareTo(InvoiceRules.matchCheckThreshold) < 0;
   }
 }
 

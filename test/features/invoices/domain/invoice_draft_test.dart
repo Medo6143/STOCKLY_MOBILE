@@ -1,4 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:stockly/core/decimal/match_confidence.dart';
+import 'package:stockly/core/decimal/money.dart';
+import 'package:stockly/core/decimal/quantity.dart';
 import 'package:stockly/core/time/calendar_date.dart';
 import 'package:stockly/features/invoices/domain/entities/invoice_detail.dart';
 import 'package:stockly/features/invoices/domain/entities/invoice_draft.dart';
@@ -247,6 +250,57 @@ void main() {
       expect(
         InvoiceInputRules.optionalMoney('x').issue,
         InvoiceFieldIssue.invalidNumber,
+      );
+    });
+  });
+
+  group('InvoiceLineMatchCheck', () {
+    InvoiceLineDraft line({
+      String? confidence,
+      LineProductChoice choice = const LineProductChoice.existing(
+        productId: productId,
+        productUnitId: boxUnitId,
+        productName: 'بنادول اكسترا',
+        unitName: 'علبة',
+      ),
+    }) => InvoiceLineDraft(
+      lineNo: 1,
+      rawName: 'بنادول',
+      choice: choice,
+      quantity: Quantity.fromApi('1.000'),
+      unitPrice: Money.fromApi('10.00'),
+      matchConfidence: confidence == null
+          ? null
+          : MatchConfidence.fromApi(confidence),
+    );
+
+    test('Threshold_IsNinetyPercent', () {
+      expect(InvoiceRules.matchCheckThreshold.toString(), '0.90');
+    });
+
+    test('BelowThreshold_NeedsCheck', () {
+      expect(line(confidence: '0.89').needsMatchCheck, isTrue);
+      expect(line(confidence: '0.40').needsMatchCheck, isTrue);
+      expect(line(confidence: '0.00').needsMatchCheck, isTrue);
+    });
+
+    test('AtOrAboveThreshold_NoCheck', () {
+      expect(line(confidence: '0.90').needsMatchCheck, isFalse);
+      expect(line(confidence: '0.95').needsMatchCheck, isFalse);
+      expect(line(confidence: '1.00').needsMatchCheck, isFalse);
+    });
+
+    test('NoConfidence_NoCheck', () {
+      expect(line().needsMatchCheck, isFalse);
+    });
+
+    test('NotAnExistingProduct_NoCheck', () {
+      expect(
+        line(
+          confidence: '0.40',
+          choice: const LineProductChoice.unresolved(),
+        ).needsMatchCheck,
+        isFalse,
       );
     });
   });

@@ -35,6 +35,7 @@ import 'package:stockly/features/products/presentation/screens/unit_form_screen.
 import 'package:stockly/features/sales/presentation/screens/quick_sale_screen.dart';
 import 'package:stockly/features/sales/presentation/screens/sale_detail_screen.dart';
 import 'package:stockly/features/sales/presentation/screens/sale_list_screen.dart';
+import 'package:stockly/features/settings/presentation/screens/privacy_policy_screen.dart';
 import 'package:stockly/features/settings/presentation/screens/profile_screen.dart';
 import 'package:stockly/features/settings/presentation/screens/settings_screen.dart';
 import 'package:stockly/features/splash/presentation/providers/splash_notifier.dart';
@@ -102,6 +103,12 @@ final class _RouteTable {
       name: RouteNames.suspended,
       pageBuilder: (context, state) =>
           StocklyPages.fadeThrough(context, state, const ShopSuspendedScreen()),
+    ),
+    GoRoute(
+      path: RoutePaths.privacyPolicy,
+      name: RouteNames.privacyPolicy,
+      pageBuilder: (context, state) =>
+          StocklyPages.push(context, state, const PrivacyPolicyScreen()),
     ),
     GoRoute(
       path: RoutePaths.legacySettings,

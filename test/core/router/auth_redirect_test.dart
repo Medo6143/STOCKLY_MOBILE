@@ -215,5 +215,19 @@ void main() {
         expect(splashDestination(Uri.parse(location)), RoutePaths.home);
       }
     });
+
+    test('PrivacyPolicy_OpenSignedOutAndSignedIn', () {
+      expect(_redirect(_signedOut, RoutePaths.privacyPolicy), isNull);
+      expect(_redirect(_owner, RoutePaths.privacyPolicy), isNull);
+      expect(_redirect(_staff, RoutePaths.privacyPolicy), isNull);
+      expect(
+        _redirect(_suspended, RoutePaths.privacyPolicy),
+        RoutePaths.suspended,
+      );
+      expect(
+        _redirect(_unknown, RoutePaths.privacyPolicy),
+        '/splash?from=%2Fprivacy',
+      );
+    });
   });
 }

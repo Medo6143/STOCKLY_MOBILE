@@ -24,6 +24,7 @@ import '../../helpers/auth_doubles.dart';
 import '../../helpers/pump_app.dart';
 
 const String _settingsMarker = 'settings-screen';
+const String _privacyMarker = 'privacy-screen';
 
 /// Design-refresh brief §4: the profile tab, 4 states × ar/en, the actions,
 /// dark, RTL and reduce motion.
@@ -55,6 +56,12 @@ void main() {
               name: RouteNames.settings,
               builder: (context, state) =>
                   const Scaffold(body: Text(_settingsMarker)),
+            ),
+            GoRoute(
+              path: 'privacy',
+              name: RouteNames.privacyPolicy,
+              builder: (context, state) =>
+                  const Scaffold(body: Text(_privacyMarker)),
             ),
           ],
         ),
@@ -184,6 +191,17 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text(_settingsMarker), findsOneWidget);
+  }, variant: localeVariant);
+
+  testWidgets('PrivacyPolicy_ActionOpensThePolicy', (tester) async {
+    await pumpProfile(tester, session: ownerSession);
+    await tester.pumpAndSettle();
+
+    expect(find.text(l10n().privacyPolicySubtitle), findsOneWidget);
+    await tester.tap(find.text(l10n().privacyPolicyTitle));
+    await tester.pumpAndSettle();
+
+    expect(find.text(_privacyMarker), findsOneWidget);
   }, variant: localeVariant);
 
   testWidgets('SignOut_NothingPending_SignsOut', (tester) async {
