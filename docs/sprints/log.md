@@ -80,3 +80,11 @@ Running record of the mobile lane: which agent, brief path, verification result,
 - Orchestrator verification: build_runner OK; gen-l10n (untranslated `{}`); `flutter analyze` no issues; `dart format` 0 changed; `flutter test` 1,209 passed, 2 skipped (live); live API test (ar, en) passed against backend `main`. Changed assertions: only the 5th tab label (`navSettings` → `navProfile`) and the redirect expectation for `/settings` (now `legacySettings`; a new assertion added for `/profile/settings`).
 - Decisions accepted: profile lives in the settings feature; `dashboard` added to session consumers (shop name in the hero header); push slides in from the end edge (right in LTR, left in RTL); shimmer on a widget-owned controller (the `Animate` widget left pending timers in tests); light hero uses a mint glow because navy equals light ink; success feedback as an animated check snackbar; AsyncStateView keeps content mounted during refresh.
 - Open: the profile shop card shows name, type and role only (A5 has no governorate/address/phone; would need a contract change). Derived design tokens await brand approval.
+
+## Brief 6: CI, release, privacy, status-bar fix
+
+- Brief: `docs/agents/briefs/mobile-6-ci-release.md` (+ dashboard status-bar fix found on the emulator). Branch `feature/ci-release`. Resumed once after the session ended.
+- Orchestrator verification: build_runner OK; gen-l10n `{}`; analyze no issues; `dart format` 0 changed; `flutter test --coverage --exclude-tags live` 1,259 passed; coverage gate PASS (worker: 97.25 % on domain + providers); live API test (ar, en) passed. Release guard output checked in the report (fails without signing, never falls back to debug signing).
+- Changed assertion: `ensureValidFor_ReleaseRequiresRealBackend` now uses an https URL because release refuses http by this brief; a new test covers http refusal.
+- Status-bar fix: `HeroScrollFrame` paints a fixed status-bar strip with light icons; dashboard and profile; 6 tests that fail without the frame.
+- Open: R8 rules not proven end to end (needs a signed build; smoke-test secure storage, background sync and scanner on the first internal-track build); real privacy contact and public policy URL; design check of the flat status-bar strip vs the hero glow.
