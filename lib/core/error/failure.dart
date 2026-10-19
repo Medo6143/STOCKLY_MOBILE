@@ -121,7 +121,8 @@ final class AuthRateLimitedFailure extends ApiFailure {
   final Duration retryAfter;
 }
 
-/// `500 Server.Unexpected`, `405`, `415`.
+/// `500 Server.Unexpected`, `405`, `415`, and `502
+/// Billing.ProviderUnavailable` (nothing was charged; retry is safe).
 final class ServerFailure extends ApiFailure {
   const new(super.code, super.info);
 }

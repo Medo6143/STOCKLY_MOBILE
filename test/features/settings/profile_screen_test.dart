@@ -14,6 +14,7 @@ import 'package:stockly/core/widgets/ltr_isolate.dart';
 import 'package:stockly/features/auth/domain/entities/session.dart';
 import 'package:stockly/features/auth/presentation/providers/auth_notifier.dart';
 import 'package:stockly/features/auth/presentation/providers/auth_state.dart';
+import 'package:stockly/features/billing/presentation/providers/billing_providers.dart';
 import 'package:stockly/features/invoices/presentation/providers/pending_scans_providers.dart';
 import 'package:stockly/features/settings/presentation/providers/profile_providers.dart';
 import 'package:stockly/features/settings/presentation/screens/profile_screen.dart';
@@ -21,6 +22,7 @@ import 'package:stockly/features/settings/presentation/widgets/profile_avatar.da
 import 'package:stockly/l10n/generated/app_localizations.dart';
 
 import '../../helpers/auth_doubles.dart';
+import '../../helpers/billing_doubles.dart';
 import '../../helpers/pump_app.dart';
 
 const String _settingsMarker = 'settings-screen';
@@ -77,6 +79,7 @@ void main() {
           currentSessionProvider.overrideWithValue(session),
           if (value != null) profileSessionProvider.overrideWithValue(value),
           pendingScanCountProvider.overrideWith((ref) => Stream.value(pending)),
+          billingRepositoryProvider.overrideWithValue(quietBilling()),
         ],
         child: MaterialApp.router(
           routerConfig: router,

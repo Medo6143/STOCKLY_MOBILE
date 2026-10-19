@@ -32,6 +32,9 @@ abstract final class RoutePaths {
 
   static const String profile = '/profile';
   static const String settings = '/profile/settings';
+  static const String plans = '/profile/plans';
+  static const String paymentHistory = '/profile/payments';
+  static const String paymentStatus = '/profile/payments/:paymentId';
 
   /// The privacy policy: open signed in (profile) and signed out
   /// (register), so it sits outside the shell.
@@ -53,6 +56,7 @@ abstract final class RoutePaths {
   static const String invoiceIdParameter = 'invoiceId';
   static const String saleIdParameter = 'saleId';
   static const String lineNoParameter = 'lineNo';
+  static const String paymentIdParameter = 'paymentId';
 
   /// Query parameters of `/products`: `lowStock=true`, `archived=true`.
   static const String lowStockParameter = 'lowStock';

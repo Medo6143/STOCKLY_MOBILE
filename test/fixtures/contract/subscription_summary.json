@@ -1,0 +1,33 @@
+{
+  "plan": {
+    "id": "0192f0a0-6c1e-7b3a-9d2e-b111ab000001",
+    "code": "free",
+    "name": "Free",
+    "monthlyPrice": "0.00",
+    "dailyScanQuota": 50,
+    "maxMembers": 2,
+    "isFree": true,
+    "isCurrent": true
+  },
+  "startsOn": "2026-10-01",
+  "endsOn": null,
+  "effectiveDailyScanQuota": 50,
+  "scansToday": 12,
+  "memberCount": 2,
+  "pendingPayment": {
+    "id": "0192f0a0-6c1e-7b3a-9d2e-ba1e00000001",
+    "clientRequestId": "0192f0a0-6c1e-7b3a-9d2e-ba1e00000099",
+    "planId": "0192f0a0-6c1e-7b3a-9d2e-b111ab000002",
+    "planName": "Basic",
+    "amount": "150.00",
+    "currency": "EGP",
+    "method": "Kiosk",
+    "status": "Pending",
+    "checkoutUrl": null,
+    "referenceNumber": "700000001",
+    "expiresAt": "2026-10-14T07:00:00Z",
+    "failureReason": null,
+    "createdAt": "2026-10-12T07:00:00Z",
+    "paidAt": null
+  }
+}

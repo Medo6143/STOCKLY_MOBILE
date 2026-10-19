@@ -14,6 +14,9 @@ import 'package:stockly/features/auth/presentation/providers/auth_state.dart';
 import 'package:stockly/features/auth/presentation/screens/login_screen.dart';
 import 'package:stockly/features/auth/presentation/screens/register_screen.dart';
 import 'package:stockly/features/auth/presentation/screens/shop_suspended_screen.dart';
+import 'package:stockly/features/billing/presentation/screens/payment_history_screen.dart';
+import 'package:stockly/features/billing/presentation/screens/payment_status_screen.dart';
+import 'package:stockly/features/billing/presentation/screens/plans_screen.dart';
 import 'package:stockly/features/dashboard/domain/entities/expiring_item.dart';
 import 'package:stockly/features/dashboard/presentation/screens/dashboard_screen.dart';
 import 'package:stockly/features/dashboard/presentation/screens/expiring_soon_screen.dart';
@@ -353,6 +356,28 @@ final class _RouteTable {
         RouteNames.settings,
         RoutePaths.profile,
         (state) => const SettingsScreen(),
+      ),
+      _screen(
+        RoutePaths.plans,
+        RouteNames.plans,
+        RoutePaths.profile,
+        (state) => const PlansScreen(),
+      ),
+      _screen(
+        RoutePaths.paymentHistory,
+        RouteNames.paymentHistory,
+        RoutePaths.profile,
+        (state) => const PaymentHistoryScreen(),
+        routes: [
+          _screen(
+            RoutePaths.paymentStatus,
+            RouteNames.paymentStatus,
+            RoutePaths.paymentHistory,
+            (state) => PaymentStatusScreen(
+              paymentId: state.pathParameters[RoutePaths.paymentIdParameter]!,
+            ),
+          ),
+        ],
       ),
     ],
   );

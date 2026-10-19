@@ -96,7 +96,10 @@ ApiFailure failureForCode(
   ApiErrorCode.invoiceLineProductRequired ||
   ApiErrorCode.invoiceUnitNotOfProduct ||
   ApiErrorCode.saleArchivedProduct ||
-  ApiErrorCode.saleUnitNotOfProduct => InvalidInputFailure(code, info),
+  ApiErrorCode.saleUnitNotOfProduct ||
+  ApiErrorCode.planInactive ||
+  ApiErrorCode.billingFreePlan ||
+  ApiErrorCode.billingMethodUnavailable => InvalidInputFailure(code, info),
   ApiErrorCode.authInvalidCredentials => InvalidCredentialsFailure(code, info),
   ApiErrorCode.authUnauthenticated ||
   ApiErrorCode.authInvalidRefreshToken ||
@@ -109,6 +112,8 @@ ApiFailure failureForCode(
   ApiErrorCode.productUnitNotFound ||
   ApiErrorCode.invoiceNotFound ||
   ApiErrorCode.saleNotFound ||
+  ApiErrorCode.planNotFound ||
+  ApiErrorCode.paymentNotFound ||
   ApiErrorCode.httpNotFound => NotFoundFailure(code, info),
   ApiErrorCode.authEmailTaken ||
   ApiErrorCode.productArchived ||
@@ -117,7 +122,9 @@ ApiFailure failureForCode(
   ApiErrorCode.productUnitDuplicateBarcode ||
   ApiErrorCode.productUnitInUse ||
   ApiErrorCode.invoiceNotEditable ||
-  ApiErrorCode.invoiceNotConfirmable => ConflictFailure(code, info),
+  ApiErrorCode.invoiceNotConfirmable ||
+  ApiErrorCode.billingPaymentPending ||
+  ApiErrorCode.billingNotCancelable => ConflictFailure(code, info),
   ApiErrorCode.authLockedOut => AccountLockedFailure(
     code,
     info,
@@ -141,7 +148,8 @@ ApiFailure failureForCode(
   ),
   ApiErrorCode.serverUnexpected ||
   ApiErrorCode.httpMethodNotAllowed ||
-  ApiErrorCode.httpUnsupportedMediaType => ServerFailure(code, info),
+  ApiErrorCode.httpUnsupportedMediaType ||
+  ApiErrorCode.billingProviderUnavailable => ServerFailure(code, info),
 };
 
 /// Parses a `Retry-After` header in seconds. `null` when missing or not a

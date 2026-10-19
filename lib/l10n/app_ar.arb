@@ -2037,5 +2037,395 @@
   "authRegisterPrivacyNote": "لما تعمل حساب يبقى موافق على",
   "@authRegisterPrivacyNote": {
     "description": "Text before the privacy policy link on the register screen."
+  },
+  "errorPlanNotFound": "الباقة دي مش موجودة.",
+  "@errorPlanNotFound": {
+    "description": "Plan.NotFound."
+  },
+  "errorPlanInactive": "الباقة دي مش متاحة دلوقتي.",
+  "@errorPlanInactive": {
+    "description": "Plan.Inactive."
+  },
+  "errorBillingFreePlan": "الباقة المجانية مش محتاجة دفع.",
+  "@errorBillingFreePlan": {
+    "description": "Billing.FreePlan."
+  },
+  "errorBillingMethodUnavailable": "طريقة الدفع دي مش متاحة لسه.",
+  "@errorBillingMethodUnavailable": {
+    "description": "Billing.MethodUnavailable."
+  },
+  "errorBillingPaymentPending": "عندك دفعة لسه مستنية. كمّلها أو استنى لحد ما تنتهي.",
+  "@errorBillingPaymentPending": {
+    "description": "Billing.PaymentPending."
+  },
+  "errorBillingNotCancelable": "مينفعش تلغي غير دفعة لسه مستنية.",
+  "@errorBillingNotCancelable": {
+    "description": "Billing.NotCancelable."
+  },
+  "errorBillingProviderUnavailable": "خدمة الدفع مردتش. مفيش فلوس اتخصمت، حاول تاني.",
+  "@errorBillingProviderUnavailable": {
+    "description": "Billing.ProviderUnavailable (retry is safe)."
+  },
+  "errorPaymentNotFound": "الدفعة دي مش موجودة.",
+  "@errorPaymentNotFound": {
+    "description": "Payment.NotFound."
+  },
+  "billingYourPlan": "باقتك",
+  "@billingYourPlan": {
+    "description": "Title of the plan card on the profile."
+  },
+  "billingPricePerMonth": "{amount} في الشهر",
+  "@billingPricePerMonth": {
+    "description": "A plan price per month.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "150.00 ج.م"
+      }
+    }
+  },
+  "billingFree": "مجانية",
+  "@billingFree": {
+    "description": "Price label of a free plan."
+  },
+  "billingScansToday": "{used} من {quota} فاتورة النهارده",
+  "@billingScansToday": {
+    "description": "Today's scans against the daily quota.",
+    "placeholders": {
+      "used": {
+        "type": "int",
+        "example": "12"
+      },
+      "quota": {
+        "type": "int",
+        "example": "50"
+      }
+    }
+  },
+  "billingMembers": "الأعضاء: {count} من {max}",
+  "@billingMembers": {
+    "description": "Shop members against the plan limit.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "2"
+      },
+      "max": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "billingRenewsOn": "بتتجدد يوم {date}",
+  "@billingRenewsOn": {
+    "description": "End or renewal date of the plan.",
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "12 Nov 2026"
+      }
+    }
+  },
+  "billingPendingBanner": "فيه دفعة مستنية التأكيد",
+  "@billingPendingBanner": {
+    "description": "Banner on the plan card while a payment is pending."
+  },
+  "billingPlanError": "معرفناش نحمّل باقتك",
+  "@billingPlanError": {
+    "description": "Error inside the plan card."
+  },
+  "billingPlansTitle": "الباقات",
+  "@billingPlansTitle": {
+    "description": "Title of the plans screen."
+  },
+  "billingCurrentPlan": "باقتك الحالية",
+  "@billingCurrentPlan": {
+    "description": "Pill on the current plan."
+  },
+  "billingPlanQuota": "{count, plural, =0{مفيش فواتير} =1{فاتورة واحدة في اليوم} =2{فاتورتين في اليوم} few{{count} فواتير في اليوم} many{{count} فاتورة في اليوم} other{{count} فاتورة في اليوم}}",
+  "@billingPlanQuota": {
+    "description": "Daily scan quota of a plan.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "50"
+      }
+    }
+  },
+  "billingPlanMembers": "{count, plural, =0{من غير أعضاء} =1{عضو واحد} =2{عضوين} few{{count} أعضاء} many{{count} عضو} other{{count} عضو}}",
+  "@billingPlanMembers": {
+    "description": "Member limit of a plan.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "billingChoose": "اختار",
+  "@billingChoose": {
+    "description": "Button that starts paying for a plan."
+  },
+  "billingStaffNote": "صاحب المحل بس هو اللي يقدر يغيّر الباقة. اطلب منه يرقّيها.",
+  "@billingStaffNote": {
+    "description": "Note for Staff on the plans screen."
+  },
+  "billingPlansEmptyTitle": "مفيش باقات لسه",
+  "@billingPlansEmptyTitle": {
+    "description": "Empty plans title."
+  },
+  "billingPlansEmptyBody": "الباقات هتظهر هنا أول ما تبقى متاحة.",
+  "@billingPlansEmptyBody": {
+    "description": "Empty plans body."
+  },
+  "billingPaymentHistory": "المدفوعات",
+  "@billingPaymentHistory": {
+    "description": "Title of the payment history."
+  },
+  "billingPaymentHistorySubtitle": "مدفوعات باقتك",
+  "@billingPaymentHistorySubtitle": {
+    "description": "Subtitle of the payments action on the profile."
+  },
+  "billingHistoryEmptyTitle": "مفيش مدفوعات لسه",
+  "@billingHistoryEmptyTitle": {
+    "description": "Empty payment history title."
+  },
+  "billingHistoryEmptyBody": "أول ما تدفع لباقة هتظهر هنا.",
+  "@billingHistoryEmptyBody": {
+    "description": "Empty payment history body."
+  },
+  "billingSeePlans": "شوف الباقات",
+  "@billingSeePlans": {
+    "description": "Button that opens the plans."
+  },
+  "billingCheckoutTitle": "ادفع لباقة {plan}",
+  "@billingCheckoutTitle": {
+    "description": "Title of the checkout sheet.",
+    "placeholders": {
+      "plan": {
+        "type": "String",
+        "example": "Basic"
+      }
+    }
+  },
+  "billingAmountLabel": "المبلغ",
+  "@billingAmountLabel": {
+    "description": "Label of the amount to pay."
+  },
+  "billingMethodTitle": "عايز تدفع إزاي؟",
+  "@billingMethodTitle": {
+    "description": "Title of the payment method choice."
+  },
+  "billingMethodCard": "كارت",
+  "@billingMethodCard": {
+    "description": "Payment method: card."
+  },
+  "billingMethodCardHint": "فيزا أو ماستركارد أو ميزة، في صفحة دفع آمنة",
+  "@billingMethodCardHint": {
+    "description": "Explanation of the card method."
+  },
+  "billingMethodWallet": "فودافون كاش أو محفظة",
+  "@billingMethodWallet": {
+    "description": "Payment method: mobile wallet."
+  },
+  "billingMethodWalletHint": "أكّد الدفع من محفظة موبايلك",
+  "@billingMethodWalletHint": {
+    "description": "Explanation of the wallet method."
+  },
+  "billingMethodKiosk": "كاش في كشك",
+  "@billingMethodKiosk": {
+    "description": "Payment method: cash at a kiosk."
+  },
+  "billingMethodKioskHint": "هتاخد رقم مرجعي تدفعه كاش في أي كشك شريك",
+  "@billingMethodKioskHint": {
+    "description": "Explanation of the kiosk method."
+  },
+  "billingWalletPhone": "رقم موبايل المحفظة",
+  "@billingWalletPhone": {
+    "description": "Label of the wallet phone field."
+  },
+  "billingWalletPhoneHint": "01012345678",
+  "@billingWalletPhoneHint": {
+    "description": "Example in the wallet phone field."
+  },
+  "billingWalletPhoneRequired": "اكتب رقم موبايل المحفظة.",
+  "@billingWalletPhoneRequired": {
+    "description": "Wallet phone is empty."
+  },
+  "billingWalletPhoneInvalid": "اكتب رقم موبايل مصري، زي 01012345678.",
+  "@billingWalletPhoneInvalid": {
+    "description": "Wallet phone is not an Egyptian mobile number."
+  },
+  "billingPay": "كمّل للدفع",
+  "@billingPay": {
+    "description": "Submit button of the checkout."
+  },
+  "billingOpenPendingPayment": "افتح الدفعة المستنية",
+  "@billingOpenPendingPayment": {
+    "description": "Opens the payment that is already pending."
+  },
+  "billingPaymentTitle": "الدفع",
+  "@billingPaymentTitle": {
+    "description": "Title of the payment status screen."
+  },
+  "billingStatusPending": "مستنية",
+  "@billingStatusPending": {
+    "description": "Payment status Pending."
+  },
+  "billingStatusPaid": "اتدفعت",
+  "@billingStatusPaid": {
+    "description": "Payment status Paid."
+  },
+  "billingStatusFailed": "مكملتش",
+  "@billingStatusFailed": {
+    "description": "Payment status Failed."
+  },
+  "billingStatusExpired": "انتهت",
+  "@billingStatusExpired": {
+    "description": "Payment status Expired."
+  },
+  "billingWaitingTitle": "مستنيين الدفع",
+  "@billingWaitingTitle": {
+    "description": "Title while a card or wallet payment is pending."
+  },
+  "billingWaitingBody": "كمّل الدفع في صفحة الدفع. الشاشة دي بتتحدث لوحدها.",
+  "@billingWaitingBody": {
+    "description": "Body while a card or wallet payment is pending."
+  },
+  "billingOpenPaymentPage": "افتح صفحة الدفع",
+  "@billingOpenPaymentPage": {
+    "description": "Opens the hosted payment page again."
+  },
+  "billingKioskTitle": "ادفع في كشك",
+  "@billingKioskTitle": {
+    "description": "Title of a pending kiosk payment."
+  },
+  "billingKioskReference": "الرقم المرجعي",
+  "@billingKioskReference": {
+    "description": "Label of the kiosk reference."
+  },
+  "billingCopyReference": "نسخ الرقم",
+  "@billingCopyReference": {
+    "description": "Copies the kiosk reference."
+  },
+  "billingReferenceCopied": "الرقم اتنسخ",
+  "@billingReferenceCopied": {
+    "description": "Snackbar after copying the reference."
+  },
+  "billingKioskSteps": "روح لأي كشك شريك، قول إنك عايز تدفع رقم مرجعي، اديله الرقم ده وادفع {amount} كاش.",
+  "@billingKioskSteps": {
+    "description": "How to pay a kiosk reference.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "150.00 ج.م"
+      }
+    }
+  },
+  "billingPayBefore": "ادفع قبل {date}",
+  "@billingPayBefore": {
+    "description": "Expiry of a pending payment.",
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "12 Oct 2026 07:00"
+      }
+    }
+  },
+  "billingPaidTitle": "الدفع وصل",
+  "@billingPaidTitle": {
+    "description": "Title of a paid payment."
+  },
+  "billingPaidBody": "محلك دلوقتي على باقة {plan}.",
+  "@billingPaidBody": {
+    "description": "Body of a paid payment.",
+    "placeholders": {
+      "plan": {
+        "type": "String",
+        "example": "Basic"
+      }
+    }
+  },
+  "billingFailedTitle": "الدفع مكملش",
+  "@billingFailedTitle": {
+    "description": "Title of a failed payment."
+  },
+  "billingFailedBody": "تقدر تحاول تاني بنفس الطريقة أو بطريقة تانية.",
+  "@billingFailedBody": {
+    "description": "Body of a failed payment."
+  },
+  "billingExpiredTitle": "الدفعة انتهت",
+  "@billingExpiredTitle": {
+    "description": "Title of an expired payment."
+  },
+  "billingExpiredBody": "متدفعتش في وقتها. ابدأ دفعة جديدة لما تكون جاهز.",
+  "@billingExpiredBody": {
+    "description": "Body of an expired payment."
+  },
+  "billingCancelPayment": "إلغاء الدفعة",
+  "@billingCancelPayment": {
+    "description": "Cancels a pending payment."
+  },
+  "billingCancelConfirmTitle": "تلغي الدفعة دي؟",
+  "@billingCancelConfirmTitle": {
+    "description": "Title of the cancel confirmation."
+  },
+  "billingCancelConfirmBody": "تقدر تبدأ دفعة جديدة بطريقة تانية بعد كده.",
+  "@billingCancelConfirmBody": {
+    "description": "Body of the cancel confirmation."
+  },
+  "billingKeepPayment": "خليها",
+  "@billingKeepPayment": {
+    "description": "Keeps the pending payment."
+  },
+  "billingStillWaiting": "لسه مستنيين. حدّث علشان نشوف تاني.",
+  "@billingStillWaiting": {
+    "description": "Polling stopped while still pending."
+  },
+  "billingRefresh": "تحديث",
+  "@billingRefresh": {
+    "description": "Asks for the payment status again."
+  },
+  "billingDone": "تمام",
+  "@billingDone": {
+    "description": "Closes the paid payment."
+  },
+  "billingPollFailed": "معرفناش نتأكد من الدفع دلوقتي، هنحاول تاني.",
+  "@billingPollFailed": {
+    "description": "A status poll failed while the payment is shown."
+  },
+  "billingQuotaWarningTitle": "قربت توصل لحد الفواتير النهارده",
+  "@billingQuotaWarningTitle": {
+    "description": "Dashboard warning at 80% of the scan quota."
+  },
+  "billingUpgrade": "رقّي الباقة",
+  "@billingUpgrade": {
+    "description": "Opens the plans to upgrade."
+  },
+  "fakePanelPaymentTitle": "محاكاة الدفع (تجربة)",
+  "@fakePanelPaymentTitle": {
+    "description": "Debug action on the payment screen in fake mode."
+  },
+  "fakePanelPaymentSuccess": "محاكاة نجاح الدفع",
+  "@fakePanelPaymentSuccess": {
+    "description": "Debug: the fake provider reports success."
+  },
+  "fakePanelPaymentFailure": "محاكاة فشل الدفع",
+  "@fakePanelPaymentFailure": {
+    "description": "Debug: the fake provider reports a failure."
+  },
+  "billingPaymentSubtitle": "{method} · {date}",
+  "@billingPaymentSubtitle": {
+    "description": "Payment method and when the payment started.",
+    "placeholders": {
+      "method": {
+        "type": "String",
+        "example": "Card"
+      },
+      "date": {
+        "type": "String",
+        "example": "12 Oct 2026 07:00"
+      }
+    }
   }
 }

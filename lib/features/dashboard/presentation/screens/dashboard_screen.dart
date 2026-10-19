@@ -18,10 +18,12 @@ import 'package:stockly/core/widgets/loading_state.dart';
 import 'package:stockly/core/widgets/ltr_isolate.dart';
 import 'package:stockly/core/widgets/offline_banner.dart';
 import 'package:stockly/core/widgets/overlap_up.dart';
+import 'package:stockly/core/widgets/owner_only.dart';
 import 'package:stockly/core/widgets/snack_bars.dart';
 import 'package:stockly/features/auth/presentation/providers/auth_notifier.dart';
 import 'package:stockly/features/dashboard/domain/entities/dashboard_summary.dart';
 import 'package:stockly/features/dashboard/presentation/providers/dashboard_summary_notifier.dart';
+import 'package:stockly/features/dashboard/presentation/widgets/quota_warning_card.dart';
 import 'package:stockly/features/dashboard/presentation/widgets/summary_card.dart';
 import 'package:stockly/features/dashboard/presentation/widgets/today_sales_card.dart';
 import 'package:stockly/l10n/generated/app_localizations.dart';
@@ -32,8 +34,10 @@ import 'package:stockly/l10n/generated/app_localizations.dart';
 /// loading = a card skeleton under the header; empty = a new shop without
 /// products, "Add your first product or scan an invoice" with both
 /// actions; error = retry; data = the cards, each opening its list, and
-/// "updated at". Pull to refresh. The status bar strip stays navy with
-/// light icons and nothing scrolls under it (`HeroScrollFrame`).
+/// "updated at"; above them, for the Owner, a soft warning with "Upgrade"
+/// once today's scans reach 80 % of the quota (plans-payments brief).
+/// Pull to refresh. The status bar strip stays navy with light icons and
+/// nothing scrolls under it (`HeroScrollFrame`).
 class DashboardScreen extends ConsumerWidget {
   const new({super.key});
 
@@ -271,6 +275,7 @@ class _SummaryCards extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          const OwnerOnly(child: QuotaWarningCard()),
           for (final (index, card) in cards.indexed) ...[
             if (index > 0) gap,
             Entrance(index: index, child: card),

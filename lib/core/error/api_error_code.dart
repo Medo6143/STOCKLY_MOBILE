@@ -52,7 +52,15 @@ enum ApiErrorCode {
   scanDailyQuotaExceeded('Scan.DailyQuotaExceeded'),
   saleNotFound('Sale.NotFound'),
   saleArchivedProduct('Sale.ArchivedProduct'),
-  saleUnitNotOfProduct('Sale.UnitNotOfProduct');
+  saleUnitNotOfProduct('Sale.UnitNotOfProduct'),
+  planNotFound('Plan.NotFound'),
+  planInactive('Plan.Inactive'),
+  billingFreePlan('Billing.FreePlan'),
+  billingMethodUnavailable('Billing.MethodUnavailable'),
+  billingPaymentPending('Billing.PaymentPending'),
+  billingNotCancelable('Billing.NotCancelable'),
+  billingProviderUnavailable('Billing.ProviderUnavailable'),
+  paymentNotFound('Payment.NotFound');
 
   new(this.wire);
 

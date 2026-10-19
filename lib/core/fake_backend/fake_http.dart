@@ -102,22 +102,33 @@ final class FakeResponse {
     this.json,
     this.problem = false,
     this.headers = const {},
-  });
+  }) : list = null;
 
   /// `200`/`201` with a JSON body.
   const new json(this.status, Map<String, Object?> this.json)
-    : problem = false,
+    : list = null,
+      problem = false,
+      headers = const {};
+
+  /// `200` with a JSON array body (B1).
+  const new list(this.status, List<Object?> this.list)
+    : json = null,
+      problem = false,
       headers = const {};
 
   /// `204 No Content`.
   const new noContent()
     : status = HttpStatus.noContent,
       json = null,
+      list = null,
       problem = false,
       headers = const {};
 
   final int status;
   final Map<String, Object?>? json;
+
+  /// A JSON array body, instead of [json].
+  final List<Object?>? list;
 
   /// `true` for `application/problem+json`.
   final bool problem;
@@ -195,6 +206,7 @@ final class FakeProblems {
     HttpStatus.tooManyRequests: 'https://tools.ietf.org/html/rfc6585#section-4',
     HttpStatus.internalServerError:
         'https://tools.ietf.org/html/rfc9110#section-15.6.1',
+    HttpStatus.badGateway: 'https://tools.ietf.org/html/rfc9110#section-15.6.3',
   };
 
   static const Map<int, String> _titles = {
@@ -208,6 +220,7 @@ final class FakeProblems {
     HttpStatus.locked: 'Locked',
     HttpStatus.tooManyRequests: 'Too Many Requests',
     HttpStatus.internalServerError: 'Internal Server Error',
+    HttpStatus.badGateway: 'Bad Gateway',
   };
 
   /// The status the backend answers [code] with (contract §9).
@@ -230,7 +243,10 @@ final class FakeProblems {
     ApiErrorCode.invoiceLineProductRequired ||
     ApiErrorCode.invoiceUnitNotOfProduct ||
     ApiErrorCode.saleArchivedProduct ||
-    ApiErrorCode.saleUnitNotOfProduct => HttpStatus.badRequest,
+    ApiErrorCode.saleUnitNotOfProduct ||
+    ApiErrorCode.planInactive ||
+    ApiErrorCode.billingFreePlan ||
+    ApiErrorCode.billingMethodUnavailable => HttpStatus.badRequest,
     ApiErrorCode.authUnauthenticated ||
     ApiErrorCode.authInvalidCredentials ||
     ApiErrorCode.authInvalidRefreshToken ||
@@ -243,7 +259,9 @@ final class FakeProblems {
     ApiErrorCode.productNotFound ||
     ApiErrorCode.productUnitNotFound ||
     ApiErrorCode.invoiceNotFound ||
-    ApiErrorCode.saleNotFound => HttpStatus.notFound,
+    ApiErrorCode.saleNotFound ||
+    ApiErrorCode.planNotFound ||
+    ApiErrorCode.paymentNotFound => HttpStatus.notFound,
     ApiErrorCode.httpMethodNotAllowed => HttpStatus.methodNotAllowed,
     ApiErrorCode.authEmailTaken ||
     ApiErrorCode.productArchived ||
@@ -252,7 +270,9 @@ final class FakeProblems {
     ApiErrorCode.productUnitDuplicateBarcode ||
     ApiErrorCode.productUnitInUse ||
     ApiErrorCode.invoiceNotEditable ||
-    ApiErrorCode.invoiceNotConfirmable => HttpStatus.conflict,
+    ApiErrorCode.invoiceNotConfirmable ||
+    ApiErrorCode.billingPaymentPending ||
+    ApiErrorCode.billingNotCancelable => HttpStatus.conflict,
     ApiErrorCode.invoiceImageTooLarge => HttpStatus.requestEntityTooLarge,
     ApiErrorCode.httpUnsupportedMediaType => HttpStatus.unsupportedMediaType,
     ApiErrorCode.authLockedOut => HttpStatus.locked,
@@ -260,6 +280,7 @@ final class FakeProblems {
     ApiErrorCode.scanRateLimited ||
     ApiErrorCode.scanDailyQuotaExceeded => HttpStatus.tooManyRequests,
     ApiErrorCode.serverUnexpected => HttpStatus.internalServerError,
+    ApiErrorCode.billingProviderUnavailable => HttpStatus.badGateway,
   };
 
   /// [code] with its contract status, as when the debug panel forces the
@@ -392,4 +413,8 @@ abstract final class FakeMessages {
 
   static String invalidValue(String language) =>
       language == arabic ? 'القيمة غير مسموحة.' : 'This value is not allowed.';
+
+  static String invalidPhone(String language) => language == arabic
+      ? 'رقم الموبايل لازم يكون رقم مصري زي 01012345678.'
+      : 'The phone must be an Egyptian mobile number such as 01012345678.';
 }

@@ -8,6 +8,7 @@ import 'package:stockly/core/platform/connectivity.dart';
 import 'package:stockly/core/router/route_names.dart';
 import 'package:stockly/core/theme/app_theme.dart';
 import 'package:stockly/core/time/clock.dart';
+import 'package:stockly/features/auth/domain/entities/session.dart';
 import 'package:stockly/features/auth/presentation/providers/auth_notifier.dart';
 import 'package:stockly/l10n/generated/app_localizations.dart';
 
@@ -27,6 +28,10 @@ const Map<String, String> _targets = {
   RouteNames.sales: 'sales',
   RouteNames.quickSale: 'quick-sale',
   RouteNames.saleDetail: 'sale/:saleId',
+  RouteNames.profile: 'profile',
+  RouteNames.plans: 'plans',
+  RouteNames.paymentHistory: 'payments',
+  RouteNames.paymentStatus: 'payment/:paymentId',
 };
 
 AppLocalizations routedL10n() => l10nOf(localeVariant.currentValue!);
@@ -34,11 +39,13 @@ AppLocalizations routedL10n() => l10nOf(localeVariant.currentValue!);
 bool get routedIsArabic => localeVariant.currentValue!.languageCode == 'ar';
 
 /// Pumps [screen] at `/` of a router in the current [localeVariant], with
-/// an Owner session, no network checks and the given [overrides].
+/// an Owner session (or [session]), no network checks and the given
+/// [overrides].
 Future<void> pumpRoutedScreen(
   WidgetTester tester,
   Widget screen, {
   required List<Override> overrides,
+  Session? session,
   ThemeMode themeMode = ThemeMode.light,
   bool online = true,
   bool disableAnimations = false,
@@ -72,7 +79,7 @@ Future<void> pumpRoutedScreen(
     ProviderScope(
       retry: (_, _) => null,
       overrides: [
-        currentSessionProvider.overrideWithValue(ownerSession),
+        currentSessionProvider.overrideWithValue(session ?? ownerSession),
         appLoggerProvider.overrideWithValue(const NoopLogger()),
         clockProvider.overrideWithValue(FakeClock()),
         connectivityProvider.overrideWith((ref) => Stream.value(online)),

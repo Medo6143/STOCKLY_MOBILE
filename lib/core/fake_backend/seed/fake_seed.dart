@@ -1,5 +1,6 @@
 import 'package:stockly/core/fake_backend/fake_backend_config.dart';
 import 'package:stockly/core/fake_backend/fake_backend_state.dart';
+import 'package:stockly/core/fake_backend/seed/fake_billing_seed.dart';
 import 'package:stockly/core/fake_backend/seed/fake_invoice_seed.dart';
 import 'package:stockly/core/fake_backend/seed/fake_product_seed.dart';
 
@@ -14,8 +15,9 @@ abstract final class FakeSeed {
   static const String _staffId = '0192f0a0-6c1e-7b3a-9d2e-4f5a6b7c8d03';
 
   /// A pharmacy with an Owner, a Staff member, the product catalogue of
-  /// [FakeProductSeed] and the invoices of [FakeInvoiceSeed]; the
-  /// `Processing` invoice is read after [processingDelay].
+  /// [FakeProductSeed], the invoices of [FakeInvoiceSeed] and the plans of
+  /// [FakeBillingSeed] (on the free one); the `Processing` invoice is read
+  /// after [processingDelay].
   static FakeBackendState pharmacy(
     DateTime now, {
     Duration processingDelay = FakeBackendConfig.defaultProcessingDelay,
@@ -74,6 +76,7 @@ abstract final class FakeSeed {
       now: now,
       processingDelay: processingDelay,
     );
+    FakeBillingSeed.addTo(state, shopId: _shopId, now: now);
     return state;
   }
 }
