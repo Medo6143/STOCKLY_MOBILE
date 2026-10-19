@@ -51,11 +51,25 @@ const Map<String, Set<String>> saleEnums = {
   'code': {'Stock.NegativeBalance'},
 };
 
-/// Object fields the contract allows to be `null` (I4 `newProduct`).
-const Set<String> _nullableObjects = {'newProduct'};
+/// Contract §12.1 enum values; `status` means a payment status there, so
+/// billing shapes pass these to [expectSameShape].
+const Map<String, Set<String>> billingEnums = {
+  'status': {'Pending', 'Paid', 'Failed', 'Expired'},
+  'method': {'Card', 'Wallet', 'Kiosk'},
+  'currency': {'EGP'},
+};
+
+/// Object fields the contract allows to be `null` (I4 `newProduct`, B2
+/// `pendingPayment`).
+const Set<String> _nullableObjects = {'newProduct', 'pendingPayment'};
 
 /// Contract §1.2 `date` fields.
-const Set<String> _dateFields = {'invoiceDate', 'expiryDate'};
+const Set<String> _dateFields = {
+  'invoiceDate',
+  'expiryDate',
+  'startsOn',
+  'endsOn',
+};
 final RegExp _date = RegExp(r'^\d{4}-\d{2}-\d{2}$');
 
 /// Contract §1.2 decimal strings by field name: money 2, quantity 3,
@@ -71,6 +85,8 @@ final Map<String, RegExp> _decimals = {
     'matchConfidence',
     'listUnitPrice',
     'total',
+    'monthlyPrice',
+    'amount',
   ])
     key: RegExp(r'^\d+\.\d{2}$'),
   for (final key in [

@@ -19,7 +19,9 @@ final class FakeBackendConfig {
     this.processingDelay = defaultProcessingDelay,
     this.scanRateLimit = defaultScanRateLimit,
     this.scanRateWindow = defaultScanRateWindow,
-    this.scanDailyQuota = defaultScanDailyQuota,
+    this.scanDailyQuota,
+    this.checkoutExpiry = defaultCheckoutExpiry,
+    this.kioskExpiry = defaultKioskExpiry,
   });
 
   static const Duration defaultLatency = Duration(milliseconds: 400);
@@ -50,8 +52,11 @@ final class FakeBackendConfig {
   static const int defaultScanRateLimit = 10;
   static const Duration defaultScanRateWindow = Duration(minutes: 1);
 
-  /// Scans per Cairo day and shop (`Scan.DailyQuotaExceeded`).
-  static const int defaultScanDailyQuota = 50;
+  /// A card or wallet payment waits this long on the hosted page.
+  static const Duration defaultCheckoutExpiry = Duration(hours: 1);
+
+  /// A kiosk reference can be paid for this long.
+  static const Duration defaultKioskExpiry = Duration(hours: 48);
 
   /// Simulated network delay of every response.
   final Duration latency;
@@ -74,5 +79,15 @@ final class FakeBackendConfig {
   final Duration processingDelay;
   final int scanRateLimit;
   final Duration scanRateWindow;
-  final int scanDailyQuota;
+
+  /// Scans per Cairo day and shop (`Scan.DailyQuotaExceeded`) for every
+  /// shop, like an admin quota override (AD9); `null` uses the shop's
+  /// plan quota (B2 `effectiveDailyScanQuota`).
+  final int? scanDailyQuota;
+
+  /// How long a new card or wallet payment stays `Pending`.
+  final Duration checkoutExpiry;
+
+  /// How long a new kiosk payment stays `Pending`.
+  final Duration kioskExpiry;
 }

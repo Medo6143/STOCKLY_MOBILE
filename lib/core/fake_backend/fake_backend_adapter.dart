@@ -9,6 +9,7 @@ import 'package:stockly/core/fake_backend/fake_backend_controls.dart';
 import 'package:stockly/core/fake_backend/fake_backend_state.dart';
 import 'package:stockly/core/fake_backend/fake_http.dart';
 import 'package:stockly/core/fake_backend/handlers/fake_auth_handler.dart';
+import 'package:stockly/core/fake_backend/handlers/fake_billing_handler.dart';
 import 'package:stockly/core/fake_backend/handlers/fake_dashboard_handler.dart';
 import 'package:stockly/core/fake_backend/handlers/fake_invoices_handler.dart';
 import 'package:stockly/core/fake_backend/handlers/fake_products_handler.dart';
@@ -39,10 +40,19 @@ final class FakeBackendAdapter implements HttpClientAdapter {
       uuid: uuid,
       problems: _problems,
     );
-    final invoices = FakeInvoicesHandler(
+    _billing = FakeBillingHandler(
       state: state,
       config: config,
       controls: controls,
+      clock: clock,
+      uuid: uuid,
+      problems: _problems,
+      authenticate: auth.authenticate,
+    );
+    final invoices = FakeInvoicesHandler(
+      state: state,
+      config: config,
+      dailyQuotaOf: _billing.effectiveDailyScanQuota,
       clock: clock,
       uuid: uuid,
       problems: _problems,
@@ -72,6 +82,7 @@ final class FakeBackendAdapter implements HttpClientAdapter {
         authenticate: auth.authenticate,
         settleInvoices: invoices.settleShop,
       ),
+      _billing,
     ];
     _routes = [for (final handler in handlers) ...handler.routes];
   }
@@ -85,6 +96,7 @@ final class FakeBackendAdapter implements HttpClientAdapter {
   final UuidGenerator _uuid;
   late final FakeProblems _problems;
   late final List<FakeRoute> _routes;
+  late final FakeBillingHandler _billing;
 
   static const String _defaultLanguage = 'ar';
   static const String _english = 'en';
@@ -140,6 +152,11 @@ final class FakeBackendAdapter implements HttpClientAdapter {
   /// Ends every access token now (debug panel): the next authenticated call
   /// gets `401` and the app refreshes.
   void expireAccessTokens() => state.expireAccessTokens(_clock.now());
+
+  /// The provider's answer for a pending payment (debug panel): `Paid` or
+  /// `Failed`. Returns `false` when nothing changed.
+  bool settlePayment(String paymentId, {required bool paid}) =>
+      _billing.settlePayment(paymentId, paid: paid);
 
   /// Suspends or reactivates [shopId] (debug panel).
   void setShopSuspended(String shopId, {required bool suspended}) =>
@@ -199,9 +216,9 @@ final class FakeBackendAdapter implements HttpClientAdapter {
   }
 
   ResponseBody _toResponseBody(FakeResponse response, String correlationId) {
-    final json = response.json;
+    final body = response.json ?? response.list;
     return ResponseBody.fromString(
-      json == null ? '' : jsonEncode(json),
+      body == null ? '' : jsonEncode(body),
       response.status,
       headers: {
         HttpHeaders.contentTypeHeader: [

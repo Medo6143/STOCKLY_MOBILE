@@ -1,4 +1,5 @@
 import 'package:decimal/decimal.dart';
+import 'package:stockly/core/fake_backend/fake_billing_records.dart';
 import 'package:stockly/core/fake_backend/fake_invoice_records.dart';
 import 'package:stockly/core/fake_backend/fake_product_records.dart';
 import 'package:stockly/core/fake_backend/fake_sale_records.dart';
@@ -132,6 +133,19 @@ final class FakeBackendState {
 
   /// Units referenced by invoice or sale lines (`ProductUnit.InUse`).
   final Set<String> unitsInUse = {};
+
+  /// When each shop's scans were accepted, for the rate limit, the daily
+  /// quota and B2 `scansToday`.
+  final Map<String, List<DateTime>> acceptedScans = {};
+
+  /// Plans of the platform, free first (contract §12).
+  final List<FakePlan> plans = [];
+
+  /// The plan of each shop; a shop without one is on the free plan.
+  final List<FakeSubscription> subscriptions = [];
+
+  /// Payments of every shop, oldest first.
+  final List<FakePayment> payments = [];
 
   /// The product [productId] of [shopId] (another shop's is not found).
   FakeProduct? productOf(String shopId, String? productId) {

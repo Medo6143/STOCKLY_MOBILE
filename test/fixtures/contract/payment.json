@@ -1,0 +1,16 @@
+{
+  "id": "0192f0a0-6c1e-7b3a-9d2e-ba1e00000001",
+  "clientRequestId": "0192f0a0-6c1e-7b3a-9d2e-ba1e00000099",
+  "planId": "0192f0a0-6c1e-7b3a-9d2e-b111ab000002",
+  "planName": "Basic",
+  "amount": "150.00",
+  "currency": "EGP",
+  "method": "Card",
+  "status": "Pending",
+  "checkoutUrl": "https://checkout.example/pay/0192f0a0-6c1e-7b3a-9d2e-ba1e00000001",
+  "referenceNumber": null,
+  "expiresAt": "2026-10-12T08:00:00Z",
+  "failureReason": null,
+  "createdAt": "2026-10-12T07:00:00Z",
+  "paidAt": null
+}

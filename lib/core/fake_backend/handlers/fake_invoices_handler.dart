@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:decimal/decimal.dart';
 import 'package:stockly/core/error/api_error_code.dart';
 import 'package:stockly/core/fake_backend/fake_backend_config.dart';
-import 'package:stockly/core/fake_backend/fake_backend_controls.dart';
 import 'package:stockly/core/fake_backend/fake_backend_state.dart';
 import 'package:stockly/core/fake_backend/fake_http.dart';
 import 'package:stockly/core/fake_backend/fake_invoice_records.dart';
@@ -39,7 +38,7 @@ final class FakeInvoicesHandler implements FakeHandler {
   new({
     required this._state,
     required this._config,
-    required this._controls,
+    required this._dailyQuotaOf,
     required this._clock,
     required this._uuid,
     required this._problems,
@@ -48,7 +47,9 @@ final class FakeInvoicesHandler implements FakeHandler {
 
   final FakeBackendState _state;
   final FakeBackendConfig _config;
-  final FakeBackendControls _controls;
+
+  /// The shop's scan quota today (B2 `effectiveDailyScanQuota`).
+  final int Function(String shopId) _dailyQuotaOf;
   final Clock _clock;
   final UuidGenerator _uuid;
   final FakeProblems _problems;
@@ -92,8 +93,6 @@ final class FakeInvoicesHandler implements FakeHandler {
   );
   static final RegExp _date = RegExp(r'^\d{4}-\d{2}-\d{2}$');
 
-  /// Accepted scans per shop, for the rate limit and the daily quota.
-  final Map<String, List<DateTime>> _accepted = {};
   int _scanCount = 0;
 
   @override
@@ -167,7 +166,7 @@ final class FakeInvoicesHandler implements FakeHandler {
       return _error(request, ApiErrorCode.invoiceImageTooLarge);
     }
     final now = _clock.now();
-    final accepted = _accepted.putIfAbsent(shopId, () => []);
+    final accepted = _state.acceptedScans.putIfAbsent(shopId, () => []);
     final recent = accepted
         .where((at) => now.difference(at) < _config.scanRateWindow)
         .toList();
@@ -183,7 +182,7 @@ final class FakeInvoicesHandler implements FakeHandler {
     final usedToday = accepted
         .where((at) => FakeCairoTime.dayOf(at) == today)
         .length;
-    final quota = _controls.scanQuotaExhausted ? 0 : _config.scanDailyQuota;
+    final quota = _dailyQuotaOf(shopId);
     if (usedToday >= quota) {
       return _problems.problem(
         request,

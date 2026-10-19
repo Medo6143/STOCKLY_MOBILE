@@ -50,6 +50,10 @@ final class FakeBackendPanelNotifier extends Notifier<FakeBackendPanelState> {
 
   void suspendShop(String shopId) =>
       _adapter.setShopSuspended(shopId, suspended: true);
+
+  /// The fake provider reports [paymentId] as paid or failed.
+  bool settlePayment(String paymentId, {required bool paid}) =>
+      _adapter.settlePayment(paymentId, paid: paid);
 }
 
 final NotifierProvider<FakeBackendPanelNotifier, FakeBackendPanelState>

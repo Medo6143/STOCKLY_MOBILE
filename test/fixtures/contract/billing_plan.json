@@ -1,0 +1,10 @@
+{
+  "id": "0192f0a0-6c1e-7b3a-9d2e-b111ab000002",
+  "code": "basic",
+  "name": "Basic",
+  "monthlyPrice": "150.00",
+  "dailyScanQuota": 150,
+  "maxMembers": 3,
+  "isFree": false,
+  "isCurrent": false
+}
