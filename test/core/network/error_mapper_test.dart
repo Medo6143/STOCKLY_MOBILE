@@ -55,6 +55,14 @@ final Map<ApiErrorCode, Type> _expected = {
   ApiErrorCode.saleNotFound: NotFoundFailure,
   ApiErrorCode.saleArchivedProduct: InvalidInputFailure,
   ApiErrorCode.saleUnitNotOfProduct: InvalidInputFailure,
+  ApiErrorCode.planNotFound: NotFoundFailure,
+  ApiErrorCode.planInactive: InvalidInputFailure,
+  ApiErrorCode.billingFreePlan: InvalidInputFailure,
+  ApiErrorCode.billingMethodUnavailable: InvalidInputFailure,
+  ApiErrorCode.billingPaymentPending: ConflictFailure,
+  ApiErrorCode.billingNotCancelable: ConflictFailure,
+  ApiErrorCode.billingProviderUnavailable: ServerFailure,
+  ApiErrorCode.paymentNotFound: NotFoundFailure,
 };
 
 /// Contract §9 codes the app can receive (excluding the `Stock.*` movement
@@ -80,7 +88,10 @@ const List<String> _contractCodes = [
   'Invoice.NotEditable', 'Invoice.NotConfirmable', //
   'Invoice.LineProductRequired', 'Invoice.UnitNotOfProduct', //
   'Scan.RateLimited', 'Scan.DailyQuotaExceeded', 'Sale.NotFound', //
-  'Sale.ArchivedProduct', 'Sale.UnitNotOfProduct',
+  'Sale.ArchivedProduct', 'Sale.UnitNotOfProduct', 'Plan.NotFound', //
+  'Plan.Inactive', 'Billing.FreePlan', 'Billing.MethodUnavailable', //
+  'Billing.PaymentPending', 'Billing.NotCancelable', //
+  'Billing.ProviderUnavailable', 'Payment.NotFound',
 ];
 
 Response<Object?> _response(

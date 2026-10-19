@@ -28,6 +28,8 @@ import 'package:stockly/features/auth/domain/entities/app_language.dart';
 import 'package:stockly/features/auth/domain/entities/register_input.dart';
 import 'package:stockly/features/auth/domain/entities/shop_role.dart';
 import 'package:stockly/features/auth/domain/entities/shop_type.dart';
+import 'package:stockly/features/billing/data/datasources/billing_remote_data_source.dart';
+import 'package:stockly/features/billing/data/repositories/billing_repository_impl.dart';
 import 'package:stockly/features/dashboard/data/datasources/dashboard_remote_data_source.dart';
 import 'package:stockly/features/dashboard/data/repositories/dashboard_repository_impl.dart';
 import 'package:stockly/features/products/data/datasources/products_remote_data_source.dart';
@@ -269,6 +271,17 @@ Future<void> _fullFlow(String language) async {
     await dashboard.getExpiringSoon(days: 60, page: 1, pageSize: 20),
     'expiring soon',
   );
+  // Plans and the new shop's subscription (B1, B2). No checkout: a real
+  // payment cannot be made from a test, so B3 is never called here.
+  final billing = BillingRepositoryImpl(BillingRemoteDataSource(dio));
+  final plans = _ok(await billing.getPlans(), 'plans');
+  expect(plans, isNotEmpty);
+  expect(plans.where((p) => p.isCurrent), hasLength(1));
+  final subscription = _ok(await billing.getSubscription(), 'subscription');
+  expect(subscription.plan.isCurrent, isTrue);
+  expect(plans.map((p) => p.id), contains(subscription.plan.id));
+  expect(subscription.memberCount, greaterThanOrEqualTo(1));
+  expect(subscription.pendingPayment, isNull);
   final lookup = _ok(await products.lookupBarcode(barcode), 'lookup');
   expect(lookup.product.id, product.id);
   expect(lookup.unit.isBase, isTrue);

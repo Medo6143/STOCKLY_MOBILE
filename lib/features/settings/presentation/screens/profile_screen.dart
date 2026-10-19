@@ -24,6 +24,7 @@ import 'package:stockly/features/settings/presentation/providers/profile_provide
 import 'package:stockly/features/settings/presentation/widgets/profile_avatar.dart';
 import 'package:stockly/features/settings/presentation/widgets/settings_labels.dart';
 import 'package:stockly/features/settings/presentation/widgets/sign_out_flow.dart';
+import 'package:stockly/features/settings/presentation/widgets/your_plan_card.dart';
 import 'package:stockly/l10n/generated/app_localizations.dart';
 
 /// The profile tab (design-refresh brief), from the session in memory, no
@@ -32,7 +33,8 @@ import 'package:stockly/l10n/generated/app_localizations.dart';
 /// session; without one the router leaves the tab, and the moment before
 /// shows the loading skeleton); error = the session could not be read,
 /// with retry (restores it); data = the header (avatar, name, email,
-/// phone, role), the shop card and the actions: settings, the privacy
+/// phone, role), the shop card, "Your plan" (B2, with its own states;
+/// plans-payments brief) and the actions: payments, settings, the privacy
 /// policy and sign out (with the pending-scans warning, design §6.7).
 class ProfileScreen extends ConsumerWidget {
   const new({super.key});
@@ -65,6 +67,12 @@ class _ProfileBody extends ConsumerWidget {
     final pending = ref.watch(pendingScanCountProvider).value ?? 0;
     final overlap = spacing.xxl;
     final actions = [
+      ActionTile(
+        icon: Icons.receipt_long_rounded,
+        title: l10n.billingPaymentHistory,
+        subtitle: l10n.billingPaymentHistorySubtitle,
+        onTap: () => context.pushNamed(RouteNames.paymentHistory),
+      ),
       ActionTile(
         icon: Icons.settings_outlined,
         title: l10n.navSettings,
@@ -111,6 +119,15 @@ class _ProfileBody extends ConsumerWidget {
               child: Entrance(child: _ShopCard(session: session)),
             ),
           ),
+          Padding(
+            padding: EdgeInsetsDirectional.fromSTEB(
+              spacing.md,
+              spacing.sm,
+              spacing.md,
+              0,
+            ),
+            child: const Entrance(index: 1, child: YourPlanCard()),
+          ),
           for (final (index, action) in actions.indexed)
             Padding(
               padding: EdgeInsetsDirectional.fromSTEB(
@@ -119,7 +136,7 @@ class _ProfileBody extends ConsumerWidget {
                 spacing.md,
                 0,
               ),
-              child: Entrance(index: index + 1, child: action),
+              child: Entrance(index: index + 2, child: action),
             ),
         ],
       ),

@@ -70,6 +70,26 @@ abstract final class ApiPaths {
 
   /// D2.
   static const String dashboardExpiringSoon = '/api/dashboard/expiring-soon';
+
+  /// B1.
+  static const String billingPlans = '/api/billing/plans';
+
+  /// B2.
+  static const String billingSubscription = '/api/billing/subscription';
+
+  /// B3.
+  static const String billingCheckout = '/api/billing/checkout';
+
+  /// B5.
+  static const String billingPayments = '/api/billing/payments';
+
+  /// B4.
+  static String billingPayment(String paymentId) =>
+      '$billingPayments/${Uri.encodeComponent(paymentId)}';
+
+  /// B6.
+  static String billingPaymentCancel(String paymentId) =>
+      '${billingPayment(paymentId)}/cancel';
 }
 
 /// Query parameter names of the contract (§1.3, P1, P12, I2, S2, D2).

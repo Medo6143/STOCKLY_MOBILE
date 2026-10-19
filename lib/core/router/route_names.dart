@@ -27,4 +27,7 @@ abstract final class RouteNames {
   static const String profile = 'profile';
   static const String settings = 'settings';
   static const String privacyPolicy = 'privacyPolicy';
+  static const String plans = 'plans';
+  static const String paymentHistory = 'paymentHistory';
+  static const String paymentStatus = 'paymentStatus';
 }

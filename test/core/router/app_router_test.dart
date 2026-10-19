@@ -279,6 +279,17 @@ void main() {
       reason: 'the left tab keeps its state, offstage',
     );
 
+    // The plan card sits above the actions; scroll down to settings.
+    await tester.scrollUntilVisible(
+      find.text(l10n.navSettings),
+      _scrollStep,
+      scrollable: find
+          .descendant(
+            of: find.byType(ProfileScreen),
+            matching: find.byType(Scrollable),
+          )
+          .first,
+    );
     await tester.tap(find.text(l10n.navSettings));
     await tester.pumpAndSettle();
     expect(_location(container), RoutePaths.settings);

@@ -80,6 +80,15 @@ String apiErrorMessage(
   ApiErrorCode.saleNotFound => l10n.errorSaleNotFound,
   ApiErrorCode.saleArchivedProduct => l10n.errorSaleArchivedProduct,
   ApiErrorCode.saleUnitNotOfProduct => l10n.errorSaleUnitNotOfProduct,
+  ApiErrorCode.planNotFound => l10n.errorPlanNotFound,
+  ApiErrorCode.planInactive => l10n.errorPlanInactive,
+  ApiErrorCode.billingFreePlan => l10n.errorBillingFreePlan,
+  ApiErrorCode.billingMethodUnavailable => l10n.errorBillingMethodUnavailable,
+  ApiErrorCode.billingPaymentPending => l10n.errorBillingPaymentPending,
+  ApiErrorCode.billingNotCancelable => l10n.errorBillingNotCancelable,
+  ApiErrorCode.billingProviderUnavailable =>
+    l10n.errorBillingProviderUnavailable,
+  ApiErrorCode.paymentNotFound => l10n.errorPaymentNotFound,
 };
 
 String localFailureMessage(AppLocalizations l10n, LocalFailureReason reason) =>

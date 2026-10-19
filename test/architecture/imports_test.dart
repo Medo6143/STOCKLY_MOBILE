@@ -7,7 +7,8 @@ import 'source_files.dart';
 /// §2.3, §11); invoices scopes the scan queue and the capture to the
 /// signed-in shop (design §2.3 `pendingScansProvider`, §6.7); sales scopes
 /// the pending sales to the signed-in shop (design §6.8); the dashboard
-/// header shows the shop name (design-refresh brief).
+/// header shows the shop name (design-refresh brief); billing hides the
+/// Owner-only checkout and cancel from Staff (plans-payments brief).
 const Set<String> _sessionConsumers = {
   'splash',
   'settings',
@@ -15,6 +16,7 @@ const Set<String> _sessionConsumers = {
   'products',
   'invoices',
   'sales',
+  'billing',
 };
 
 const String _productsProviders =
@@ -23,6 +25,8 @@ const String _productList =
     'package:stockly/features/products/presentation/providers/product_list_notifier.dart';
 const String _dashboardSummary =
     'package:stockly/features/dashboard/presentation/providers/dashboard_summary_notifier.dart';
+const String _subscription =
+    'package:stockly/features/billing/presentation/providers/subscription_notifier.dart';
 
 /// The only other cross-feature provider files a feature may import, each
 /// required by the design.
@@ -37,9 +41,16 @@ const Map<String, Set<String>> _sharedProviders = {
   // and the dashboard.
   'sales': {_productsProviders, _productList, _dashboardSummary},
   // Design §6.7: sign out warns about the shop's scans not uploaded yet.
+  // Plans-payments brief: the profile shows "Your plan" (B2).
   'settings': {
     'package:stockly/features/invoices/presentation/providers/pending_scans_providers.dart',
+    _subscription,
   },
+  // Plans-payments brief: the dashboard warns at 80 % of the scan quota.
+  'dashboard': {_subscription},
+  // Plans-payments brief: a paid or cancelled payment invalidates the
+  // dashboard.
+  'billing': {_dashboardSummary},
 };
 
 /// Design §1.1 and §13.4.

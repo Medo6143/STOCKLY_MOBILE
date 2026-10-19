@@ -15,6 +15,7 @@ import 'package:stockly/core/widgets/error_state.dart';
 import 'package:stockly/core/widgets/hero_header.dart';
 import 'package:stockly/core/widgets/loading_state.dart';
 import 'package:stockly/core/widgets/ltr_isolate.dart';
+import 'package:stockly/features/billing/presentation/providers/billing_providers.dart';
 import 'package:stockly/features/dashboard/domain/entities/dashboard_summary.dart';
 import 'package:stockly/features/dashboard/presentation/providers/dashboard_providers.dart';
 import 'package:stockly/features/dashboard/presentation/providers/dashboard_summary_notifier.dart';
@@ -23,6 +24,7 @@ import 'package:stockly/features/dashboard/presentation/widgets/summary_card.dar
 import 'package:stockly/features/dashboard/presentation/widgets/today_sales_card.dart';
 
 import '../../helpers/auth_doubles.dart';
+import '../../helpers/billing_doubles.dart';
 import '../../helpers/dashboard_doubles.dart';
 import '../../helpers/pump_app.dart';
 import '../../helpers/routed_screen.dart';
@@ -46,7 +48,10 @@ void main() {
     const DashboardScreen(),
     themeMode: themeMode,
     disableAnimations: disableAnimations,
-    overrides: [dashboardRepositoryProvider.overrideWithValue(repository)],
+    overrides: [
+      dashboardRepositoryProvider.overrideWithValue(repository),
+      billingRepositoryProvider.overrideWithValue(quietBilling()),
+    ],
   );
 
   testWidgets('Loading', (tester) async {
