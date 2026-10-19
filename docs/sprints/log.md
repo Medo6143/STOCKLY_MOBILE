@@ -88,3 +88,9 @@ Running record of the mobile lane: which agent, brief path, verification result,
 - Changed assertion: `ensureValidFor_ReleaseRequiresRealBackend` now uses an https URL because release refuses http by this brief; a new test covers http refusal.
 - Status-bar fix: `HeroScrollFrame` paints a fixed status-bar strip with light icons; dashboard and profile; 6 tests that fail without the frame.
 - Open: R8 rules not proven end to end (needs a signed build; smoke-test secure storage, background sync and scanner on the first internal-track build); real privacy contact and public policy URL; design check of the flat status-bar strip vs the hero glow.
+
+## Brief 7: plans and payments (Paymob)
+
+- Brief `docs/agents/briefs/mobile-7-plans-payments.md`, branch `feature/plans-payments`; resumed once after the session ended. Only new package: `url_launcher` (approved in the brief).
+- Orchestrator verification: build_runner OK; gen-l10n `{}`; analyze no issues; `dart format` 0 changed; `flutter test --coverage --exclude-tags live` 1,399 passed; coverage gate PASS (97.49 %).
+- Decisions accepted: failure groups for the 8 new codes; polling stops at `expiresAt` (30 min cap without it), pauses in background; hosted page opened once, reopen offered while pending; "Try again" = new `clientRequestId`; plan card in settings and quota warning in dashboard read billing's subscription provider; fake plans Free / Basic 150.00 / Pro 300.00 with a debug "simulate payment" action.
