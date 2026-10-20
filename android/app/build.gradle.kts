@@ -137,6 +137,14 @@ android {
                 "proguard-rules.pro",
             )
         }
+        // Demo builds (docs/release/android.md): an optimised profile APK with the fake
+        // backend, signed with the upload key when it is configured. The release guard
+        // below still keeps the fake backend out of release builds.
+        getByName("profile") {
+            if (hasUploadSigning) {
+                signingConfig = signingConfigs.getByName("upload")
+            }
+        }
     }
 }
 
