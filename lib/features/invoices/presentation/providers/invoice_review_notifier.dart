@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart';
 import 'package:stockly/core/error/api_error_code.dart';
 import 'package:stockly/core/error/failure.dart';
+import 'package:stockly/core/error/line_field_errors.dart';
 import 'package:stockly/core/error/result.dart';
 import 'package:stockly/core/time/calendar_date.dart';
 import 'package:stockly/features/dashboard/presentation/providers/dashboard_summary_notifier.dart';
@@ -21,9 +22,6 @@ final class InvoiceReviewNotifier extends AsyncNotifier<InvoiceReviewState> {
   new(this.invoiceId);
 
   final String invoiceId;
-
-  /// `items[2].quantity` → index 2 of the sent lines.
-  static final RegExp _itemField = RegExp(r'^items\[(\d+)\]');
 
   @override
   Future<InvoiceReviewState> build() async {
@@ -203,7 +201,11 @@ final class InvoiceReviewNotifier extends AsyncNotifier<InvoiceReviewState> {
     final failed = latest.copyWith(isSaving: false, failure: failure);
     switch (failure) {
       case ValidationFailure(:final fieldErrors):
-        return failed.copyWith(lineMessages: _lineMessages(fieldErrors, sent));
+        return failed.copyWith(
+          lineMessages: LineFieldErrors.byLine(fieldErrors, [
+            for (final line in sent.lines) line.lineNo,
+          ]),
+        );
       case ApiFailure(code: ApiErrorCode.invoiceLineProductRequired):
         return failed.copyWith(lineErrors: sent.unresolvedLineNos.toSet());
       case ApiFailure(
@@ -224,23 +226,6 @@ final class InvoiceReviewNotifier extends AsyncNotifier<InvoiceReviewState> {
       case _:
         return failed;
     }
-  }
-
-  /// Server messages of `items[i].*` keys, by the `lineNo` of line `i`.
-  Map<int, List<String>> _lineMessages(
-    Map<String, List<String>> fieldErrors,
-    InvoiceDraft sent,
-  ) {
-    final messages = <int, List<String>>{};
-    for (final MapEntry(:key, :value) in fieldErrors.entries) {
-      final index = int.tryParse(_itemField.firstMatch(key)?.group(1) ?? '');
-      if (index == null || index >= sent.lines.length) {
-        continue;
-      }
-      final lineNo = sent.lines[index].lineNo;
-      messages[lineNo] = [...?messages[lineNo], ...value];
-    }
-    return messages;
   }
 
   static String? _blankToNull(String value) {
