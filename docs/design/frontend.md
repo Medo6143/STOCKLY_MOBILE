@@ -521,7 +521,7 @@ None in v1: no Android intent filters, no iOS associated domains, no push notifi
 - `config.apiBaseUrl` comes from `--dart-define=STOCKLY_API_BASE_URL=...` and **includes** the scheme and host only; every data source uses paths starting with `/api/...` exactly as in the contract.
 - In fake mode the adapter is `FakeBackendAdapter` (§12); everything else stays identical.
 
-`NetworkTimeouts` (`core/config/network_timeouts.dart`): `connect = 10 s`, `send = 60 s` (scan upload on weak networks), `receive = 30 s`, `meStartup = 2.5 s` (only `GET /api/auth/me` during splash, so the splash maximum of 3 s is respected, §10), `refreshLeaseWait = 10 s`.
+`NetworkTimeouts` (`core/config/network_timeouts.dart`): `connect = 10 s`, `send = 60 s` (scan upload on weak networks), `receive = 30 s`, `meStartup = 2.5 s` (only `GET /api/auth/me` during splash, so the splash maximum of 3 s is respected, §10), `refreshLeaseWait = 10 s`, `refreshSend = 5 s` and `refreshReceive = 10 s` (the refresh Dio only: `connect + refreshSend + refreshReceive` < `LeaseTimings.authRefreshTtl` = 30 s, so a refresh never outlives its lease and another isolate never presents the same refresh token; a test enforces it; update 2026-10-21, mobile review).
 
 Interceptor order (request goes top to bottom, errors bottom to top):
 
@@ -618,7 +618,7 @@ sequenceDiagram
 
 `AuthNotifier` listens to `SessionSignals`: `sessionEnded` → state `signedOut(reason: SessionEndedFailure)` and the login screen shows `errorSessionEnded`; `shopSuspended` → state `suspended(session)`.
 
-Logout (`LogoutUseCase`): `POST /api/auth/logout` `{ "refreshToken": ... }` (works for suspended shops), then clear `StoredSession` **whatever the result** (204, network error or anything else), then state `signedOut`. Pending scans are kept (§6.7).
+Logout (`LogoutUseCase`): clear `StoredSession` first, then state `signedOut`, so signing out never waits for the network; `POST /api/auth/logout` `{ "refreshToken": ... }` (works for suspended shops) runs in the background with the ended session's access token set on the call itself (`anonymous`, no refresh on `401`; best effort, the refresh token also expires). A refresh that comes back after the clear does not store its tokens (update 2026-10-21, mobile review). Pending scans are kept (§6.7).
 
 ### 4.4 ProblemDetails DTO
 

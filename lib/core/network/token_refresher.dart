@@ -104,6 +104,15 @@ final class TokenRefresher {
     });
     switch (result) {
       case Ok(:final value):
+        // Signed out (or in again) while the refresh was out: storing its
+        // answer would bring the ended session back on the next start.
+        final current = await _tokens.reload();
+        if (current == null) {
+          return const RefreshSessionEnded(_noSessionFailure);
+        }
+        if (current.refreshToken != stored.refreshToken) {
+          return RefreshSucceeded(current);
+        }
         final session = StoredSession.fromAuthResponse(value);
         await _tokens.save(session);
         return RefreshSucceeded(session);

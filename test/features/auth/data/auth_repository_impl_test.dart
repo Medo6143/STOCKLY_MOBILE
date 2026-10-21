@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
@@ -11,6 +12,7 @@ import 'package:stockly/core/fake_backend/fake_backend_state.dart';
 import 'package:stockly/core/fake_backend/seed/fake_seed.dart';
 import 'package:stockly/core/network/api_paths.dart';
 import 'package:stockly/core/network/dio_client.dart';
+import 'package:stockly/core/network/request_extras.dart';
 import 'package:stockly/core/session/session_dtos.dart';
 import 'package:stockly/features/auth/data/datasources/auth_remote_data_source.dart';
 import 'package:stockly/features/auth/data/models/session_mapper.dart';
@@ -256,6 +258,8 @@ void main() {
     await repository.logout();
 
     expect(tokens.session, isNull);
+    // The revoke runs in the background, after the local clear.
+    await pumpEventQueue();
     final call = adapter.requests.single;
     expect(call.path, ApiPaths.authLogout);
     expect(call.data, {'refreshToken': refresh});
@@ -282,6 +286,32 @@ void main() {
     await offline.logout();
 
     expect(tokens.session, isNull);
+  });
+
+  test('logout_ClearsWithoutWaitingForTheServer', () async {
+    tokens.session = storedSession();
+    final server = Completer<ResponseBody>();
+    final adapter = ScriptedAdapter((_) => server.future);
+    final slow = AuthRepositoryImpl(
+      AuthRemoteDataSource(buildBaseDio(config: fakeConfig, adapter: adapter)),
+      tokens,
+    );
+
+    // The server never answers here: signing out must not wait for it.
+    await slow.logout();
+
+    expect(tokens.session, isNull);
+    await pumpEventQueue();
+    final call = adapter.requests.single;
+    expect(call.path, ApiPaths.authLogout);
+    expect(call.data, {'refreshToken': 'refresh-1'});
+    // The tokens are gone already, so the call carries its own.
+    expect(
+      call.headers[HttpHeaderNames.authorization],
+      '${HttpHeaderNames.bearerPrefix}access-1',
+    );
+    expect(call.extra[RequestExtras.anonymous], isTrue);
+    server.complete(jsonBody(204, null));
   });
 
   test('logout_NoSession_OnlyClears', () async {

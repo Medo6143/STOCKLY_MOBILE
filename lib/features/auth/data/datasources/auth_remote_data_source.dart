@@ -35,8 +35,23 @@ final class AuthRemoteDataSource {
     return AuthResponseDto.fromJson(requireJsonObject(response.data));
   }
 
-  Future<void> logout(LogoutRequestDto request) =>
-      _dio.post<Object?>(ApiPaths.authLogout, data: request.toJson());
+  /// A4 with the [accessToken] of the session being ended. The local tokens
+  /// are cleared before this call, so it carries its own and is not
+  /// refreshed on `401` (best effort: the refresh token also expires).
+  Future<void> logout(
+    LogoutRequestDto request, {
+    required String accessToken,
+  }) => _dio.post<Object?>(
+    ApiPaths.authLogout,
+    data: request.toJson(),
+    options: Options(
+      headers: {
+        HttpHeaderNames.authorization:
+            '${HttpHeaderNames.bearerPrefix}$accessToken',
+      },
+      extra: {RequestExtras.anonymous: true},
+    ),
+  );
 
   /// [timeout] bounds the call at start-up (`NetworkTimeouts.meStartup`).
   Future<MeResponseDto> me({Duration? timeout}) async {
