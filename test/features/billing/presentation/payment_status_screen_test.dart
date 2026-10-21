@@ -120,6 +120,23 @@ void main() {
     expect(calls, 2);
   }, variant: localeVariant);
 
+  testWidgets('OpenPaymentPage_NoBrowser_Snackbar', (tester) async {
+    answer(() async => Ok(payment()));
+    browser.opens = false;
+    await pump(tester);
+    await tester.pump();
+    await tester.pump();
+
+    final l = routedL10n();
+    await tester.tap(find.text(l.billingOpenPaymentPage));
+    await tester.pump();
+    await tester.pump();
+
+    expect(browser.opened, [Uri.parse(checkoutUrl)]);
+    expect(find.text(l.billingPaymentPageNotOpened), findsOneWidget);
+    await leave(tester);
+  }, variant: localeVariant);
+
   testWidgets('PendingKiosk_ReferenceAndCopy', (tester) async {
     answer(() async => Ok(payment(method: PaymentMethod.kiosk)));
     final copied = <String>[];

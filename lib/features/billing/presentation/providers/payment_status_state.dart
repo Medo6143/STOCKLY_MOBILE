@@ -23,6 +23,9 @@ abstract class PaymentStatusState with _$PaymentStatusState {
 
     /// The last cancel failed (`Billing.NotCancelable`, network, ...).
     Failure? cancelFailure,
+
+    /// "Open the payment page" found no browser that took the page.
+    @Default(false) bool pageNotOpened,
   }) = _PaymentStatusState;
 }
 

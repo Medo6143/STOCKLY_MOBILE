@@ -2296,6 +2296,10 @@
   "@billingOpenPaymentPage": {
     "description": "Opens the hosted payment page again."
   },
+  "billingPaymentPageNotOpened": "مقدرناش نفتح صفحة الدفع. اتأكد إن فيه متصفح على الموبايل وجرّب تاني.",
+  "@billingPaymentPageNotOpened": {
+    "description": "No browser took the hosted payment page."
+  },
   "billingKioskTitle": "ادفع في كشك",
   "@billingKioskTitle": {
     "description": "Title of a pending kiosk payment."

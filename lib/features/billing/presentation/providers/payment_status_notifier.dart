@@ -69,11 +69,18 @@ final class PaymentStatusNotifier extends Notifier<PaymentStatusState> {
     }
   }
 
-  /// Opens the hosted page of a pending card or wallet payment again.
+  /// Opens the hosted page of a pending card or wallet payment again, and
+  /// says so when no browser took it.
   Future<void> openCheckout() async {
     final uri = state.payment?.openableCheckoutUrl;
-    if (uri != null) {
-      await ref.read(externalBrowserProvider).open(uri);
+    if (uri == null) {
+      return;
+    }
+    // Cleared first so every failed tap is reported, not only the first.
+    state = state.copyWith(pageNotOpened: false);
+    final opened = await ref.read(externalBrowserProvider).open(uri);
+    if (ref.mounted) {
+      state = state.copyWith(pageNotOpened: !opened);
     }
   }
 

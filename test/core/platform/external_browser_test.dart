@@ -45,9 +45,8 @@ void main() {
   });
 
   test('LauncherThrows_FalseInsteadOfAnException', () async {
-    final opened = await browser(
-      throws: true,
-    ).open(Uri.parse('https://eg.checkout.paymob.com/?publicKey=x'));
+    final opened = await browser(throws: true)
+        .open(Uri.parse('https://eg.checkout.paymob.com/?publicKey=x'));
 
     expect(opened, isFalse);
   });

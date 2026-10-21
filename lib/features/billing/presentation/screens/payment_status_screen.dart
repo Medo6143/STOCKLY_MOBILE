@@ -77,11 +77,17 @@ class _PaymentStatusScreenState extends ConsumerState<PaymentStatusScreen> {
     final l10n = AppLocalizations.of(context);
     final provider = paymentStatusProvider(widget.paymentId);
     final state = ref.watch(provider);
-    ref.listen(provider.select((s) => s.cancelFailure), (_, failure) {
-      if (failure != null) {
-        showFailureSnackBar(context, failure);
-      }
-    });
+    ref
+      ..listen(provider.select((s) => s.cancelFailure), (_, failure) {
+        if (failure != null) {
+          showFailureSnackBar(context, failure);
+        }
+      })
+      ..listen(provider.select((s) => s.pageNotOpened), (_, notOpened) {
+        if (notOpened) {
+          showMessageSnackBar(context, l10n.billingPaymentPageNotOpened);
+        }
+      });
     return Scaffold(
       appBar: AppBar(title: Text(l10n.billingPaymentTitle)),
       body: AsyncStateView<Payment>(
