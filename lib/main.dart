@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart';
 import 'package:stockly/app.dart';
 import 'package:stockly/core/config/app_config.dart';
 import 'package:stockly/core/media/app_directories.dart';
@@ -11,7 +12,9 @@ import 'package:workmanager/workmanager.dart' show Workmanager;
 Future<void> main() => bootstrap();
 
 /// Resolves what must exist before the first frame, then starts the app.
-Future<void> bootstrap() async {
+/// [overrides] replace providers for a local tool (for example an adapter
+/// that answers in place of the network); the app passes none.
+Future<void> bootstrap({List<Override> overrides = const []}) async {
   final binding = WidgetsFlutterBinding.ensureInitialized();
   // The native splash stays until the animated splash's first frame.
   PluginNativeSplash.preserve(binding);
@@ -27,6 +30,7 @@ Future<void> bootstrap() async {
       overrides: [
         appConfigProvider.overrideWithValue(config),
         appDirectoriesProvider.overrideWithValue(directories),
+        ...overrides,
       ],
       child: const StocklyApp(),
     ),

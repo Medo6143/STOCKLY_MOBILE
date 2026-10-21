@@ -34,10 +34,7 @@ final class NetworkHarness {
   new({LeaseService? leases}) {
     adapter = ScriptedAdapter(_serve);
     signals.stream.listen(emitted.add);
-    const config = AppConfig(
-      backendMode: BackendMode.fake,
-      apiBaseUrl: AppConfig.fakeApiBaseUrl,
-    );
+    const config = AppConfig(apiBaseUrl: 'https://api.stockly.test');
     refresher = TokenRefresher(
       refreshDio: buildRefreshDio(
         config: config,

@@ -1,6 +1,5 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:stockly/core/config/app_config.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 /// Opens a provider-hosted page (the Paymob checkout, ADR-0015) outside the
@@ -52,25 +51,6 @@ final class UrlLauncherExternalBrowser implements ExternalBrowser {
   }
 }
 
-/// In fake mode the hosted checkout URL does not exist
-/// (`fake.stockly.invalid`), so nothing is opened; the payment is finished
-/// from the debug panel instead. It answers like
-/// [UrlLauncherExternalBrowser] (a URL the real app refuses is refused here
-/// too), plus the fake backend's own checkout host.
-final class FakeModeExternalBrowser implements ExternalBrowser {
-  const new();
-
-  /// The fake backend's base: its hosted checkout lives there.
-  static final Uri _fakeCheckout = Uri.parse(AppConfig.fakeApiBaseUrl);
-
-  @override
-  Future<bool> open(Uri uri) async =>
-      UrlLauncherExternalBrowser.isProviderPage(uri) ||
-      (uri.scheme == _fakeCheckout.scheme && uri.host == _fakeCheckout.host);
-}
-
 final externalBrowserProvider = Provider<ExternalBrowser>(
-  (ref) => kFakeBackendEnabled
-      ? const FakeModeExternalBrowser()
-      : const UrlLauncherExternalBrowser(),
+  (ref) => const UrlLauncherExternalBrowser(),
 );

@@ -61,8 +61,8 @@ jobs:
       - name: Coverage gate (domain and providers >= 80%)
         run: dart run tool/coverage_gate.dart
 
-      - name: Debug APK (fake backend)
-        run: flutter build apk --debug --dart-define=STOCKLY_BACKEND=fake
+      - name: Debug APK
+        run: flutter build apk --debug
 
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()

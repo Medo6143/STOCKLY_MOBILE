@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -8,9 +9,6 @@ import 'package:mocktail/mocktail.dart';
 import 'package:stockly/app.dart';
 import 'package:stockly/core/error/failure.dart';
 import 'package:stockly/core/error/result.dart';
-import 'package:stockly/core/fake_backend/fake_backend_adapter.dart';
-import 'package:stockly/core/fake_backend/fake_backend_state.dart';
-import 'package:stockly/core/fake_backend/seed/fake_seed.dart';
 import 'package:stockly/core/platform/native_splash.dart';
 import 'package:stockly/core/router/app_router.dart';
 import 'package:stockly/core/router/route_paths.dart';
@@ -32,10 +30,12 @@ import 'package:stockly/features/splash/presentation/widgets/stockly_mark_painte
 import '../../helpers/auth_doubles.dart';
 import '../../helpers/billing_doubles.dart';
 import '../../helpers/dashboard_doubles.dart';
-import '../../helpers/fake_app.dart';
 import '../../helpers/products_doubles.dart';
 import '../../helpers/pump_app.dart';
+import '../../helpers/scripted_adapter.dart';
+import '../../helpers/test_app.dart';
 import '../../helpers/test_doubles.dart';
+import '../../helpers/test_server.dart';
 
 const Duration _justBefore = Duration(milliseconds: 1);
 
@@ -49,15 +49,15 @@ void main() {
   Future<ProviderContainer> start(
     WidgetTester tester, {
     InMemoryTokenStorage? tokens,
-    FakeBackendState? state,
-    FakeBackendAdapter? adapter,
+    TestServer? server,
+    HttpClientAdapter? adapter,
     MockAuthRepository? repository,
   }) async {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          ...fakeAppOverrides(
-            adapter: adapter ?? fakeBackend(state: state),
+          ...appOverrides(
+            adapter: adapter ?? (server ?? TestServer()).adapter,
             tokens: tokens ?? InMemoryTokenStorage(),
             deviceLocale: localeVariant.currentValue!,
           ),
@@ -88,11 +88,9 @@ void main() {
 
   Future<InMemoryTokenStorage> signedInTokens(
     WidgetTester tester,
-    FakeBackendState state,
+    TestServer server,
   ) async {
-    final session = await tester.runAsync(
-      () => loginOn(fakeBackend(state: state)),
-    );
+    final session = await tester.runAsync(() => signIn(server.adapter));
     expect(session, isNotNull);
     return InMemoryTokenStorage(session);
   }
@@ -156,9 +154,13 @@ void main() {
   }, variant: localeVariant);
 
   testWidgets('Error_Offline_StartsSignedInOffline', (tester) async {
-    final state = FakeSeed.pharmacy(FakeClock().now());
-    final tokens = await signedInTokens(tester, state);
-    final adapter = fakeBackend(state: state)..controls.offline = true;
+    final tokens = await signedInTokens(tester, TestServer());
+    final adapter = ScriptedAdapter(
+      (options) async => throw DioException.connectionError(
+        requestOptions: options,
+        reason: 'offline',
+      ),
+    );
 
     final container = await start(tester, tokens: tokens, adapter: adapter);
     await tester.pump(SplashTimings.minimum);
@@ -189,11 +191,11 @@ void main() {
   }, variant: localeVariant);
 
   testWidgets('Error_ShopSuspended_GoesToSuspended', (tester) async {
-    final state = FakeSeed.pharmacy(FakeClock().now());
-    final tokens = await signedInTokens(tester, state);
-    state.shops.single.status = FakeShopStatuses.suspended;
+    final server = TestServer();
+    final tokens = await signedInTokens(tester, server);
+    server.suspended = true;
 
-    final container = await start(tester, tokens: tokens, state: state);
+    final container = await start(tester, tokens: tokens, server: server);
     await tester.pump(SplashTimings.minimum);
     await tester.pumpAndSettle();
 
@@ -201,10 +203,10 @@ void main() {
   }, variant: localeVariant);
 
   testWidgets('Data_SignedIn_GoesHomeAfterTheMinimum', (tester) async {
-    final state = FakeSeed.pharmacy(FakeClock().now());
-    final tokens = await signedInTokens(tester, state);
+    final server = TestServer();
+    final tokens = await signedInTokens(tester, server);
 
-    final container = await start(tester, tokens: tokens, state: state);
+    final container = await start(tester, tokens: tokens, server: server);
     await tester.pump(SplashTimings.minimum - _justBefore);
     expect(container.read(authProvider).value, isA<AuthSignedIn>());
     expect(location(container), RoutePaths.splash);

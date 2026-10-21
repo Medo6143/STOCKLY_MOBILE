@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -7,9 +6,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:stockly/core/error/api_error_code.dart';
 import 'package:stockly/core/error/failure.dart';
 import 'package:stockly/core/error/result.dart';
-import 'package:stockly/core/fake_backend/fake_backend_adapter.dart';
-import 'package:stockly/core/fake_backend/fake_backend_state.dart';
-import 'package:stockly/core/fake_backend/seed/fake_seed.dart';
 import 'package:stockly/core/network/api_paths.dart';
 import 'package:stockly/core/network/dio_client.dart';
 import 'package:stockly/core/network/request_extras.dart';
@@ -26,30 +22,10 @@ import 'package:stockly/features/auth/domain/entities/shop_type.dart';
 import 'package:stockly/features/auth/presentation/providers/auth_providers.dart';
 
 import '../../../contract/json_shape.dart';
-import '../../../helpers/fake_app.dart';
 import '../../../helpers/scripted_adapter.dart';
+import '../../../helpers/test_app.dart';
 import '../../../helpers/test_doubles.dart';
-
-/// Records the JSON bodies the app sends, then forwards to the fake.
-final class _RecordingAdapter implements HttpClientAdapter {
-  new(this._inner);
-
-  final FakeBackendAdapter _inner;
-  final List<RequestOptions> requests = [];
-
-  @override
-  Future<ResponseBody> fetch(
-    RequestOptions options,
-    Stream<Uint8List>? requestStream,
-    Future<void>? cancelFuture,
-  ) {
-    requests.add(options);
-    return _inner.fetch(options, requestStream, cancelFuture);
-  }
-
-  @override
-  void close({bool force = false}) {}
-}
+import '../../../helpers/test_server.dart';
 
 const RegisterInput _input = RegisterInput(
   fullName: 'Mona Adel',
@@ -64,27 +40,24 @@ const RegisterInput _input = RegisterInput(
 
 void main() {
   late FakeClock clock;
-  late FakeBackendState state;
-  late _RecordingAdapter adapter;
+  late TestServer server;
+  late ScriptedAdapter adapter;
   late InMemoryTokenStorage tokens;
   late ProviderContainer container;
   late AuthRepositoryImpl repository;
 
   setUp(() {
     clock = FakeClock();
-    state = FakeSeed.pharmacy(clock.now());
-    adapter = _RecordingAdapter(fakeBackend(clock: clock, state: state));
+    server = TestServer();
+    adapter = server.adapter;
     tokens = InMemoryTokenStorage();
     container = ProviderContainer.test(
-      overrides: fakeAppOverrides(
-        adapter: adapter._inner,
-        tokens: tokens,
-        clock: clock,
-      ),
+      overrides: appOverrides(adapter: adapter, tokens: tokens, clock: clock),
     );
-    container.read(refreshDioProvider).httpClientAdapter = adapter;
-    final dio = container.read(dioProvider)..httpClientAdapter = adapter;
-    repository = AuthRepositoryImpl(AuthRemoteDataSource(dio), tokens);
+    repository = AuthRepositoryImpl(
+      AuthRemoteDataSource(container.read(dioProvider)),
+      tokens,
+    );
   });
 
   test('register_Success_StoresSessionAndSendsContractBody', () async {
@@ -103,7 +76,7 @@ void main() {
 
   test('register_EmailTaken_ConflictAndNothingStored', () async {
     final result = await repository.register(
-      _input.copyWith(email: FakeSeed.ownerEmail),
+      _input.copyWith(email: TestServer.ownerEmail),
     );
 
     final failure = (result as Err<Session, Failure>).failure;
@@ -114,20 +87,20 @@ void main() {
 
   test('login_Success_StoresSessionWithSnapshot', () async {
     final result = await repository.login(
-      email: FakeSeed.ownerEmail,
-      password: FakeSeed.password,
+      email: TestServer.ownerEmail,
+      password: TestServer.password,
     );
 
     final session = (result as Ok<Session, Failure>).value;
     expect(session.shop.status, ShopStatus.active);
-    expect(tokens.session?.user.email, FakeSeed.ownerEmail);
+    expect(tokens.session?.user.email, TestServer.ownerEmail);
     expect(await repository.cachedSession(), session);
     expect(adapter.requests.single.headers['Authorization'], isNull);
   });
 
   test('login_WrongPassword_InvalidCredentials', () async {
     final result = await repository.login(
-      email: FakeSeed.ownerEmail,
+      email: TestServer.ownerEmail,
       password: 'Wrong1234',
     );
 
@@ -138,21 +111,23 @@ void main() {
   });
 
   test('restoreSession_UpdatesSnapshotFromMe', () async {
-    tokens.session = await loginOn(adapter._inner);
+    tokens.session = await signIn(adapter);
     tokens.session = tokens.session!.copyWith(
       user: tokens.session!.user.copyWith(fullName: 'Old name'),
     );
 
     final result = await repository.restoreSession();
 
-    expect((result as Ok<Session, Failure>).value.user.fullName, 'منى عادل');
-    expect(tokens.session?.user.fullName, 'منى عادل');
+    // The name of the `me_response` contract fixture.
+    expect((result as Ok<Session, Failure>).value.user.fullName, 'Mona Adel');
+    expect(tokens.session?.user.fullName, 'Mona Adel');
   });
 
   test('restoreSession_ExpiredAccessToken_RefreshesThenSucceeds', () async {
-    tokens.session = await loginOn(adapter._inner);
+    tokens.session = await signIn(adapter);
     final oldRefresh = tokens.session!.refreshToken;
-    clock.advance(const Duration(minutes: 16));
+    server.expireAccessTokens();
+    adapter.requests.clear();
 
     final result = await repository.restoreSession();
 
@@ -166,8 +141,8 @@ void main() {
   });
 
   test('restoreSession_SuspendedShop_ShopSuspendedFailure', () async {
-    tokens.session = await loginOn(adapter._inner);
-    state.shops.single.status = FakeShopStatuses.suspended;
+    tokens.session = await signIn(adapter);
+    server.suspended = true;
 
     final result = await repository.restoreSession();
 
@@ -185,7 +160,7 @@ void main() {
         'shop': authResponseJson(accessToken: 'a', refreshToken: 'r')['shop'],
       }),
     );
-    final dio = buildBaseDio(config: fakeConfig, adapter: scripted);
+    final dio = buildBaseDio(config: testConfig, adapter: scripted);
     final repo = AuthRepositoryImpl(AuthRemoteDataSource(dio), tokens);
 
     final result = await repo.restoreSession();
@@ -203,7 +178,7 @@ void main() {
       }),
     );
     final repo = AuthRepositoryImpl(
-      AuthRemoteDataSource(buildBaseDio(config: fakeConfig, adapter: scripted)),
+      AuthRemoteDataSource(buildBaseDio(config: testConfig, adapter: scripted)),
       tokens,
     );
 
@@ -221,7 +196,7 @@ void main() {
     final repo = AuthRepositoryImpl(
       AuthRemoteDataSource(
         buildBaseDio(
-          config: fakeConfig,
+          config: testConfig,
           adapter: ScriptedAdapter((_) async => jsonBody(200, json)),
         ),
       ),
@@ -252,8 +227,9 @@ void main() {
   });
 
   test('logout_CallsServerAndClearsLocally', () async {
-    tokens.session = await loginOn(adapter._inner);
+    tokens.session = await signIn(adapter);
     final refresh = tokens.session!.refreshToken;
+    adapter.requests.clear();
 
     await repository.logout();
 
@@ -263,7 +239,7 @@ void main() {
     final call = adapter.requests.single;
     expect(call.path, ApiPaths.authLogout);
     expect(call.data, {'refreshToken': refresh});
-    expect(state.refreshTokens[refresh]!.revoked, isTrue);
+    expect(server.revokedRefreshTokens, contains(refresh));
   });
 
   test('logout_ServerUnreachable_StillClearsLocally', () async {
@@ -271,7 +247,7 @@ void main() {
     final offline = AuthRepositoryImpl(
       AuthRemoteDataSource(
         buildBaseDio(
-          config: fakeConfig,
+          config: testConfig,
           adapter: ScriptedAdapter(
             (options) async => throw DioException.connectionError(
               requestOptions: options,
@@ -293,7 +269,7 @@ void main() {
     final server = Completer<ResponseBody>();
     final adapter = ScriptedAdapter((_) => server.future);
     final slow = AuthRepositoryImpl(
-      AuthRemoteDataSource(buildBaseDio(config: fakeConfig, adapter: adapter)),
+      AuthRemoteDataSource(buildBaseDio(config: testConfig, adapter: adapter)),
       tokens,
     );
 

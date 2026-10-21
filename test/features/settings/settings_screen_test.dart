@@ -5,12 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:stockly/core/config/app_version.dart';
-import 'package:stockly/core/error/api_error_code.dart';
-import 'package:stockly/core/fake_backend/fake_backend_adapter.dart';
-import 'package:stockly/core/fake_backend/fake_backend_provider.dart';
-import 'package:stockly/core/fake_backend/fake_backend_state.dart';
-import 'package:stockly/core/fake_backend/panel/fake_backend_panel.dart';
-import 'package:stockly/core/fake_backend/seed/fake_seed.dart';
 import 'package:stockly/core/preferences/locale_notifier.dart';
 import 'package:stockly/core/preferences/theme_mode_notifier.dart';
 import 'package:stockly/core/widgets/loading_state.dart';
@@ -22,11 +16,9 @@ import 'package:stockly/features/settings/presentation/screens/settings_screen.d
 import 'package:stockly/l10n/generated/app_localizations.dart';
 
 import '../../helpers/auth_doubles.dart';
-import '../../helpers/fake_app.dart';
 import '../../helpers/pump_app.dart';
-import '../../helpers/test_doubles.dart';
 
-/// Design §11 settings: 4 states × ar/en, dark smoke, the debug panel.
+/// Design §11 settings: 4 states × ar/en, dark smoke.
 void main() {
   late MockAuthRepository repository;
 
@@ -35,7 +27,6 @@ void main() {
   Future<ProviderContainer> pumpSettings(
     WidgetTester tester, {
     Session? session,
-    FakeBackendAdapter? fake,
     ThemeMode themeMode = ThemeMode.light,
     int pending = 0,
   }) async {
@@ -54,7 +45,6 @@ void main() {
           deviceLocale: localeVariant.currentValue!,
         ),
         currentSessionProvider.overrideWithValue(session),
-        fakeBackendProvider.overrideWithValue(fake),
         pendingScanCountProvider.overrideWith((ref) => Stream.value(pending)),
       ],
     );
@@ -191,51 +181,14 @@ void main() {
     expect(container.read(authProvider).value, const AuthState.signedOut());
   }, variant: localeVariant);
 
-  testWidgets('VersionLongPress_RealMode_NoPanel', (tester) async {
+  testWidgets('VersionLongPress_OpensNothing', (tester) async {
     await pumpSettings(tester, session: ownerSession);
 
     await tester.longPress(version());
     await tester.pumpAndSettle();
 
-    expect(find.byType(FakeBackendPanel), findsNothing);
-  }, variant: localeVariant);
-
-  testWidgets('VersionLongPress_FakeMode_PanelDrivesTheFakeBackend', (
-    tester,
-  ) async {
-    final l = l10n();
-    final state = FakeSeed.pharmacy(FakeClock().now());
-    final adapter = fakeBackend(state: state);
-    when(() => repository.cachedSession()).thenAnswer((_) async => null);
-    await pumpSettings(tester, session: ownerSession, fake: adapter);
-
-    await tester.longPress(version());
-    await tester.pumpAndSettle();
-
-    expect(find.byType(FakeBackendPanel), findsOneWidget);
-    expect(find.text(l.fakePanelTitle), findsOneWidget);
-
-    await tester.tap(find.text(l.fakePanelOffline));
-    await tester.tap(find.text(l.fakePanelLockout));
-    await tester.tap(find.text(l.fakePanelRateLimit));
-    await tester.pump();
-    expect(adapter.controls.offline, isTrue);
-    expect(adapter.controls.lockoutEnabled, isFalse);
-    expect(adapter.controls.rateLimitEnabled, isFalse);
-    await tester.tap(find.text(l.fakePanelScanQuota));
-    await tester.pump();
-    expect(adapter.controls.scanQuotaExhausted, isTrue);
-
-    await tester.tap(find.text(l.fakePanelFailNextNone));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text(ApiErrorCode.serverUnexpected.wire).last);
-    await tester.pumpAndSettle();
-    expect(adapter.controls.failNextWith, ApiErrorCode.serverUnexpected);
-
-    await tester.tap(find.text(l.fakePanelSuspendShop));
-    await tester.pumpAndSettle();
-    expect(state.shops.single.status, FakeShopStatuses.suspended);
-    expect(find.byType(FakeBackendPanel), findsNothing);
+    expect(find.byType(BottomSheet), findsNothing);
+    expect(find.byType(Dialog), findsNothing);
   }, variant: localeVariant);
 
   testWidgets('Dark_RendersWithDarkTokens', (tester) async {

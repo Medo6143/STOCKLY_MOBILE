@@ -296,10 +296,7 @@ void main() {
     // A refresh that outlives its lease lets another isolate present the
     // same refresh token, and the server then revokes the whole chain.
     final options = buildRefreshDio(
-      config: const AppConfig(
-        backendMode: BackendMode.fake,
-        apiBaseUrl: AppConfig.fakeApiBaseUrl,
-      ),
+      config: const AppConfig(apiBaseUrl: 'https://api.stockly.test'),
       uuid: CountingUuidGenerator(),
       languageCode: () => 'ar',
       logger: RecordingLogger(),
