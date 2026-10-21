@@ -142,6 +142,39 @@ void main() {
         expect(failure.leavesSaleOutcomeUnknown, isFalse, reason: '$failure');
       }
     });
+
+    test('OnlyRejectionsOfTheBodyOrItsLinesProveItWasNotRecorded', () {
+      const info = ApiProblemInfo(status: 400);
+      for (final failure in <Failure>[
+        archivedProduct,
+        saleNotFound,
+        const ValidationFailure(
+          ApiErrorCode.validationFailed,
+          info,
+          fieldErrors: {},
+        ),
+        const PayloadTooLargeFailure(ApiErrorCode.validationFailed, info),
+      ]) {
+        expect(failure.provesSaleNotRecorded, isTrue, reason: '$failure');
+      }
+      // Decided before the server looks the clientRequestId up, or not an
+      // answer from the server at all.
+      for (final failure in <Failure>[
+        const SessionEndedFailure(ApiErrorCode.authUnauthenticated, info),
+        const ShopSuspendedFailure(ApiErrorCode.shopSuspended, info),
+        const ForbiddenFailure(ApiErrorCode.authForbidden, info),
+        const AuthRateLimitedFailure(
+          ApiErrorCode.authTooManyRequests,
+          info,
+          retryAfter: Duration(seconds: 30),
+        ),
+        const NetworkFailure(),
+        const TimeoutFailure(),
+        serverFailure,
+      ]) {
+        expect(failure.provesSaleNotRecorded, isFalse, reason: '$failure');
+      }
+    });
   });
 
   test('Sale_NegativeStockProductNames', () {

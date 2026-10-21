@@ -469,6 +469,27 @@ void main() {
       expect(await repository.pendingSale(shopId), isNull);
     });
 
+    test('Submit_DefiniteFailureAfterAnUnknownOutcome_RowKept', () async {
+      final id = newId();
+      final shopId = state.shops.single.id;
+      final userId = state.users.first.id;
+      adapter.controls.offline = true;
+      errOf(await repository.submit(request(id), shopId: shopId, userId: userId));
+
+      // The first attempt may have been recorded; a 401 on the retry is
+      // decided before the server looks the id up, so it proves nothing.
+      adapter.controls.offline = false;
+      client.options.headers.remove(HttpHeaderNames.authorization);
+      final failure = errOf(
+        await repository.submit(request(id), shopId: shopId, userId: userId),
+      );
+
+      expect(failure, isA<SessionEndedFailure>());
+      final pending = await repository.pendingSale(shopId);
+      expect(pending?.request.clientRequestId, id);
+      expect(pending?.attemptCount, 2);
+    });
+
     test('ListAndDetail_ParseEveryResponse', () async {
       final shopId = state.shops.single.id;
       final product = panadol();

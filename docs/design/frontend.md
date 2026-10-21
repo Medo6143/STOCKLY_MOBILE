@@ -1356,6 +1356,7 @@ Quick sale cart rules (`QuickSaleNotifier`, state `QuickSaleState`: `lines` (`Ca
 - `unitPrice` is sent as `null` unless the cashier changed it (then the override string); the server decides `priceOverridden`.
 - Barcode entry: a text field that also receives input from Bluetooth/USB keyboard-wedge scanners (submit on Enter); camera scanning is behind `BarcodeScanner` and needs package approval (§14).
 - Negative stock never blocks the sale (contract S1); the warning is shown after success.
+- After an unknown outcome the cart stays locked to its `clientRequestId` until a success, Discard, or an answer that proves no attempt was recorded (`provesSaleNotRecorded`: `Validation.Failed`, the 400/404 rejections of its lines, `413`). The server checks the body, then looks the id up, then the products, so those answers are proof; a `401`, `403` or `429` comes before the look-up and keeps the lock and the pending row (update 2026-10-21, mobile review).
 
 ---
 
@@ -1410,7 +1411,7 @@ Per endpoint, nothing changes in code: the same `*RemoteDataSource` classes call
 | Refresh queue | 1 request 401 → one refresh, one retry; 3 concurrent 401s → exactly one `POST /api/auth/refresh`, three retries; retry 401 → session ended, no second refresh; refresh `Auth.RefreshTokenReused` → storage cleared and `sessionEnded` signal; refresh network error → tokens kept; stale-token check skips the API when another isolate already refreshed; multipart retry uses a cloned `FormData` |
 | Interceptors | `Accept-Language` follows locale changes without rebuilding Dio; `X-Correlation-Id` format and reuse on retry; anonymous requests have no `Authorization`; `Shop.Suspended` signal |
 | Use cases | One test file per use case: happy path, each mapped failure it can return (validation, not found, conflict as listed in §11) |
-| Notifiers | Each notifier with a `ProviderContainer` and mocked use cases: initial load, empty, error, refresh, load-more, submit success/failure; `InvoiceProcessingNotifier` polls every 2 s and stops at 60 s (`fakeAsync`); `InvoiceReviewNotifier` draft building, 100-line cap, save-then-confirm; `QuickSaleNotifier` id generated once, reused on retry, lock on unknown outcome, reset on definite failure; `SplashNotifier` min/max timing |
+| Notifiers | Each notifier with a `ProviderContainer` and mocked use cases: initial load, empty, error, refresh, load-more, submit success/failure; `InvoiceProcessingNotifier` polls every 2 s and stops at 60 s (`fakeAsync`); `InvoiceReviewNotifier` draft building, 100-line cap, save-then-confirm; `QuickSaleNotifier` id generated once, reused on retry, lock on unknown outcome, reset on definite failure, still locked after a 401 that follows an unknown outcome; `SplashNotifier` min/max timing |
 | Router | `authRedirect` table (§3.2) for every row |
 | Offline queue | DAO tests with an in-memory Drift database (`NativeDatabase.memory()`); `ScanSyncService` with a fake Dio adapter: 202 and 200 delete row and file, 400/413 → `failedPermanent`, 429 rate limit uses `Retry-After`, quota marks all due rows, network → backoff, stuck `uploading` recovery, lease prevents parallel runs, same `clientRequestId` on every attempt; `BackoffPolicy` with seeded `Random` |
 | Storage | `SecureTokenStorage` round trip with a fake `FlutterSecureStorage` (single blob), installation id created once |

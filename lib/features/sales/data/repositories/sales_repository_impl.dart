@@ -50,7 +50,11 @@ final class SalesRepositoryImpl implements SalesRepository {
           : SaleSubmission.created(sale);
     });
     switch (result) {
-      case Err(:final failure) when failure.leavesSaleOutcomeUnknown:
+      // A row before this call means an earlier attempt ended unknown: keep
+      // it until an answer proves that attempt was not recorded either.
+      case Err(:final failure)
+          when failure.leavesSaleOutcomeUnknown ||
+              (stored != null && !failure.provesSaleNotRecorded):
         final row = await _local.byId(id);
         if (row != null) {
           await _local.recordUnknownOutcome(
