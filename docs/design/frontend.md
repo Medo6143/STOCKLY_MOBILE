@@ -1362,6 +1362,8 @@ Quick sale cart rules (`QuickSaleNotifier`, state `QuickSaleState`: `lines` (`Ca
 
 ## 12. Fake backend (running without the API)
 
+> **Update 2026-10-22: local only.** The published app always talks to the real API: `STOCKLY_BACKEND`, `BackendMode`, `kFakeBackendEnabled` and the fake panels are gone from it. `lib/core/fake_backend/`, `lib/main_fake.dart` (`flutter run -t lib/main_fake.dart`) and `test/fake/` (the contract tests over the fake) are git-ignored and kept on the developer's machine. The app exposes `httpAdapterOverrideProvider` (default `null`) and `bootstrap(overrides:)`; `main_fake.dart` plugs the fake into them. The app-level tests (router, splash, settings, auth repository) run in CI on `test/helpers/test_server.dart`, a small server over the contract fixtures. The sections below describe the local fake.
+
 ### 12.1 Design
 
 The app must run against contract v1.2 before the backend implements the planned endpoints. **Decision: the fake sits at the HTTP boundary as a Dio `HttpClientAdapter` (`FakeBackendAdapter`), not as hand-written fake repositories.** Reasons (SOLID "L"):

@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:stockly/core/config/app_config.dart';
-import 'package:stockly/core/fake_backend/fake_backend_provider.dart';
 import 'package:stockly/core/ids/uuid_generator.dart';
 import 'package:stockly/core/logging/app_logger.dart';
 import 'package:stockly/core/media/app_directories.dart';
+import 'package:stockly/core/network/http_adapter_override.dart';
 import 'package:stockly/core/preferences/locale_notifier.dart';
 import 'package:stockly/core/preferences/theme_mode_notifier.dart';
 import 'package:stockly/core/storage/preferences_store.dart';
@@ -25,37 +25,20 @@ ProviderContainer _container(
 
 void main() {
   group('AppConfig', () {
-    test('fromEnvironment_DefaultsToRealBackend', () {
+    test('fromEnvironment_DefaultsToTheEmulatorApi', () {
       final config = AppConfig.fromEnvironment();
-      expect(config.backendMode, BackendMode.real);
       expect(config.apiBaseUrl, AppConfig.defaultApiBaseUrl);
-      expect(kFakeBackendEnabled, isFalse);
     });
 
-    test('ensureValidFor_ReleaseRequiresRealBackend', () {
-      const fake = AppConfig(
-        backendMode: BackendMode.fake,
-        apiBaseUrl: AppConfig.fakeApiBaseUrl,
-      );
-      const real = AppConfig(
-        backendMode: BackendMode.real,
-        apiBaseUrl: 'https://api.stockly.example',
-      );
+    test('ensureValidFor_ReleaseAcceptsAnHttpsApi', () {
+      const real = AppConfig(apiBaseUrl: 'https://api.stockly.example');
 
-      expect(() => fake.ensureValidFor(releaseMode: true), throwsStateError);
-      expect(() => fake.ensureValidFor(releaseMode: false), returnsNormally);
       expect(() => real.ensureValidFor(releaseMode: true), returnsNormally);
     });
 
     test('ensureValidFor_ReleaseRefusesHttpBaseUrl', () {
-      const http = AppConfig(
-        backendMode: BackendMode.real,
-        apiBaseUrl: AppConfig.defaultApiBaseUrl,
-      );
-      const malformed = AppConfig(
-        backendMode: BackendMode.real,
-        apiBaseUrl: 'api.stockly.example',
-      );
+      const http = AppConfig(apiBaseUrl: AppConfig.defaultApiBaseUrl);
+      const malformed = AppConfig(apiBaseUrl: 'api.stockly.example');
 
       // Without STOCKLY_API_BASE_URL a release build gets the http
       // emulator default: refused.
@@ -68,8 +51,11 @@ void main() {
       expect(() => http.ensureValidFor(releaseMode: false), returnsNormally);
     });
 
-    test('fakeBackendProvider_NullInRealBuilds', () {
-      expect(ProviderContainer.test().read(fakeBackendProvider), isNull);
+    test('httpAdapterOverride_NullSoTheAppUsesTheNetwork', () {
+      expect(
+        ProviderContainer.test().read(httpAdapterOverrideProvider),
+        isNull,
+      );
     });
   });
 

@@ -86,7 +86,7 @@ Future<void> _fullFlow(String language) async {
       '${DateTime.now().microsecondsSinceEpoch}${random.nextInt(999)}';
   const uuid = PackageUuidGenerator();
   const logger = NoopLogger();
-  const config = AppConfig(backendMode: BackendMode.real, apiBaseUrl: _liveApi);
+  const config = AppConfig(apiBaseUrl: _liveApi);
   final tokens = InMemoryTokenStorage();
   final signals = SessionSignals();
   addTearDown(signals.close);

@@ -30,11 +30,6 @@ import 'package:workmanager/workmanager.dart' show Workmanager;
 @pragma('vm:entry-point')
 void scanSyncCallbackDispatcher() {
   Workmanager().executeTask((task, inputData) async {
-    // The fake backend lives in the app's memory; a background isolate has
-    // no fake state to upload to.
-    if (kFakeBackendEnabled) {
-      return true;
-    }
     final composition = await BackgroundSyncComposition.create();
     try {
       await composition.service.runOnce(force: false);

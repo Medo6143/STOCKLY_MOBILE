@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:stockly/core/config/app_config.dart';
-import 'package:stockly/core/fake_backend/panel/fake_payment_panel.dart';
 import 'package:stockly/core/router/route_names.dart';
 import 'package:stockly/core/router/route_paths.dart';
 import 'package:stockly/core/theme/app_theme.dart';
@@ -151,15 +149,6 @@ class _PaymentBody extends StatelessWidget {
     }
   }
 
-  Future<void> _openFakePanel(BuildContext context) =>
-      showModalBottomSheet<void>(
-        context: context,
-        builder: (_) => FakePaymentPanel(
-          paymentId: payment.id,
-          onSettled: notifier.refresh,
-        ),
-      );
-
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -253,12 +242,6 @@ class _PaymentBody extends StatelessWidget {
             icon: const Icon(Icons.close_rounded),
             label: Text(l10n.billingCancelPayment),
           ),
-        ),
-      if (kFakeBackendEnabled && pending)
-        TextButton.icon(
-          onPressed: () => _openFakePanel(context),
-          icon: const Icon(Icons.bug_report_outlined),
-          label: Text(l10n.fakePanelPaymentTitle),
         ),
     ];
     return EntranceScope(

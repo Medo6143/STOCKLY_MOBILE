@@ -19,10 +19,7 @@ import 'test_doubles.dart';
 
 /// The configuration of a test app: the requests never leave the test,
 /// an adapter answers them.
-const AppConfig testConfig = AppConfig(
-  backendMode: BackendMode.real,
-  apiBaseUrl: 'https://api.stockly.test',
-);
+const AppConfig testConfig = AppConfig(apiBaseUrl: 'https://api.stockly.test');
 
 /// A Dio over [adapter] without interceptors, for test set-up calls.
 Dio rawDio(HttpClientAdapter adapter) =>

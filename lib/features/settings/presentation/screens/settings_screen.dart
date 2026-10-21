@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stockly/core/config/app_version.dart';
-import 'package:stockly/core/fake_backend/fake_backend_provider.dart';
-import 'package:stockly/core/fake_backend/panel/fake_backend_panel.dart';
 import 'package:stockly/core/preferences/locale_notifier.dart';
 import 'package:stockly/core/preferences/theme_mode_notifier.dart';
 import 'package:stockly/core/theme/app_theme.dart';
@@ -25,8 +23,7 @@ import 'package:stockly/l10n/generated/app_localizations.dart';
 /// loading = the sign-out spinner (and the moment the session is gone);
 /// empty = n/a; error = none blocks sign out, it always clears the device;
 /// data = the settings in section cards. Signing out with scans still in
-/// the queue asks first (design §6.7). In fake mode a long press on the
-/// version opens the fake backend panel (design §12.1).
+/// the queue asks first (design §6.7).
 class SettingsScreen extends ConsumerWidget {
   const new({super.key});
 
@@ -58,7 +55,6 @@ class _SettingsList extends ConsumerWidget {
     final colors = context.colors;
     final textTheme = Theme.of(context).textTheme;
     final signingOut = ref.watch(signOutProvider).inProgress;
-    final fakeMode = ref.watch(fakeBackendProvider) != null;
     final pending = ref.watch(pendingScanCountProvider).value ?? 0;
     Widget info(String label, String value, {bool ltr = false}) => Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -161,14 +157,11 @@ class _SettingsList extends ConsumerWidget {
         ),
       ),
       Center(
-        child: GestureDetector(
-          onLongPress: fakeMode ? () => _openFakePanel(context, ref) : null,
-          child: Padding(
-            padding: EdgeInsetsDirectional.all(spacing.xs),
-            child: Text(
-              l10n.settingsVersion(AppVersion.display),
-              style: textTheme.bodySmall?.copyWith(color: colors.muted),
-            ),
+        child: Padding(
+          padding: EdgeInsetsDirectional.all(spacing.xs),
+          child: Text(
+            l10n.settingsVersion(AppVersion.display),
+            style: textTheme.bodySmall?.copyWith(color: colors.muted),
           ),
         ),
       ),
@@ -191,14 +184,4 @@ class _SettingsList extends ConsumerWidget {
       ),
     );
   }
-
-  Future<void> _openFakePanel(BuildContext context, WidgetRef ref) =>
-      showModalBottomSheet<void>(
-        context: context,
-        isScrollControlled: true,
-        builder: (_) => FakeBackendPanel(
-          shopId: session.shop.id,
-          onShopSuspended: ref.read(authProvider.notifier).restore,
-        ),
-      );
 }

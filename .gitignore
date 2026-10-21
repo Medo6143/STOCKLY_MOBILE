@@ -56,3 +56,8 @@ desktop.ini
 
 # Brand source (design system HTML, master logo): kept locally, not published
 brand/
+
+# Fake backend and fake mode: local only, the published app talks to the real API
+lib/core/fake_backend/
+lib/main_fake.dart
+test/fake/
