@@ -22,7 +22,7 @@ final class UrlLauncherExternalBrowser implements ExternalBrowser {
   /// The checkout URL comes from the server, so it is untrusted: only an
   /// `https` page of the payment provider is handed to the system. Any
   /// other scheme (`intent:`, `file:`, `tel:`) or host is refused.
-  static const String _https = 'https';
+  static const String https = 'https';
   static const List<String> _providerDomains = [
     'paymob.com',
     // Paymob's older domain, still used by some wallet redirects.
@@ -30,7 +30,7 @@ final class UrlLauncherExternalBrowser implements ExternalBrowser {
   ];
 
   static bool isProviderPage(Uri uri) =>
-      uri.scheme == _https &&
+      uri.scheme == https &&
       _providerDomains.any(
         (domain) => uri.host == domain || uri.host.endsWith('.$domain'),
       );
@@ -54,12 +54,20 @@ final class UrlLauncherExternalBrowser implements ExternalBrowser {
 
 /// In fake mode the hosted checkout URL does not exist
 /// (`fake.stockly.invalid`), so nothing is opened; the payment is finished
-/// from the debug panel instead.
+/// from the debug panel instead. It answers like
+/// [UrlLauncherExternalBrowser] (a URL the real app refuses is refused here
+/// too), plus the fake backend's own checkout host.
 final class FakeModeExternalBrowser implements ExternalBrowser {
   const new();
 
+  static final String _fakeCheckoutHost = Uri.parse(AppConfig.fakeApiBaseUrl)
+      .host;
+
   @override
-  Future<bool> open(Uri uri) async => true;
+  Future<bool> open(Uri uri) async =>
+      UrlLauncherExternalBrowser.isProviderPage(uri) ||
+      (uri.scheme == UrlLauncherExternalBrowser.https &&
+          uri.host == _fakeCheckoutHost);
 }
 
 final externalBrowserProvider = Provider<ExternalBrowser>(
