@@ -820,14 +820,14 @@ final class Money implements Comparable<Money> {
 
 `DecimalInputParser.parse(String raw, {required int maxScale, required DecimalSign sign}) → DecimalInputResult` (sealed: `valid(Decimal)`, `empty`, `invalidFormat`, `tooManyDecimals`, `negativeNotAllowed`, `zeroNotAllowed`, `outOfRange`):
 1. Normalize digits: Arabic-Indic `٠–٩` (U+0660–U+0669) and Extended Arabic-Indic `۰–۹` (U+06F0–U+06F9) → `0–9`.
-2. Normalize separators: Arabic decimal separator `٫` (U+066B) → `.`; remove grouping `,` and `٬` (U+066C) and spaces.
+2. Trim surrounding spaces; Arabic decimal separator `٫` (U+066B) → `.`. Grouping (`,`, `٬` U+066C, inner spaces) is **not** removed: it fails step 3 as `invalidFormat`. On a keypad whose decimal key is `,`, "1,5" means one and a half; dropping the comma would record 15 (update 2026-10-21, mobile review).
 3. Match `^-?\d{1,17}(\.\d+)?$`; more than 17 integer digits → `outOfRange`.
 4. Count decimals: more than `maxScale` → `tooManyDecimals` (**never rounded**, contract §1.2).
 5. Apply the sign rule.
 
 The client-side results reuse the ARB messages of the matching server codes (`tooManyDecimals` → `errorPrecisionTooManyDecimals`, `negativeNotAllowed` → `errorPrecisionNegative`, `zeroNotAllowed` for factor → `errorPrecisionNotPositive`), so the user sees the same text whichever side catches it. The server stays the authority.
 
-Text fields use `TextInputType.numberWithOptions(decimal: true, signed: <only for adjustments>)` and an `inputFormatter` that only allows digits (both sets), separators and a leading minus where signed. No rounding formatter.
+Text fields use `TextInputType.numberWithOptions(decimal: true, signed: <only for adjustments>)` and an `inputFormatter` that only allows digits (both sets), separators and a leading minus where signed. No rounding formatter. The formatter still lets `,` and `٬` through, so a typed comma is shown and rejected with a message instead of silently disappearing.
 
 ### 5.4 Display
 
@@ -1405,7 +1405,7 @@ Per endpoint, nothing changes in code: the same `*RemoteDataSource` classes call
 
 | Area | Tests |
 |---|---|
-| Decimal | `DecimalWire.parse/format` for each type (exact scales, negatives, 17-digit limit, malformed, JSON number rejected); `DecimalInputParser` (Arabic-Indic and Extended digits, `٫` and `٬`, too many decimals never rounded, sign rules, out of range); `DecimalFormatter` (grouping, trimming, negatives) |
+| Decimal | `DecimalWire.parse/format` for each type (exact scales, negatives, 17-digit limit, malformed, JSON number rejected); `DecimalInputParser` (Arabic-Indic and Extended digits, `٫`, grouping `,`/`٬` rejected, too many decimals never rounded, sign rules, out of range); `DecimalFormatter` (grouping, trimming, negatives) |
 | Error mapping | Every `ApiErrorCode` → expected `Failure` subtype; unknown code; non-problem body; `Retry-After` parsing and default; Dio exception types → Network/Timeout; every code has `ar` and `en` messages |
 | Refresh queue | 1 request 401 → one refresh, one retry; 3 concurrent 401s → exactly one `POST /api/auth/refresh`, three retries; retry 401 → session ended, no second refresh; refresh `Auth.RefreshTokenReused` → storage cleared and `sessionEnded` signal; refresh network error → tokens kept; stale-token check skips the API when another isolate already refreshed; multipart retry uses a cloned `FormData` |
 | Interceptors | `Accept-Language` follows locale changes without rebuilding Dio; `X-Correlation-Id` format and reuse on retry; anonymous requests have no `Authorization`; `Shop.Suspended` signal |
