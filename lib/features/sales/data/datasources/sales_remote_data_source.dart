@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:stockly/core/network/api_paths.dart';
 import 'package:stockly/core/network/json_body.dart';
 import 'package:stockly/core/network/paged_response_dto.dart';
+import 'package:stockly/core/network/request_extras.dart';
 import 'package:stockly/features/sales/data/models/sale_dtos.dart';
 
 /// The answer to S1: `201` for a new sale, `200` for a repeat of the same
@@ -24,12 +25,19 @@ final class SalesRemoteDataSource {
   final Dio _dio;
 
   /// S1 with [requestJson], the exact stored body (design §6.8), so a
-  /// retry sends the same bytes.
-  Future<CreateSaleResponse> createSale(String requestJson) async {
+  /// retry sends the same bytes. [shopId] is the shop the sale was stored
+  /// in; the auth interceptor never sends it with another shop's token.
+  Future<CreateSaleResponse> createSale(
+    String requestJson, {
+    required String shopId,
+  }) async {
     final response = await _dio.post<Object?>(
       ApiPaths.sales,
       data: requestJson,
-      options: Options(contentType: Headers.jsonContentType),
+      options: Options(
+        contentType: Headers.jsonContentType,
+        extra: {RequestExtras.shopId: shopId},
+      ),
     );
     return CreateSaleResponse(
       isRepeat: response.statusCode == HttpStatus.ok,

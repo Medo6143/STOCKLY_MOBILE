@@ -529,12 +529,12 @@ Interceptor order (request goes top to bottom, errors bottom to top):
 |---|---|---|
 | 1 | `CorrelationIdInterceptor` | Sets `X-Correlation-Id` |
 | 2 | `AcceptLanguageInterceptor` | Sets `Accept-Language` |
-| 3 | `AuthHeaderInterceptor` | Sets `Authorization: Bearer <accessToken>` unless `extra[RequestExtras.anonymous] == true` |
+| 3 | `AuthHeaderInterceptor` | Sets `Authorization: Bearer <accessToken>` unless `extra[RequestExtras.anonymous] == true`. Stamps `extra[shopId]` with the session's shop on the first send (a queued scan or sale sets its own); when the stored session is of another shop the request is rejected with `SessionEndedFailure` and not sent |
 | 4 | `RefreshInterceptor` (`QueuedInterceptor`) | 401 handling with a shared refresh |
 | 5 | `ShopSuspendedInterceptor` | On `403` with `code == Shop.Suspended` emits `SessionSignals.shopSuspended` |
 | 6 | `RedactingLogInterceptor` | Debug builds only (§4.7) |
 
-Request extras (`core/network/request_extras.dart`, constants, no magic strings): `anonymous` (register, login, refresh), `retriedAfterRefresh`, `correlationId`.
+Request extras (`core/network/request_extras.dart`, constants, no magic strings): `anonymous` (register, login, refresh), `retriedAfterRefresh`, `correlationId`, `shopId` (the shop a request belongs to, kept by the retry, so a request never goes out with another shop's token; update 2026-10-21, mobile review).
 
 ### 4.2 Headers
 
@@ -583,7 +583,7 @@ Future<RefreshOutcome> refresh({required String staleAccessToken}) =>
 
 ```text
 if status != 401 or request is anonymous           → handler.next(err)
-if extra[retriedAfterRefresh] == true              → emit sessionEnded(Auth.Unauthenticated); handler.next(err)
+if extra[retriedAfterRefresh] == true              → if the stored access token is still the one the retry used: clear tokens, emit sessionEnded(Auth.Unauthenticated); handler.next(err)
 outcome = await refresher.refresh(staleAccessToken: token sent with this request)
 refreshed   → clone request (FormData.clone() for multipart), new Authorization,
                extra[retriedAfterRefresh] = true, response = await dio.fetch(clone), handler.resolve(response)
@@ -951,7 +951,7 @@ stateDiagram-v2
 
 `ScanSyncService.runOnce()` processes due rows one at a time (sequential uploads: the per-minute rate limit makes parallel uploads useless). Before work it acquires lease `LeaseNames.scanSync` (expires after `SyncTimings.leaseTtl` = 2 min, renewed per row) so the foreground and the background worker never upload at the same time. At start it resets rows stuck in `uploading` whose `updatedAt` is older than the lease TTL back to `queued` (app killed mid-upload; safe because the same `clientRequestId` is resent).
 
-Per row: status `uploading`, `attemptCount + 1`, then `POST /api/invoices/scan` as `multipart/form-data` with fields `image` (the JPEG, `contentType: image/jpeg`, filename `<clientRequestId>.jpg`) and `clientRequestId` (**the stored id, never a new one**).
+Per row: if the signed-in shop is no longer the row's shop (signed out and into another shop during the run), stop the run without sending. Otherwise status `uploading`, `attemptCount + 1`, then `POST /api/invoices/scan` with `extra[shopId] = row.shopId` (the auth interceptor refuses another shop's token) as `multipart/form-data` with fields `image` (the JPEG, `contentType: image/jpeg`, filename `<clientRequestId>.jpg`) and `clientRequestId` (**the stored id, never a new one**).
 
 | Response | Action | User sees |
 |---|---|---|

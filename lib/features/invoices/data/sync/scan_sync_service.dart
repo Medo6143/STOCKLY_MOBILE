@@ -102,6 +102,11 @@ final class ScanSyncService {
             row.status == db.PendingScanStatus.quotaExceeded)) {
       return const _Attempt(ScanUploadOutcome.notQueued());
     }
+    // Signed out and into another shop since the run started: this row is
+    // not for the current session, and neither is the rest of the run.
+    if ((await _tokens.read())?.shop.id != row.shopId) {
+      return const _Attempt(ScanUploadOutcome.notQueued(), stopsTheRun: true);
+    }
     final now = _clock.now();
     if (!_local.photoExists(row.imagePath)) {
       return await _finish(
@@ -122,6 +127,7 @@ final class ScanSyncService {
       () => _remote.scan(
         clientRequestId: row.clientRequestId,
         imagePath: row.imagePath,
+        shopId: row.shopId,
       ),
     );
     return switch (result) {

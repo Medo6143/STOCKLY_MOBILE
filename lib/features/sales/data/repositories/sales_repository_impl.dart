@@ -43,7 +43,10 @@ final class SalesRepositoryImpl implements SalesRepository {
       );
     }
     final result = await safeApiCall(() async {
-      final response = await _remote.createSale(body);
+      final response = await _remote.createSale(
+        body,
+        shopId: stored?.shopId ?? shopId,
+      );
       final sale = response.sale.toEntity();
       return response.isRepeat
           ? SaleSubmission.alreadyRecorded(sale)

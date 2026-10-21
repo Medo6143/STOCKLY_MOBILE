@@ -474,7 +474,9 @@ void main() {
       final shopId = state.shops.single.id;
       final userId = state.users.first.id;
       adapter.controls.offline = true;
-      errOf(await repository.submit(request(id), shopId: shopId, userId: userId));
+      errOf(
+        await repository.submit(request(id), shopId: shopId, userId: userId),
+      );
 
       // The first attempt may have been recorded; a 401 on the retry is
       // decided before the server looks the id up, so it proves nothing.

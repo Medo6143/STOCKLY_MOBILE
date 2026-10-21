@@ -210,6 +210,66 @@ void main() {
     expect(h.emitted.single, isA<SessionEndedSignal>());
   });
 
+  test(
+    'AnotherShopSignedInBeforeTheRetry_RetryNotSentAndItsSessionKept',
+    () async {
+      // Signed out of this shop and into another while the request was out:
+      // the retry must not carry the other shop's token.
+      final h = NetworkHarness();
+      h.tokens.reloadSession = storedSession(
+        accessToken: 'access-2',
+        refreshToken: 'refresh-2',
+        shopId: otherShopId,
+      );
+
+      final failure = (await _getProducts(h) as Err<Object?, Failure>).failure;
+
+      expect(failure, isA<SessionEndedFailure>());
+      expect(h.adapter.requestsTo(productsPath), hasLength(1));
+      expect(h.refreshCalls, isEmpty);
+      expect(h.tokens.session?.shop.id, otherShopId);
+      expect(h.tokens.clearCount, 0);
+      expect(h.emitted.whereType<SessionEndedSignal>(), isEmpty);
+    },
+  );
+
+  test('RequestForAnotherShop_NotSent', () async {
+    final h = NetworkHarness();
+
+    final result = await safeApiCall(
+      () async => (await h.dio.get<Object?>(
+        productsPath,
+        options: Options(extra: {RequestExtras.shopId: otherShopId}),
+      )).data,
+    );
+
+    expect(
+      (result as Err<Object?, Failure>).failure,
+      isA<SessionEndedFailure>(),
+    );
+    expect(h.adapter.requestsTo(productsPath), isEmpty);
+    expect(h.tokens.clearCount, 0);
+  });
+
+  test('RetryAlso401AfterANewSignIn_NewSessionKept', () async {
+    // The retry was sent with access-2, and a new sign-in stored access-9
+    // before its 401 came back: that 401 does not end the new session.
+    final h = NetworkHarness();
+    h.apiAnswer = (options) async {
+      if (options.extra[RequestExtras.retriedAfterRefresh] == true) {
+        h.tokens.session = storedSession(accessToken: 'access-9');
+      }
+      return problemBody(401, 'Auth.Unauthenticated');
+    };
+
+    final failure = (await _getProducts(h) as Err<Object?, Failure>).failure;
+
+    expect(failure, isA<SessionEndedFailure>());
+    expect(h.tokens.session?.accessToken, 'access-9');
+    expect(h.tokens.clearCount, 0);
+    expect(h.emitted.whereType<SessionEndedSignal>(), isEmpty);
+  });
+
   test('LeaseBusy_RefreshUnavailable_TokensKept', () async {
     final h = NetworkHarness(leases: BusyLeaseService());
 
