@@ -18,8 +18,8 @@ import 'package:stockly/core/preferences/locale_notifier.dart';
 import 'package:stockly/core/session/session_signals.dart';
 import 'package:stockly/core/storage/secure_token_storage.dart';
 
-/// A Dio with the contract's base options. [adapter] is the fake backend in
-/// fake mode; everything else is identical in both modes.
+/// A Dio with the contract's base options. [adapter] answers the requests
+/// in place of the network when given (tests); otherwise Dio's own adapter.
 Dio buildBaseDio({required AppConfig config, HttpClientAdapter? adapter}) {
   final dio = Dio(
     BaseOptions(

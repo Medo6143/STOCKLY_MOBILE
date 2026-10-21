@@ -7,6 +7,7 @@ import 'package:stockly/core/offline/tables/pending_sales.dart';
 import 'package:stockly/core/router/app_router.dart';
 import 'package:stockly/core/router/home_shell.dart';
 import 'package:stockly/core/router/route_paths.dart';
+import 'package:stockly/core/widgets/error_state.dart';
 import 'package:stockly/core/widgets/not_found_screen.dart';
 import 'package:stockly/features/auth/presentation/providers/auth_notifier.dart';
 import 'package:stockly/features/auth/presentation/providers/auth_state.dart';
@@ -182,6 +183,7 @@ void main() {
       expect(_location(container), location);
       expect(find.byType(NotFoundScreen), findsNothing, reason: location);
       expect(find.byType(screen), findsOneWidget, reason: location);
+      expect(find.byType(ErrorState), findsNothing, reason: location);
     }
   });
 
@@ -380,6 +382,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(_location(container), location);
       expect(find.byType(screen), findsOneWidget, reason: location);
+      expect(find.byType(ErrorState), findsNothing, reason: location);
     }
   });
 
@@ -404,6 +407,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(_location(container), location);
       expect(find.byType(screen), findsOneWidget, reason: location);
+      expect(find.byType(ErrorState), findsNothing, reason: location);
     }
   });
 

@@ -8,10 +8,9 @@ How to build the signed release of Stockly and put it on the Play Console intern
 
 - no signing is configured: neither `android/key.properties` nor the `STOCKLY_UPLOAD_*` environment variables (it **never** falls back to debug signing);
 - `key.properties` is incomplete or its keystore file does not exist;
-- `--dart-define=STOCKLY_API_BASE_URL` is missing or does not start with `https://`;
-- `--dart-define=STOCKLY_BACKEND=fake` is set.
+- `--dart-define=STOCKLY_API_BASE_URL` is missing or does not start with `https://`.
 
-At run time the app checks the same again (`AppConfig.ensureValidFor`): a release build refuses the fake backend and any base URL that is not `https`.
+At run time the app checks the same again (`AppConfig.ensureValidFor`): a release build refuses any base URL that is not `https`.
 
 Release builds are shrunk with R8 (`isMinifyEnabled`, `isShrinkResources`); keep rules for Flutter, drift/sqlite, `flutter_secure_storage` (Tink), `workmanager`, `mobile_scanner` (ML Kit) and `jni` are in `android/app/proguard-rules.pro`.
 

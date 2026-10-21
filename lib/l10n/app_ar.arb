@@ -532,45 +532,13 @@
   },
   "settingsVersion": "الإصدار {version}",
   "@settingsVersion": {
-    "description": "App version at the bottom of settings; long press opens the fake backend panel in fake mode.",
+    "description": "App version at the bottom of settings.",
     "placeholders": {
       "version": {
         "type": "String",
         "example": "1.0.0 (1)"
       }
     }
-  },
-  "fakePanelTitle": "الخادم التجريبي (للتطوير)",
-  "@fakePanelTitle": {
-    "description": "Title of the debug fake backend panel."
-  },
-  "fakePanelOffline": "من غير إنترنت",
-  "@fakePanelOffline": {
-    "description": "Debug panel switch: every request fails as offline."
-  },
-  "fakePanelFailNext": "فشّل الطلب الجاي بـ",
-  "@fakePanelFailNext": {
-    "description": "Debug panel: pick an error code for the next request."
-  },
-  "fakePanelFailNextNone": "من غير فشل",
-  "@fakePanelFailNextNone": {
-    "description": "Debug panel: no forced error code."
-  },
-  "fakePanelExpireToken": "إنهاء رمز الدخول دلوقتي",
-  "@fakePanelExpireToken": {
-    "description": "Debug panel action: expire the access token."
-  },
-  "fakePanelSuspendShop": "إيقاف المحل",
-  "@fakePanelSuspendShop": {
-    "description": "Debug panel action: suspend the signed-in shop."
-  },
-  "fakePanelLockout": "قفل الحساب",
-  "@fakePanelLockout": {
-    "description": "Debug panel switch: account lockout after failed logins."
-  },
-  "fakePanelRateLimit": "حد محاولات الدخول والتسجيل",
-  "@fakePanelRateLimit": {
-    "description": "Debug panel switch: rate limit on login and register."
   },
   "commonSave": "حفظ",
   "@commonSave": {
@@ -1540,10 +1508,6 @@
   "@settingsSignOutAnyway": {
     "description": "Confirms sign out with queued scans."
   },
-  "fakePanelScanQuota": "حد الفواتير اليومي خلص",
-  "@fakePanelScanQuota": {
-    "description": "Debug panel: the next scans get Scan.DailyQuotaExceeded."
-  },
   "navDashboard": "الرئيسية",
   "@navDashboard": {
     "description": "Dashboard tab."
@@ -2405,18 +2369,6 @@
   "billingUpgrade": "رقّي الباقة",
   "@billingUpgrade": {
     "description": "Opens the plans to upgrade."
-  },
-  "fakePanelPaymentTitle": "محاكاة الدفع (تجربة)",
-  "@fakePanelPaymentTitle": {
-    "description": "Debug action on the payment screen in fake mode."
-  },
-  "fakePanelPaymentSuccess": "محاكاة نجاح الدفع",
-  "@fakePanelPaymentSuccess": {
-    "description": "Debug: the fake provider reports success."
-  },
-  "fakePanelPaymentFailure": "محاكاة فشل الدفع",
-  "@fakePanelPaymentFailure": {
-    "description": "Debug: the fake provider reports a failure."
   },
   "billingPaymentSubtitle": "{method} · {date}",
   "@billingPaymentSubtitle": {

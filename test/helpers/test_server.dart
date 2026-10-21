@@ -36,10 +36,6 @@ final class TestServer {
   /// `403 Shop.Suspended`, logout still works (contract §1.4).
   bool suspended;
 
-  /// Answers for one path, tried before the built-in routes.
-  final Map<String, Future<ResponseBody> Function(RequestOptions options)>
-  overrides = {};
-
   late final ScriptedAdapter adapter = ScriptedAdapter(_serve);
 
   final Map<String, String> _roleOfRefresh = {};
@@ -55,17 +51,7 @@ final class TestServer {
   /// tokens still work.
   void expireAccessTokens() => _validAccess.clear();
 
-  /// Every token stops working: the session was ended on the server.
-  void endSessions() {
-    _validAccess.clear();
-    _revokedRefresh.addAll(_roleOfRefresh.keys);
-  }
-
   Future<ResponseBody> _serve(RequestOptions options) async {
-    final override = overrides[options.path];
-    if (override != null) {
-      return await override(options);
-    }
     switch (options.path) {
       case ApiPaths.authLogin:
         return _login(_body(options));
@@ -203,11 +189,11 @@ final class TestServer {
       ApiPaths.billingPlans => [_fixture('billing_plan')],
       ApiPaths.billingSubscription => _fixture('subscription_summary'),
       ApiPaths.billingPayments => _onePage('payment_page'),
-      _ when segments.length == 4 && path.startsWith(ApiPaths.products) => {
+      _ when path.endsWith('/movements') => _onePage('movement_page'),
+      _ when segments.length == 3 && path.startsWith(ApiPaths.products) => {
         ..._fixture('product_detail'),
         'id': segments[2],
       },
-      _ when path.endsWith('/movements') => _onePage('movement_page'),
       _ when segments.length == 3 && path.startsWith(ApiPaths.invoices) =>
         _invoice(segments[2]),
       _ when segments.length == 3 && path.startsWith(ApiPaths.sales) => {

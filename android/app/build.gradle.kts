@@ -89,9 +89,6 @@ fun releaseProblems(): List<String> {
     } else if (!baseUrl.startsWith("https://")) {
         problems += "STOCKLY_API_BASE_URL must start with https:// in a release build (got $baseUrl)."
     }
-    if (dartDefines["STOCKLY_BACKEND"] == "fake") {
-        problems += "Release builds must not use --dart-define=STOCKLY_BACKEND=fake."
-    }
     return problems
 }
 
@@ -137,9 +134,7 @@ android {
                 "proguard-rules.pro",
             )
         }
-        // Demo builds (docs/release/android.md): an optimised profile APK with the fake
-        // backend, signed with the upload key when it is configured. The release guard
-        // below still keeps the fake backend out of release builds.
+        // Profile builds are signed with the upload key when it is configured.
         getByName("profile") {
             if (hasUploadSigning) {
                 signingConfig = signingConfigs.getByName("upload")
