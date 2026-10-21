@@ -62,6 +62,21 @@ void main() {
     expect(navigatedTo(RouteNames.invoiceDetail), findsOneWidget);
   }, variant: localeVariant);
 
+  testWidgets('KeyboardOpen_ConfirmStaysAboveIt', (tester) async {
+    const keyboard = 320.0;
+    tester.view.viewInsets = FakeViewPadding(
+      bottom: keyboard * tester.view.devicePixelRatio,
+    );
+    addTearDown(tester.view.resetViewInsets);
+    answer(resolved);
+    await pump(tester);
+
+    final screenHeight =
+        tester.view.physicalSize.height / tester.view.devicePixelRatio;
+    final confirm = tester.getRect(find.text(l10n().invoiceReviewConfirm));
+    expect(confirm.bottom, lessThanOrEqualTo(screenHeight - keyboard));
+  }, variant: localeVariant);
+
   testWidgets('Loading_Confirming', (tester) async {
     answer(resolved);
     final pending = Completer<Result<InvoiceDetail, Failure>>();

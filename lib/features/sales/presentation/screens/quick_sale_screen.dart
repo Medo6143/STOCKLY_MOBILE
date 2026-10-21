@@ -13,6 +13,7 @@ import 'package:stockly/core/widgets/async_state_view.dart';
 import 'package:stockly/core/widgets/empty_state.dart';
 import 'package:stockly/core/widgets/failure_message.dart';
 import 'package:stockly/core/widgets/form_banner.dart';
+import 'package:stockly/core/widgets/keyboard_safe_bottom_bar.dart';
 import 'package:stockly/core/widgets/ltr_isolate.dart';
 import 'package:stockly/core/widgets/money_text.dart';
 import 'package:stockly/core/widgets/offline_banner.dart';
@@ -166,10 +167,12 @@ class _QuickSaleScreenState extends ConsumerState<QuickSaleScreen> {
       ),
       bottomNavigationBar: state.lines.isEmpty || state.isLocked
           ? null
-          : SaleTotalBar(
-              total: cartTotalPreview(state.lines),
-              submitting: state.phase == QuickSalePhase.submitting,
-              onSubmit: state.canSubmit ? _notifier.submit : null,
+          : KeyboardSafeBottomBar(
+              child: SaleTotalBar(
+                total: cartTotalPreview(state.lines),
+                submitting: state.phase == QuickSalePhase.submitting,
+                onSubmit: state.canSubmit ? _notifier.submit : null,
+              ),
             ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,

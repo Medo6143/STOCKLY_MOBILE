@@ -160,6 +160,29 @@ void main() {
     expect(find.text('/sale/$saleId'), findsOneWidget);
   }, variant: localeVariant);
 
+  testWidgets('KeyboardOpen_SubmitStaysAboveIt', (tester) async {
+    // The barcode field keeps focus after every scan, so the keyboard is up
+    // most of the time: the submit button must not be under it.
+    const keyboard = 320.0;
+    tester.view.viewInsets = FakeViewPadding(
+      bottom: keyboard * tester.view.devicePixelRatio,
+    );
+    addTearDown(tester.view.resetViewInsets);
+    answerSubmit(Ok(SaleSubmission.created(sale())));
+    await pump(tester);
+
+    await scan(tester, _barcode);
+
+    final l = routedL10n();
+    final screenHeight =
+        tester.view.physicalSize.height / tester.view.devicePixelRatio;
+    final submit = tester.getRect(find.text(l.salesSubmit));
+    expect(submit.bottom, lessThanOrEqualTo(screenHeight - keyboard));
+    await tester.tap(find.text(l.salesSubmit));
+    await tester.pumpAndSettle();
+    expect(routedTo(RouteNames.saleDetail), findsOneWidget);
+  }, variant: localeVariant);
+
   testWidgets('Data_AlreadyRecordedOpensTheSaleWithTheInfo', (tester) async {
     answerSubmit(Ok(SaleSubmission.alreadyRecorded(sale())));
     await pump(tester);
