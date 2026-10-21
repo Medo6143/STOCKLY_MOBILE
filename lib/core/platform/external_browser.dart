@@ -22,7 +22,7 @@ final class UrlLauncherExternalBrowser implements ExternalBrowser {
   /// The checkout URL comes from the server, so it is untrusted: only an
   /// `https` page of the payment provider is handed to the system. Any
   /// other scheme (`intent:`, `file:`, `tel:`) or host is refused.
-  static const String https = 'https';
+  static const String _https = 'https';
   static const List<String> _providerDomains = [
     'paymob.com',
     // Paymob's older domain, still used by some wallet redirects.
@@ -30,7 +30,7 @@ final class UrlLauncherExternalBrowser implements ExternalBrowser {
   ];
 
   static bool isProviderPage(Uri uri) =>
-      uri.scheme == https &&
+      uri.scheme == _https &&
       _providerDomains.any(
         (domain) => uri.host == domain || uri.host.endsWith('.$domain'),
       );
@@ -60,14 +60,13 @@ final class UrlLauncherExternalBrowser implements ExternalBrowser {
 final class FakeModeExternalBrowser implements ExternalBrowser {
   const new();
 
-  static final String _fakeCheckoutHost = Uri.parse(AppConfig.fakeApiBaseUrl)
-      .host;
+  /// The fake backend's base: its hosted checkout lives there.
+  static final Uri _fakeCheckout = Uri.parse(AppConfig.fakeApiBaseUrl);
 
   @override
   Future<bool> open(Uri uri) async =>
       UrlLauncherExternalBrowser.isProviderPage(uri) ||
-      (uri.scheme == UrlLauncherExternalBrowser.https &&
-          uri.host == _fakeCheckoutHost);
+      (uri.scheme == _fakeCheckout.scheme && uri.host == _fakeCheckout.host);
 }
 
 final externalBrowserProvider = Provider<ExternalBrowser>(

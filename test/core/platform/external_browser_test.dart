@@ -1,5 +1,6 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:stockly/core/config/app_config.dart';
 import 'package:stockly/core/platform/external_browser.dart';
 
 /// Pages of the payment provider: both browsers take them.
@@ -19,6 +20,7 @@ const List<String> _refused = [
   'https://paymob.com.evil.io/pay',
   'https://evilpaymob.com/pay',
   'https://example.com/payment-done',
+  // The fake backend's host, but not over its scheme.
   'http://fake.stockly.invalid/pay/1',
 ];
 
@@ -71,7 +73,7 @@ void main() {
     // The fake backend's hosted checkout (never opened, the debug panel
     // finishes the payment).
     expect(
-      await fake.open(Uri.parse('https://fake.stockly.invalid/pay/1')),
+      await fake.open(Uri.parse('${AppConfig.fakeApiBaseUrl}/pay/1')),
       isTrue,
     );
   });
