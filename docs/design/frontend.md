@@ -521,7 +521,7 @@ None in v1: no Android intent filters, no iOS associated domains, no push notifi
 - `config.apiBaseUrl` comes from `--dart-define=STOCKLY_API_BASE_URL=...` and **includes** the scheme and host only; every data source uses paths starting with `/api/...` exactly as in the contract.
 - In fake mode the adapter is `FakeBackendAdapter` (§12); everything else stays identical.
 
-`NetworkTimeouts` (`core/config/network_timeouts.dart`): `connect = 10 s`, `send = 60 s` (scan upload on weak networks), `receive = 30 s`, `meStartup = 2.5 s` (only `GET /api/auth/me` during splash, so the splash maximum of 3 s is respected, §10), `refreshLeaseWait = 10 s`.
+`NetworkTimeouts` (`core/config/network_timeouts.dart`): `connect = 10 s`, `send = 60 s` (scan upload on weak networks), `receive = 30 s`, `meStartup = 2.5 s` (only `GET /api/auth/me` during splash, so the splash maximum of 3 s is respected, §10), `refreshLeaseWait = 10 s`, `refreshSend = 5 s` and `refreshReceive = 10 s` (the refresh Dio only: `connect + refreshSend + refreshReceive` < `LeaseTimings.authRefreshTtl` = 30 s, so a refresh never outlives its lease and another isolate never presents the same refresh token; a test enforces it; update 2026-10-21, mobile review).
 
 Interceptor order (request goes top to bottom, errors bottom to top):
 
@@ -529,12 +529,12 @@ Interceptor order (request goes top to bottom, errors bottom to top):
 |---|---|---|
 | 1 | `CorrelationIdInterceptor` | Sets `X-Correlation-Id` |
 | 2 | `AcceptLanguageInterceptor` | Sets `Accept-Language` |
-| 3 | `AuthHeaderInterceptor` | Sets `Authorization: Bearer <accessToken>` unless `extra[RequestExtras.anonymous] == true` |
+| 3 | `AuthHeaderInterceptor` | Sets `Authorization: Bearer <accessToken>` unless `extra[RequestExtras.anonymous] == true`. Stamps `extra[shopId]` with the session's shop on the first send (a queued scan or sale sets its own); when the stored session is of another shop the request is rejected with `SessionEndedFailure` and not sent |
 | 4 | `RefreshInterceptor` (`QueuedInterceptor`) | 401 handling with a shared refresh |
 | 5 | `ShopSuspendedInterceptor` | On `403` with `code == Shop.Suspended` emits `SessionSignals.shopSuspended` |
 | 6 | `RedactingLogInterceptor` | Debug builds only (§4.7) |
 
-Request extras (`core/network/request_extras.dart`, constants, no magic strings): `anonymous` (register, login, refresh), `retriedAfterRefresh`, `correlationId`.
+Request extras (`core/network/request_extras.dart`, constants, no magic strings): `anonymous` (register, login, refresh), `retriedAfterRefresh`, `correlationId`, `shopId` (the shop a request belongs to, kept by the retry, so a request never goes out with another shop's token; update 2026-10-21, mobile review).
 
 ### 4.2 Headers
 
@@ -583,7 +583,7 @@ Future<RefreshOutcome> refresh({required String staleAccessToken}) =>
 
 ```text
 if status != 401 or request is anonymous           → handler.next(err)
-if extra[retriedAfterRefresh] == true              → emit sessionEnded(Auth.Unauthenticated); handler.next(err)
+if extra[retriedAfterRefresh] == true              → if the stored access token is still the one the retry used: clear tokens, emit sessionEnded(Auth.Unauthenticated); handler.next(err)
 outcome = await refresher.refresh(staleAccessToken: token sent with this request)
 refreshed   → clone request (FormData.clone() for multipart), new Authorization,
                extra[retriedAfterRefresh] = true, response = await dio.fetch(clone), handler.resolve(response)
@@ -618,7 +618,7 @@ sequenceDiagram
 
 `AuthNotifier` listens to `SessionSignals`: `sessionEnded` → state `signedOut(reason: SessionEndedFailure)` and the login screen shows `errorSessionEnded`; `shopSuspended` → state `suspended(session)`.
 
-Logout (`LogoutUseCase`): `POST /api/auth/logout` `{ "refreshToken": ... }` (works for suspended shops), then clear `StoredSession` **whatever the result** (204, network error or anything else), then state `signedOut`. Pending scans are kept (§6.7).
+Logout (`LogoutUseCase`): clear `StoredSession` first, then state `signedOut`, so signing out never waits for the network; `POST /api/auth/logout` `{ "refreshToken": ... }` (works for suspended shops) runs in the background with the ended session's access token set on the call itself (`anonymous`, no refresh on `401`; best effort, the refresh token also expires). A refresh that comes back after the clear does not store its tokens (update 2026-10-21, mobile review). Pending scans are kept (§6.7).
 
 ### 4.4 ProblemDetails DTO
 
@@ -820,14 +820,14 @@ final class Money implements Comparable<Money> {
 
 `DecimalInputParser.parse(String raw, {required int maxScale, required DecimalSign sign}) → DecimalInputResult` (sealed: `valid(Decimal)`, `empty`, `invalidFormat`, `tooManyDecimals`, `negativeNotAllowed`, `zeroNotAllowed`, `outOfRange`):
 1. Normalize digits: Arabic-Indic `٠–٩` (U+0660–U+0669) and Extended Arabic-Indic `۰–۹` (U+06F0–U+06F9) → `0–9`.
-2. Normalize separators: Arabic decimal separator `٫` (U+066B) → `.`; remove grouping `,` and `٬` (U+066C) and spaces.
+2. Trim surrounding spaces; Arabic decimal separator `٫` (U+066B) → `.`. Grouping (`,`, `٬` U+066C, inner spaces) is **not** removed: it fails step 3 as `invalidFormat`. On a keypad whose decimal key is `,`, "1,5" means one and a half; dropping the comma would record 15 (update 2026-10-21, mobile review).
 3. Match `^-?\d{1,17}(\.\d+)?$`; more than 17 integer digits → `outOfRange`.
 4. Count decimals: more than `maxScale` → `tooManyDecimals` (**never rounded**, contract §1.2).
 5. Apply the sign rule.
 
 The client-side results reuse the ARB messages of the matching server codes (`tooManyDecimals` → `errorPrecisionTooManyDecimals`, `negativeNotAllowed` → `errorPrecisionNegative`, `zeroNotAllowed` for factor → `errorPrecisionNotPositive`), so the user sees the same text whichever side catches it. The server stays the authority.
 
-Text fields use `TextInputType.numberWithOptions(decimal: true, signed: <only for adjustments>)` and an `inputFormatter` that only allows digits (both sets), separators and a leading minus where signed. No rounding formatter.
+Text fields use `TextInputType.numberWithOptions(decimal: true, signed: <only for adjustments>)` and an `inputFormatter` that only allows digits (both sets), separators and a leading minus where signed. No rounding formatter. The formatter still lets `,` and `٬` through, so a typed comma is shown and rejected with a message instead of silently disappearing.
 
 ### 5.4 Display
 
@@ -951,7 +951,7 @@ stateDiagram-v2
 
 `ScanSyncService.runOnce()` processes due rows one at a time (sequential uploads: the per-minute rate limit makes parallel uploads useless). Before work it acquires lease `LeaseNames.scanSync` (expires after `SyncTimings.leaseTtl` = 2 min, renewed per row) so the foreground and the background worker never upload at the same time. At start it resets rows stuck in `uploading` whose `updatedAt` is older than the lease TTL back to `queued` (app killed mid-upload; safe because the same `clientRequestId` is resent).
 
-Per row: status `uploading`, `attemptCount + 1`, then `POST /api/invoices/scan` as `multipart/form-data` with fields `image` (the JPEG, `contentType: image/jpeg`, filename `<clientRequestId>.jpg`) and `clientRequestId` (**the stored id, never a new one**).
+Per row: if the signed-in shop is no longer the row's shop (signed out and into another shop during the run), stop the run without sending. Otherwise status `uploading`, `attemptCount + 1`, then `POST /api/invoices/scan` with `extra[shopId] = row.shopId` (the auth interceptor refuses another shop's token) as `multipart/form-data` with fields `image` (the JPEG, `contentType: image/jpeg`, filename `<clientRequestId>.jpg`) and `clientRequestId` (**the stored id, never a new one**).
 
 | Response | Action | User sees |
 |---|---|---|
@@ -1356,6 +1356,7 @@ Quick sale cart rules (`QuickSaleNotifier`, state `QuickSaleState`: `lines` (`Ca
 - `unitPrice` is sent as `null` unless the cashier changed it (then the override string); the server decides `priceOverridden`.
 - Barcode entry: a text field that also receives input from Bluetooth/USB keyboard-wedge scanners (submit on Enter); camera scanning is behind `BarcodeScanner` and needs package approval (§14).
 - Negative stock never blocks the sale (contract S1); the warning is shown after success.
+- After an unknown outcome the cart stays locked to its `clientRequestId` until a success, Discard, or an answer that proves no attempt was recorded (`provesSaleNotRecorded`: `Validation.Failed`, the 400/404 rejections of its lines, `413`). The server checks the body, then looks the id up, then the products, so those answers are proof; a `401`, `403` or `429` comes before the look-up and keeps the lock and the pending row (update 2026-10-21, mobile review).
 
 ---
 
@@ -1405,12 +1406,12 @@ Per endpoint, nothing changes in code: the same `*RemoteDataSource` classes call
 
 | Area | Tests |
 |---|---|
-| Decimal | `DecimalWire.parse/format` for each type (exact scales, negatives, 17-digit limit, malformed, JSON number rejected); `DecimalInputParser` (Arabic-Indic and Extended digits, `٫` and `٬`, too many decimals never rounded, sign rules, out of range); `DecimalFormatter` (grouping, trimming, negatives) |
+| Decimal | `DecimalWire.parse/format` for each type (exact scales, negatives, 17-digit limit, malformed, JSON number rejected); `DecimalInputParser` (Arabic-Indic and Extended digits, `٫`, grouping `,`/`٬` rejected, too many decimals never rounded, sign rules, out of range); `DecimalFormatter` (grouping, trimming, negatives) |
 | Error mapping | Every `ApiErrorCode` → expected `Failure` subtype; unknown code; non-problem body; `Retry-After` parsing and default; Dio exception types → Network/Timeout; every code has `ar` and `en` messages |
 | Refresh queue | 1 request 401 → one refresh, one retry; 3 concurrent 401s → exactly one `POST /api/auth/refresh`, three retries; retry 401 → session ended, no second refresh; refresh `Auth.RefreshTokenReused` → storage cleared and `sessionEnded` signal; refresh network error → tokens kept; stale-token check skips the API when another isolate already refreshed; multipart retry uses a cloned `FormData` |
 | Interceptors | `Accept-Language` follows locale changes without rebuilding Dio; `X-Correlation-Id` format and reuse on retry; anonymous requests have no `Authorization`; `Shop.Suspended` signal |
 | Use cases | One test file per use case: happy path, each mapped failure it can return (validation, not found, conflict as listed in §11) |
-| Notifiers | Each notifier with a `ProviderContainer` and mocked use cases: initial load, empty, error, refresh, load-more, submit success/failure; `InvoiceProcessingNotifier` polls every 2 s and stops at 60 s (`fakeAsync`); `InvoiceReviewNotifier` draft building, 100-line cap, save-then-confirm; `QuickSaleNotifier` id generated once, reused on retry, lock on unknown outcome, reset on definite failure; `SplashNotifier` min/max timing |
+| Notifiers | Each notifier with a `ProviderContainer` and mocked use cases: initial load, empty, error, refresh, load-more, submit success/failure; `InvoiceProcessingNotifier` polls every 2 s and stops at 60 s (`fakeAsync`); `InvoiceReviewNotifier` draft building, 100-line cap, save-then-confirm; `QuickSaleNotifier` id generated once, reused on retry, lock on unknown outcome, reset on definite failure, still locked after a 401 that follows an unknown outcome; `SplashNotifier` min/max timing |
 | Router | `authRedirect` table (§3.2) for every row |
 | Offline queue | DAO tests with an in-memory Drift database (`NativeDatabase.memory()`); `ScanSyncService` with a fake Dio adapter: 202 and 200 delete row and file, 400/413 → `failedPermanent`, 429 rate limit uses `Retry-After`, quota marks all due rows, network → backoff, stuck `uploading` recovery, lease prevents parallel runs, same `clientRequestId` on every attempt; `BackoffPolicy` with seeded `Random` |
 | Storage | `SecureTokenStorage` round trip with a fake `FlutterSecureStorage` (single blob), installation id created once |
@@ -1456,6 +1457,7 @@ Approved at checkpoint 2 (each stays behind the interface named here):
 | `mobile_scanner` | Camera barcode scanning on the quick-sale screen (Sprint 4) | Keyboard-wedge Bluetooth/USB scanners and manual entry, which work with a plain `TextField` (the fallback is built anyway) | `BarcodeScanner`: `Stream<String> scan()` |
 | `uuid` | RFC 4122 v4 ids, above all `clientRequestId`, which is what makes retries safe: never hand-rolled | none (hand-rolled generator rejected) | `UuidGenerator` → `PackageUuidGenerator` (`core/ids/uuid_generator.dart`) |
 | `flutter_launcher_icons` (dev) | App icon generation from the PNG exports in `assets/icon/` | manual per-density exports | n/a (build-time only) |
+| `url_launcher` (brief mobile-7) | Open the Paymob hosted checkout (card, wallet) outside the app | none practical | `ExternalBrowser` (`core/platform/external_browser.dart`): `Future<bool> open(Uri)`, never throws. The URL comes from the server and is untrusted: only `https` pages of `paymob.com` / `paymobsolutions.com` reach the system; any other scheme or host returns `false` (update 2026-10-21, mobile review) |
 
 Considered and **not** needed:
 

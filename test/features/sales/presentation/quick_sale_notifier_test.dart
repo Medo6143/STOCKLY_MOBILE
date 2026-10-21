@@ -471,6 +471,53 @@ void main() {
       expect(uuid.count, 2);
     });
 
+    test(
+      'DefiniteFailureAfterAnUnknownOutcome_StaysLockedWithTheSameId',
+      () async {
+        answerSubmit(const Err(NetworkFailure()));
+        final c = container();
+        await notifierOf(c).addBarcode(_panadolBarcode);
+        await notifierOf(c).submit();
+        final id = c.read(quickSaleProvider).clientRequestId;
+
+        // The first attempt may be recorded; a 401 on the retry proves
+        // nothing, so a new id here could record the sale twice.
+        answerSubmit(const Err(sessionEnded));
+        await notifierOf(c).retry();
+
+        var state = c.read(quickSaleProvider);
+        expect(state.phase, QuickSalePhase.lockedUnknownOutcome);
+        expect(state.failure, sessionEnded);
+        expect(state.clientRequestId, id);
+        expect(state.lockedRequest?.clientRequestId, id);
+
+        answerSubmit(Ok(SaleSubmission.alreadyRecorded(sale())));
+        await notifierOf(c).retry();
+        state = c.read(quickSaleProvider);
+        expect(state.lastSubmission, SaleSubmission.alreadyRecorded(sale()));
+        expect(sentRequests().map((r) => r.clientRequestId).toSet(), {id});
+        expect(uuid.count, 1);
+      },
+    );
+
+    test('RejectionAfterAnUnknownOutcome_UnlocksTheCart', () async {
+      answerSubmit(const Err(NetworkFailure()));
+      final c = container();
+      await notifierOf(c).addBarcode(_panadolBarcode);
+      await notifierOf(c).submit();
+
+      // The server checks the id before the lines: rejecting the lines
+      // means the earlier attempt did not record the sale either.
+      answerSubmit(const Err(archivedProduct));
+      await notifierOf(c).retry();
+
+      final state = c.read(quickSaleProvider);
+      expect(state.phase, QuickSalePhase.editing);
+      expect(state.failure, archivedProduct);
+      expect(state.clientRequestId, isNull);
+      expect(state.lines, hasLength(1));
+    });
+
     test('ValidationFailure_MessagesOnTheirLines', () async {
       answerSubmit(
         const Err(

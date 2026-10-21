@@ -580,6 +580,7 @@
   "billingWaitingTitle": "Waiting for the payment",
   "billingWaitingBody": "Finish the payment on the payment page. This screen updates by itself.",
   "billingOpenPaymentPage": "Open the payment page",
+  "billingPaymentPageNotOpened": "Couldn't open the payment page. Check that the phone has a browser and try again.",
   "billingKioskTitle": "Pay at a kiosk",
   "billingKioskReference": "Reference number",
   "billingCopyReference": "Copy the number",

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:mocktail/mocktail.dart';
@@ -21,7 +22,8 @@ class MockBillingRepository extends Mock implements BillingRepository;
 final class RecordingBrowser implements ExternalBrowser {
   new({this.opens = true});
 
-  final bool opens;
+  /// What the next [open] answers (no browser on the phone when `false`).
+  bool opens;
   final List<Uri> opened = [];
 
   @override
@@ -29,6 +31,15 @@ final class RecordingBrowser implements ExternalBrowser {
     opened.add(uri);
     return opens;
   }
+}
+
+/// An [ExternalBrowser] that answers only when the test completes [answer]
+/// (a browser that takes long to come back).
+final class SlowBrowser implements ExternalBrowser {
+  final Completer<bool> answer = Completer<bool>();
+
+  @override
+  Future<bool> open(Uri uri) => answer.future;
 }
 
 const String freePlanId = '0192f0a0-6c1e-7b3a-9d2e-b111ab000001';

@@ -12,4 +12,12 @@ abstract final class NetworkTimeouts {
 
   /// How long a refresh waits for the cross-isolate `authRefresh` lease.
   static const Duration refreshLeaseWait = Duration(seconds: 10);
+
+  /// `POST /api/auth/refresh` is a small JSON call. Its [connect] +
+  /// [refreshSend] + [refreshReceive] stay below
+  /// `LeaseTimings.authRefreshTtl`: a refresh that outlives its lease lets
+  /// another isolate present the same refresh token, and the server then
+  /// revokes the whole chain.
+  static const Duration refreshSend = Duration(seconds: 5);
+  static const Duration refreshReceive = Duration(seconds: 10);
 }

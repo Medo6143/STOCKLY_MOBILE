@@ -113,12 +113,19 @@ MockFlutterSecureStorage secureStorageBackedBy(Map<String, String> values) {
   return storage;
 }
 
+/// The shop of [storedSession] unless another is asked for.
+const String testShopId = '0192f0a0-6c1e-7b3a-9d2e-4f5a6b7c8d01';
+
+/// Another shop, for a sign-in to a different shop on the same device.
+const String otherShopId = '0192f0a0-6c1e-7b3a-9d2e-4f5a6b7c8e99';
+
 /// A stored session with fixed values.
 StoredSession storedSession({
   String accessToken = 'access-1',
   String refreshToken = 'refresh-1',
   String role = 'Owner',
   String status = 'Active',
+  String shopId = testShopId,
 }) => StoredSession(
   accessToken: accessToken,
   accessTokenExpiresAt: DateTime.utc(2026, 10, 12, 7, 15),
@@ -132,7 +139,7 @@ StoredSession storedSession({
     preferredLanguage: 'ar',
   ),
   shop: ShopMembershipDto(
-    id: '0192f0a0-6c1e-7b3a-9d2e-4f5a6b7c8d01',
+    id: shopId,
     name: 'صيدلية الشفاء',
     shopType: 'Pharmacy',
     status: status,

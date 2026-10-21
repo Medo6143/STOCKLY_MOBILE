@@ -9,6 +9,11 @@ abstract final class RequestExtras {
 
   /// The `X-Correlation-Id` of the logical request, reused by the retry.
   static const String correlationId = 'stockly.correlationId';
+
+  /// The shop a request belongs to: set by the caller (a queued row) or
+  /// stamped on the first send, kept by the retry. A request is never sent
+  /// with the token of another shop.
+  static const String shopId = 'stockly.shopId';
 }
 
 /// HTTP header names and values the app sets or reads.

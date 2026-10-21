@@ -1,9 +1,11 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:stockly/core/config/app_config.dart';
 import 'package:stockly/core/error/api_error_code.dart';
 import 'package:stockly/core/error/failure.dart';
 import 'package:stockly/core/error/result.dart';
 import 'package:stockly/core/network/api_paths.dart';
+import 'package:stockly/core/network/dio_client.dart';
 import 'package:stockly/core/network/request_extras.dart';
 import 'package:stockly/core/network/safe_api_call.dart';
 import 'package:stockly/core/network/token_refresher.dart';
@@ -208,6 +210,107 @@ void main() {
     expect(failure, isA<SessionEndedFailure>());
     expect(h.refreshCalls, isEmpty);
     expect(h.emitted.single, isA<SessionEndedSignal>());
+  });
+
+  test(
+    'AnotherShopSignedInBeforeTheRetry_RetryNotSentAndItsSessionKept',
+    () async {
+      // Signed out of this shop and into another while the request was out:
+      // the retry must not carry the other shop's token.
+      final h = NetworkHarness();
+      h.tokens.reloadSession = storedSession(
+        accessToken: 'access-2',
+        refreshToken: 'refresh-2',
+        shopId: otherShopId,
+      );
+
+      final failure = (await _getProducts(h) as Err<Object?, Failure>).failure;
+
+      expect(failure, isA<SessionEndedFailure>());
+      expect(h.adapter.requestsTo(productsPath), hasLength(1));
+      expect(h.refreshCalls, isEmpty);
+      expect(h.tokens.session?.shop.id, otherShopId);
+      expect(h.tokens.clearCount, 0);
+      expect(h.emitted.whereType<SessionEndedSignal>(), isEmpty);
+    },
+  );
+
+  test('RequestForAnotherShop_NotSent', () async {
+    final h = NetworkHarness();
+
+    final result = await safeApiCall(
+      () async => (await h.dio.get<Object?>(
+        productsPath,
+        options: Options(extra: {RequestExtras.shopId: otherShopId}),
+      )).data,
+    );
+
+    expect(
+      (result as Err<Object?, Failure>).failure,
+      isA<SessionEndedFailure>(),
+    );
+    expect(h.adapter.requestsTo(productsPath), isEmpty);
+    expect(h.tokens.clearCount, 0);
+  });
+
+  test('RetryAlso401AfterANewSignIn_NewSessionKept', () async {
+    // The retry was sent with access-2, and a new sign-in stored access-9
+    // before its 401 came back: that 401 does not end the new session.
+    final h = NetworkHarness();
+    h.apiAnswer = (options) async {
+      if (options.extra[RequestExtras.retriedAfterRefresh] == true) {
+        h.tokens.session = storedSession(accessToken: 'access-9');
+      }
+      return problemBody(401, 'Auth.Unauthenticated');
+    };
+
+    final failure = (await _getProducts(h) as Err<Object?, Failure>).failure;
+
+    expect(failure, isA<SessionEndedFailure>());
+    expect(h.tokens.session?.accessToken, 'access-9');
+    expect(h.tokens.clearCount, 0);
+    expect(h.emitted.whereType<SessionEndedSignal>(), isEmpty);
+  });
+
+  test('SignedOutWhileRefreshing_NewTokensNotStored', () async {
+    // Logout cleared the tokens while the refresh was out: storing its
+    // answer would sign the user back in on the next start.
+    final h = NetworkHarness();
+    h.refreshAnswer = (_) async {
+      h.tokens.session = null;
+      return jsonBody(
+        200,
+        authResponseJson(accessToken: 'access-2', refreshToken: 'refresh-2'),
+      );
+    };
+
+    final failure = (await _getProducts(h) as Err<Object?, Failure>).failure;
+
+    expect(failure, isA<SessionEndedFailure>());
+    expect(h.tokens.session, isNull);
+    expect(h.tokens.saveCount, 0);
+    expect(h.emitted.whereType<SessionEndedSignal>(), isEmpty);
+  });
+
+  test('RefreshTimeouts_EndBeforeItsLeaseExpires', () {
+    // A refresh that outlives its lease lets another isolate present the
+    // same refresh token, and the server then revokes the whole chain.
+    final options = buildRefreshDio(
+      config: const AppConfig(
+        backendMode: BackendMode.fake,
+        apiBaseUrl: AppConfig.fakeApiBaseUrl,
+      ),
+      uuid: CountingUuidGenerator(),
+      languageCode: () => 'ar',
+      logger: RecordingLogger(),
+      logRequests: false,
+    ).options;
+
+    final longest =
+        options.connectTimeout! +
+        options.sendTimeout! +
+        options.receiveTimeout!;
+    expect(longest, lessThan(LeaseTimings.authRefreshTtl));
   });
 
   test('LeaseBusy_RefreshUnavailable_TokensKept', () async {

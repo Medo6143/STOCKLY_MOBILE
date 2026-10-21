@@ -6,6 +6,7 @@ import 'package:stockly/core/config/limits.dart';
 import 'package:stockly/core/network/api_paths.dart';
 import 'package:stockly/core/network/json_body.dart';
 import 'package:stockly/core/network/paged_response_dto.dart';
+import 'package:stockly/core/network/request_extras.dart';
 import 'package:stockly/features/invoices/data/models/invoice_dtos.dart';
 
 /// The answer to I1: `202` for a new scan, `200` for a repeat of the same
@@ -27,9 +28,12 @@ final class InvoicesRemoteDataSource {
   static final DioMediaType _jpeg = DioMediaType.parse(ScanLimits.jpegMimeType);
 
   /// I1: the queued JPEG at [imagePath] with its stored [clientRequestId].
+  /// [shopId] is the shop the photo was queued in; the auth interceptor
+  /// never sends it with another shop's token.
   Future<ScanUploadResponse> scan({
     required String clientRequestId,
     required String imagePath,
+    required String shopId,
   }) async {
     final form = FormData.fromMap({
       ApiForm.image: await MultipartFile.fromFile(
@@ -42,6 +46,7 @@ final class InvoicesRemoteDataSource {
     final response = await _dio.post<Object?>(
       ApiPaths.invoicesScan,
       data: form,
+      options: Options(extra: {RequestExtras.shopId: shopId}),
     );
     return ScanUploadResponse(
       isRepeat: response.statusCode == HttpStatus.ok,

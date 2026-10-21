@@ -320,6 +320,30 @@ void main() {
     expect(outcome, const ScanUploadOutcome.notQueued());
   });
 
+  test('SignedIntoAnotherShopMidRun_RestOfTheQueueNotUploaded', () async {
+    final first = await queue();
+    final second = await queue(capturedAfter: const Duration(seconds: 1));
+    adapter.respond = (_) async {
+      // Signed out and into another shop while the first upload was out.
+      tokens.session = storedSession(shopId: otherShopId);
+      return jsonBody(202, _listItem('Processing'));
+    };
+
+    await service.runOnce(force: true);
+
+    expect(adapter.requests.map(sentId), [first.clientRequestId]);
+    expect((await row(second))?.status, db.PendingScanStatus.queued);
+  });
+
+  test('Upload_CarriesTheShopOfItsRow', () async {
+    await queue();
+
+    await service.runOnce(force: true);
+
+    // The auth interceptor refuses to send it with another shop's token.
+    expect(adapter.requests.single.extra[RequestExtras.shopId], shopId);
+  });
+
   test('NoSession_DoesNothing', () async {
     await queue();
     tokens.session = null;

@@ -360,6 +360,7 @@ final class QuickSaleNotifier extends Notifier<QuickSaleState> {
   }
 
   Future<void> _send(SaleRequest request, Session session) async {
+    final afterUnknownOutcome = state.isLocked;
     final sending = state.copyWith(
       phase: QuickSalePhase.submitting,
       clientRequestId: request.clientRequestId,
@@ -386,7 +387,11 @@ final class QuickSaleNotifier extends Notifier<QuickSaleState> {
             submissionCount: state.submissionCount + 1,
           ),
         );
-      case Err(:final failure) when failure.leavesSaleOutcomeUnknown:
+      // After an unknown outcome only a success, a proof that nothing was
+      // recorded, or Discard releases the id: a new id could sell twice.
+      case Err(:final failure)
+          when failure.leavesSaleOutcomeUnknown ||
+              (afterUnknownOutcome && !failure.provesSaleNotRecorded):
         _set(
           state.copyWith(
             phase: QuickSalePhase.lockedUnknownOutcome,

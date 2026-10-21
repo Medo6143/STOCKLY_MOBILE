@@ -40,12 +40,15 @@ void main() {
   });
 
   /// Widget tests dispose it themselves, before the pending-timer check.
-  ProviderContainer container({bool disposeInTearDown = true}) {
+  ProviderContainer container({
+    bool disposeInTearDown = true,
+    ExternalBrowser? externalBrowser,
+  }) {
     final c = ProviderContainer(
       retry: (_, _) => null,
       overrides: [
         billingRepositoryProvider.overrideWithValue(billing),
-        externalBrowserProvider.overrideWithValue(browser),
+        externalBrowserProvider.overrideWithValue(externalBrowser ?? browser),
         uuidGeneratorProvider.overrideWithValue(uuid),
         clockProvider.overrideWithValue(FakeClock()),
         appLoggerProvider.overrideWithValue(const NoopLogger()),
@@ -81,6 +84,25 @@ void main() {
       expect(request.method, PaymentMethod.card);
       expect(request.walletPhone, isNull);
       expect(request.planId, basicPlanId);
+    });
+
+    test('SlowBrowser_PaymentShownBeforeTheBrowserAnswers', () async {
+      // The payment exists on the server: the sheet must move on even when
+      // the browser takes long or never comes back.
+      answer(() => Ok(payment()));
+      final slow = SlowBrowser();
+      final c = container(externalBrowser: slow);
+      final sub = c.listen(checkoutProvider(basicPlanId), (_, _) {});
+
+      final submitting = c
+          .read(checkoutProvider(basicPlanId).notifier)
+          .submit(walletPhone: '');
+      await pumpEventQueue();
+
+      expect(sub.read().payment, payment());
+      expect(sub.read().isSubmitting, isFalse);
+      slow.answer.complete(true);
+      await submitting;
     });
 
     test('Kiosk_NoBrowser', () async {
@@ -233,6 +255,26 @@ void main() {
       expect(sub.read().polling, isFalse);
       await tester.pump(const Duration(seconds: 30));
       expect(calls, 2);
+      sub.close();
+      c.dispose();
+    });
+
+    testWidgets('OpenCheckout_NoBrowser_SaysSoUntilItOpens', (tester) async {
+      when(() => billing.getPayment(paymentId))
+          .thenAnswer((_) async => Ok(payment()));
+      browser.opens = false;
+      final c = container(disposeInTearDown: false);
+      final sub = c.listen(paymentStatusProvider(paymentId), (_, _) {});
+      await tester.pump();
+      final notifier = c.read(paymentStatusProvider(paymentId).notifier);
+
+      await notifier.openCheckout();
+      expect(browser.opened, [Uri.parse(checkoutUrl)]);
+      expect(sub.read().pageNotOpened, isTrue);
+
+      browser.opens = true;
+      await notifier.openCheckout();
+      expect(sub.read().pageNotOpened, isFalse);
       sub.close();
       c.dispose();
     });

@@ -65,7 +65,8 @@ Dio buildDio({
   return dio;
 }
 
-/// The Dio used only for `POST /api/auth/refresh`: no auth interceptors.
+/// The Dio used only for `POST /api/auth/refresh`: no auth interceptors,
+/// and timeouts that end before the refresh lease expires.
 Dio buildRefreshDio({
   required AppConfig config,
   required UuidGenerator uuid,
@@ -75,6 +76,9 @@ Dio buildRefreshDio({
   HttpClientAdapter? adapter,
 }) {
   final dio = buildBaseDio(config: config, adapter: adapter);
+  dio.options
+    ..sendTimeout = NetworkTimeouts.refreshSend
+    ..receiveTimeout = NetworkTimeouts.refreshReceive;
   dio.interceptors.addAll([
     CorrelationIdInterceptor(uuid),
     AcceptLanguageInterceptor(languageCode),

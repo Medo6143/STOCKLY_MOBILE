@@ -99,10 +99,11 @@ final class CheckoutNotifier extends Notifier<CheckoutState> {
     switch (result) {
       case Ok(value: final payment):
         invalidateBilling(ref);
-        await _openHostedPage(payment);
-        if (ref.mounted) {
-          state = state.copyWith(isSubmitting: false, payment: payment);
-        }
+        // The payment exists now: show it first, so a browser that is slow
+        // or never comes back cannot keep the sheet busy.
+        final browser = ref.read(externalBrowserProvider);
+        state = state.copyWith(isSubmitting: false, payment: payment);
+        await _openHostedPage(browser, payment);
       case Err(:final ValidationFailure failure):
         final messages = failure.fieldErrors[walletPhoneField] ?? const [];
         state = state.copyWith(
@@ -121,11 +122,12 @@ final class CheckoutNotifier extends Notifier<CheckoutState> {
 
   /// Opens the hosted page of a card or wallet payment. A browser that
   /// cannot be opened is not an error here: the status screen offers the
-  /// page again.
-  Future<void> _openHostedPage(Payment payment) async {
+  /// page again and says when it does not open. [browser] is read before
+  /// the state change, which may close the sheet and dispose this notifier.
+  Future<void> _openHostedPage(ExternalBrowser browser, Payment payment) async {
     final uri = payment.openableCheckoutUrl;
     if (uri != null) {
-      await ref.read(externalBrowserProvider).open(uri);
+      await browser.open(uri);
     }
   }
 

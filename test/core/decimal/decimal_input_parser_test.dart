@@ -26,10 +26,22 @@ void main() {
     expect(_parse('۰٫۵'), _valid('0.5'));
   });
 
-  test('parse_GroupingSeparatorsAndSpaces_Removed', () {
-    expect(_parse('1,250.50'), _valid('1250.50'));
-    expect(_parse('١٬٢٥٠٫٥٠'), _valid('1250.50'));
-    expect(_parse(' 1 250 '), _valid('1250'));
+  test('parse_CommaOnAKeypadWithCommaDecimal_InvalidNeverGuessed', () {
+    // "1,5" meant one and a half: dropping the comma would record 15.
+    expect(_parse('1,5'), isA<DecimalInputInvalidFormat>());
+    expect(_parse('12,50'), isA<DecimalInputInvalidFormat>());
+    expect(_parse('1,250', maxScale: 3), isA<DecimalInputInvalidFormat>());
+  });
+
+  test('parse_GroupingSeparators_Invalid', () {
+    expect(_parse('1,250.50'), isA<DecimalInputInvalidFormat>());
+    expect(_parse('١٬٢٥٠٫٥٠'), isA<DecimalInputInvalidFormat>());
+    expect(_parse('1 250'), isA<DecimalInputInvalidFormat>());
+  });
+
+  test('parse_SurroundingSpaces_Trimmed', () {
+    expect(_parse(' 12.5 '), _valid('12.5'));
+    expect(_parse('\t١٢٫٥\n'), _valid('12.5'));
   });
 
   test('parse_Empty_ReturnsEmpty', () {

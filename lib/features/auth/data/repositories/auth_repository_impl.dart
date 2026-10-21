@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:stockly/core/config/network_timeouts.dart';
@@ -98,16 +99,23 @@ final class AuthRepositoryImpl implements AuthRepository {
     }
   }
 
+  /// Clears the local session first, so signing out never waits for the
+  /// network, then revokes the refresh token on the server in the
+  /// background (A4).
   @override
   Future<void> logout() async {
     final stored = await _tokens.read();
+    await _tokens.clear();
     if (stored != null) {
-      await safeApiCall(
-        () =>
-            _remote.logout(LogoutRequestDto(refreshToken: stored.refreshToken)),
+      unawaited(
+        safeApiCall(
+          () => _remote.logout(
+            LogoutRequestDto(refreshToken: stored.refreshToken),
+            accessToken: stored.accessToken,
+          ),
+        ),
       );
     }
-    await _tokens.clear();
   }
 
   /// Maps first, so a snapshot that breaks the contract is never stored.

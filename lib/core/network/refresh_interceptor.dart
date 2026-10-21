@@ -44,8 +44,13 @@ final class RefreshInterceptor extends Interceptor {
     }
     if (request.extra[RequestExtras.retriedAfterRefresh] == true) {
       final failure = _sessionEndedAfterRetry(err);
-      await _tokens.clear();
-      _signals.sessionEnded(failure);
+      // Only the session this retry was sent with has ended; a sign-in that
+      // stored new tokens meanwhile is kept.
+      final current = await _tokens.read();
+      if (current != null && current.accessToken == bearerTokenOf(request)) {
+        await _tokens.clear();
+        _signals.sessionEnded(failure);
+      }
       return handler.next(_withFailure(err, failure));
     }
     final outcome = await _refresher.refresh(

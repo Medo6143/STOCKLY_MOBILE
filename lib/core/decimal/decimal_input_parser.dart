@@ -57,8 +57,11 @@ final class DecimalInputOutOfRange extends DecimalInputResult {
   const new();
 }
 
-/// Parses user input exactly: Arabic-Indic digits and separators are
-/// accepted, extra decimals are rejected and never rounded.
+/// Parses user input exactly: Arabic-Indic digits and the Arabic decimal
+/// separator are accepted, extra decimals are rejected and never rounded.
+/// Grouping (`,`, `٬`, inner spaces) is rejected too: on a keypad whose
+/// decimal key is `,`, "1,5" means one and a half, and dropping the comma
+/// would record 15.
 abstract final class DecimalInputParser {
   static const int _maxIntegerDigits = 17;
 
@@ -68,13 +71,10 @@ abstract final class DecimalInputParser {
   static const int _digitCount = 10;
 
   static const String _arabicDecimalSeparator = '٫';
-  static const String _arabicThousandsSeparator = '٬';
-  static const String _westernThousandsSeparator = ',';
   static const String _minus = '-';
   static const String _point = '.';
 
   static final RegExp _shape = RegExp(r'^-?\d+(\.\d+)?$');
-  static final RegExp _whitespace = RegExp(r'\s');
 
   static DecimalInputResult parse(
     String raw, {
@@ -108,10 +108,11 @@ abstract final class DecimalInputParser {
     };
   }
 
-  /// Western digits, `.` as decimal separator, no grouping or spaces.
+  /// Western digits and `.` as decimal separator, surrounding spaces trimmed.
+  /// Anything else is kept so the shape check rejects it.
   static String normalize(String raw) {
     final buffer = StringBuffer();
-    for (final rune in raw.runes) {
+    for (final rune in raw.trim().runes) {
       if (rune >= _arabicIndicZero && rune < _arabicIndicZero + _digitCount) {
         buffer.writeCharCode(_asciiZero + rune - _arabicIndicZero);
       } else if (rune >= _extendedArabicIndicZero &&
@@ -121,11 +122,6 @@ abstract final class DecimalInputParser {
         buffer.writeCharCode(rune);
       }
     }
-    return buffer
-        .toString()
-        .replaceAll(_arabicDecimalSeparator, _point)
-        .replaceAll(_arabicThousandsSeparator, '')
-        .replaceAll(_westernThousandsSeparator, '')
-        .replaceAll(_whitespace, '');
+    return buffer.toString().replaceAll(_arabicDecimalSeparator, _point);
   }
 }

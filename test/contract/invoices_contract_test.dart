@@ -728,10 +728,12 @@ void main() {
       final created = await remote.scan(
         clientRequestId: id,
         imagePath: file.path,
+        shopId: state.shops.single.id,
       );
       final repeat = await remote.scan(
         clientRequestId: id,
         imagePath: file.path,
+        shopId: state.shops.single.id,
       );
 
       expect(created.isRepeat, isFalse);

@@ -11,6 +11,7 @@ import 'package:stockly/core/widgets/decimal_field.dart';
 import 'package:stockly/core/widgets/empty_state.dart';
 import 'package:stockly/core/widgets/failure_message.dart';
 import 'package:stockly/core/widgets/form_banner.dart';
+import 'package:stockly/core/widgets/keyboard_safe_bottom_bar.dart';
 import 'package:stockly/core/widgets/loading_state.dart';
 import 'package:stockly/core/widgets/ltr_isolate.dart';
 import 'package:stockly/core/widgets/money_text.dart';
@@ -100,18 +101,20 @@ class InvoiceReviewScreen extends ConsumerWidget {
             )
           : null,
       bottomNavigationBar: showConfirm
-          ? SafeArea(
-              child: Padding(
-                padding: EdgeInsetsDirectional.all(context.spacing.md),
-                child: FilledButton.icon(
-                  onPressed: review.canConfirm
-                      ? ref.read(provider.notifier).confirm
-                      : null,
-                  icon: const Icon(Icons.inventory_rounded),
-                  label: Text(
-                    review.isConfirming
-                        ? l10n.invoiceReviewConfirming
-                        : l10n.invoiceReviewConfirm,
+          ? KeyboardSafeBottomBar(
+              child: SafeArea(
+                child: Padding(
+                  padding: EdgeInsetsDirectional.all(context.spacing.md),
+                  child: FilledButton.icon(
+                    onPressed: review.canConfirm
+                        ? ref.read(provider.notifier).confirm
+                        : null,
+                    icon: const Icon(Icons.inventory_rounded),
+                    label: Text(
+                      review.isConfirming
+                          ? l10n.invoiceReviewConfirming
+                          : l10n.invoiceReviewConfirm,
+                    ),
                   ),
                 ),
               ),
