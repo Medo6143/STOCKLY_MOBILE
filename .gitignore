@@ -53,3 +53,6 @@ desktop.ini
 # Claude Code: agent worktrees and personal settings
 .claude/worktrees/
 .claude/settings.local.json
+
+# Brand source (design system HTML, master logo): kept locally, not published
+brand/
