@@ -1,31 +1,26 @@
 import 'package:dio/dio.dart';
-import 'package:drift/drift.dart';
-import 'package:drift/native.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/misc.dart';
 import 'package:stockly/core/config/app_config.dart';
 import 'package:stockly/core/fake_backend/fake_backend_adapter.dart';
 import 'package:stockly/core/fake_backend/fake_backend_config.dart';
-import 'package:stockly/core/fake_backend/fake_backend_provider.dart';
 import 'package:stockly/core/fake_backend/fake_backend_state.dart';
 import 'package:stockly/core/fake_backend/seed/fake_seed.dart';
 import 'package:stockly/core/ids/uuid_generator.dart';
-import 'package:stockly/core/logging/app_logger.dart';
 import 'package:stockly/core/network/api_paths.dart';
-import 'package:stockly/core/network/dio_client.dart';
 import 'package:stockly/core/network/json_body.dart';
 import 'package:stockly/core/network/request_extras.dart';
 import 'package:stockly/core/offline/app_database.dart';
-import 'package:stockly/core/offline/lease.dart';
-import 'package:stockly/core/preferences/locale_notifier.dart';
 import 'package:stockly/core/session/session_dtos.dart';
 import 'package:stockly/core/storage/preferences_store.dart';
 import 'package:stockly/core/storage/secure_token_storage.dart';
 import 'package:stockly/core/storage/stored_session.dart';
 import 'package:stockly/core/time/clock.dart';
 
-import 'invoices_doubles.dart';
+import 'test_app.dart';
 import 'test_doubles.dart';
+
+export 'test_app.dart' show inMemoryDatabase, rawDio;
 
 const AppConfig fakeConfig = AppConfig(
   backendMode: BackendMode.fake,
@@ -47,10 +42,6 @@ FakeBackendAdapter fakeBackend({
   );
 }
 
-/// A Dio over [adapter] without interceptors, for test set-up calls.
-Dio rawDio(HttpClientAdapter adapter) =>
-    buildBaseDio(config: fakeConfig, adapter: adapter);
-
 /// Signs in on the fake backend and returns the session to store.
 Future<StoredSession> loginOn(
   FakeBackendAdapter adapter, {
@@ -66,8 +57,7 @@ Future<StoredSession> loginOn(
   );
 }
 
-/// Provider overrides that run the whole app against [adapter] without
-/// platform channels or a database file.
+/// Provider overrides that run the whole app against the fake backend.
 List<Override> fakeAppOverrides({
   required FakeBackendAdapter adapter,
   required TokenStorage tokens,
@@ -75,27 +65,11 @@ List<Override> fakeAppOverrides({
   PreferencesStore? preferences,
   Locale deviceLocale = const Locale('ar'),
   AppDatabase? database,
-}) => [
-  appConfigProvider.overrideWithValue(fakeConfig),
-  fakeBackendProvider.overrideWithValue(adapter),
-  tokenStorageProvider.overrideWithValue(tokens),
-  leaseServiceProvider.overrideWithValue(ImmediateLeaseService()),
-  preferencesStoreProvider.overrideWithValue(
-    preferences ?? InMemoryPreferencesStore(),
-  ),
-  deviceLocaleProvider.overrideWithValue(deviceLocale),
-  appLoggerProvider.overrideWithValue(const NoopLogger()),
-  if (clock != null) clockProvider.overrideWithValue(clock),
-  appDatabaseProvider.overrideWith((ref) {
-    final db = database ?? inMemoryDatabase();
-    ref.onDispose(db.close);
-    return db;
-  }),
-  ...quietScanQueueOverrides(),
-];
-
-/// A fresh database in memory whose streams close at once, so widget tests
-/// leave no pending timers.
-AppDatabase inMemoryDatabase() => AppDatabase(
-  DatabaseConnection(NativeDatabase.memory(), closeStreamsSynchronously: true),
+}) => appOverrides(
+  adapter: adapter,
+  tokens: tokens,
+  clock: clock,
+  preferences: preferences,
+  deviceLocale: deviceLocale,
+  database: database,
 );

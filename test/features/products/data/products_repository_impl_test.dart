@@ -16,9 +16,9 @@ import 'package:stockly/features/products/domain/entities/stock_movement_reason.
 import 'package:stockly/features/products/domain/entities/unit_draft.dart';
 
 import '../../../contract/json_shape.dart';
-import '../../../helpers/fake_app.dart';
 import '../../../helpers/products_doubles.dart';
 import '../../../helpers/scripted_adapter.dart';
+import '../../../helpers/test_app.dart';
 
 /// The data layer of products: request bodies use the contract's decimal
 /// strings, responses that break the contract become

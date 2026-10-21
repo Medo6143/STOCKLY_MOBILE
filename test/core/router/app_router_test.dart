@@ -2,10 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:stockly/app.dart';
-import 'package:stockly/core/fake_backend/fake_backend_state.dart';
-import 'package:stockly/core/fake_backend/seed/fake_invoice_seed.dart';
-import 'package:stockly/core/fake_backend/seed/fake_product_seed.dart';
-import 'package:stockly/core/fake_backend/seed/fake_seed.dart';
 import 'package:stockly/core/offline/app_database.dart';
 import 'package:stockly/core/offline/tables/pending_sales.dart';
 import 'package:stockly/core/router/app_router.dart';
@@ -37,22 +33,22 @@ import 'package:stockly/features/settings/presentation/screens/privacy_policy_sc
 import 'package:stockly/features/settings/presentation/screens/profile_screen.dart';
 import 'package:stockly/features/settings/presentation/screens/settings_screen.dart';
 
-import '../../helpers/fake_app.dart';
 import '../../helpers/pump_app.dart';
+import '../../helpers/test_app.dart';
 import '../../helpers/test_doubles.dart';
+import '../../helpers/test_server.dart';
 
 Future<ProviderContainer> _startApp(
   WidgetTester tester, {
   required InMemoryTokenStorage tokens,
-  required FakeBackendState state,
+  required TestServer server,
   Locale deviceLocale = const Locale('ar'),
   AppDatabase? database,
 }) async {
-  final adapter = fakeBackend(state: state);
   await tester.pumpWidget(
     ProviderScope(
-      overrides: fakeAppOverrides(
-        adapter: adapter,
+      overrides: appOverrides(
+        adapter: server.adapter,
         tokens: tokens,
         deviceLocale: deviceLocale,
         database: database,
@@ -65,6 +61,12 @@ Future<ProviderContainer> _startApp(
   return ProviderScope.containerOf(tester.element(find.byType(StocklyApp)));
 }
 
+/// The user, product and unit of the contract fixtures (`auth_response`,
+/// `product_detail`).
+const String _userId = '0192f0a0-6c1e-7b3a-9d2e-4f5a6b7c8d9e';
+const String _productId = '0192f0a0-6c1e-7b3a-9d2e-4f5a6b7c8d9e';
+const String _unitId = '0192f0a0-6c1e-7b3a-9d2e-4f5a6b7c8da1';
+
 /// How far each drag scrolls while looking for a link below the fold.
 const double _scrollStep = 300;
 
@@ -76,18 +78,16 @@ String _location(ProviderContainer container) => container
     .toString();
 
 Future<InMemoryTokenStorage> _signedInTokens(
-  FakeBackendState state, {
-  String email = FakeSeed.ownerEmail,
-}) async => InMemoryTokenStorage(
-  await loginOn(fakeBackend(state: state), email: email),
-);
+  TestServer server, {
+  String email = TestServer.ownerEmail,
+}) async => InMemoryTokenStorage(await signIn(server.adapter, email: email));
 
 void main() {
   testWidgets('NoStoredSession_StartsOnLogin', (tester) async {
     final container = await _startApp(
       tester,
       tokens: InMemoryTokenStorage(),
-      state: FakeSeed.pharmacy(FakeClock().now()),
+      server: TestServer(),
     );
 
     expect(_location(container), RoutePaths.login);
@@ -96,10 +96,10 @@ void main() {
   });
 
   testWidgets('StoredSession_StartsOnHomeBehindTheRedirect', (tester) async {
-    final state = FakeSeed.pharmacy(FakeClock().now());
-    final tokens = await tester.runAsync(() => _signedInTokens(state));
+    final server = TestServer();
+    final tokens = await tester.runAsync(() => _signedInTokens(server));
 
-    final container = await _startApp(tester, tokens: tokens!, state: state);
+    final container = await _startApp(tester, tokens: tokens!, server: server);
 
     expect(_location(container), RoutePaths.dashboard);
     expect(find.byType(HomeShell), findsOneWidget);
@@ -120,22 +120,22 @@ void main() {
   });
 
   testWidgets('SuspendedShop_StartsOnSuspended', (tester) async {
-    final state = FakeSeed.pharmacy(FakeClock().now());
-    final tokens = await tester.runAsync(() => _signedInTokens(state));
-    state.shops.single.status = FakeShopStatuses.suspended;
+    final server = TestServer();
+    final tokens = await tester.runAsync(() => _signedInTokens(server));
+    server.suspended = true;
 
-    final container = await _startApp(tester, tokens: tokens!, state: state);
+    final container = await _startApp(tester, tokens: tokens!, server: server);
 
     expect(_location(container), RoutePaths.suspended);
     expect(container.read(authProvider).value, isA<AuthSuspended>());
   });
 
   testWidgets('Staff_OwnerOnlyRoute_RedirectsToProduct', (tester) async {
-    final state = FakeSeed.pharmacy(FakeClock().now());
+    final server = TestServer();
     final tokens = await tester.runAsync(
-      () => _signedInTokens(state, email: FakeSeed.staffEmail),
+      () => _signedInTokens(server, email: TestServer.staffEmail),
     );
-    final container = await _startApp(tester, tokens: tokens!, state: state);
+    final container = await _startApp(tester, tokens: tokens!, server: server);
 
     container.read(routerProvider).go('/products/p1/adjust');
     await tester.pumpAndSettle();
@@ -144,12 +144,12 @@ void main() {
   });
 
   testWidgets('UnknownRoute_ShowsNotFoundWithGoHome', (tester) async {
-    final state = FakeSeed.pharmacy(FakeClock().now());
-    final tokens = await tester.runAsync(() => _signedInTokens(state));
+    final server = TestServer();
+    final tokens = await tester.runAsync(() => _signedInTokens(server));
     final container = await _startApp(
       tester,
       tokens: tokens!,
-      state: state,
+      server: server,
       deviceLocale: const Locale('en'),
     );
 
@@ -164,9 +164,9 @@ void main() {
   });
 
   testWidgets('SprintFourRoutes_RenderTheirScreens', (tester) async {
-    final state = FakeSeed.pharmacy(FakeClock().now());
-    final tokens = await tester.runAsync(() => _signedInTokens(state));
-    final container = await _startApp(tester, tokens: tokens!, state: state);
+    final server = TestServer();
+    final tokens = await tester.runAsync(() => _signedInTokens(server));
+    final container = await _startApp(tester, tokens: tokens!, server: server);
     const sale = '0192f0a0-6c1e-7b3a-9d2e-5a1e00000001';
 
     for (final (location, screen) in [
@@ -186,22 +186,19 @@ void main() {
   });
 
   testWidgets('PendingSaleAtStart_ReopensTheQuickSaleLocked', (tester) async {
-    final state = FakeSeed.pharmacy(FakeClock().now());
-    final tokens = await tester.runAsync(() => _signedInTokens(state));
+    final server = TestServer();
+    final tokens = await tester.runAsync(() => _signedInTokens(server));
     final database = inMemoryDatabase();
     const id = '0192f0a0-6c1e-7b3a-9d2e-5a1e00000002';
-    final product = state.products.firstWhere(
-      (p) => p.barcode == FakeProductSeed.panadolBarcode,
-    );
     await tester.runAsync(
       () => database.pendingSalesDao.insertSale(
         PendingSalesCompanion.insert(
           clientRequestId: id,
-          shopId: state.shops.single.id,
-          userId: state.users.first.id,
+          shopId: TestServer.shopId,
+          userId: _userId,
           requestJson:
               '{"clientRequestId":"$id","note":null,"items":[{"productId":'
-              '"${product.id}","productUnitId":"${product.baseUnit.id}",'
+              '"$_productId","productUnitId":"$_unitId",'
               '"quantity":"1.000","unitPrice":null}]}',
           status: PendingSaleStatus.awaitingRetry,
           createdAt: DateTime.utc(2026, 10, 12, 7),
@@ -213,7 +210,7 @@ void main() {
     final container = await _startApp(
       tester,
       tokens: tokens!,
-      state: state,
+      server: server,
       database: database,
     );
 
@@ -224,9 +221,9 @@ void main() {
   });
 
   testWidgets('SprintThreeScreens_ReplaceTheirPlaceholders', (tester) async {
-    final state = FakeSeed.pharmacy(FakeClock().now());
-    final tokens = await tester.runAsync(() => _signedInTokens(state));
-    final container = await _startApp(tester, tokens: tokens!, state: state);
+    final server = TestServer();
+    final tokens = await tester.runAsync(() => _signedInTokens(server));
+    final container = await _startApp(tester, tokens: tokens!, server: server);
 
     container.read(routerProvider).go(RoutePaths.settings);
     await tester.pumpAndSettle();
@@ -237,12 +234,12 @@ void main() {
 
   testWidgets('BottomNav_FiveTabsInOrder', (tester) async {
     for (final locale in [const Locale('ar'), const Locale('en')]) {
-      final state = FakeSeed.pharmacy(FakeClock().now());
-      final tokens = await tester.runAsync(() => _signedInTokens(state));
+      final server = TestServer();
+      final tokens = await tester.runAsync(() => _signedInTokens(server));
       await _startApp(
         tester,
         tokens: tokens!,
-        state: state,
+        server: server,
         deviceLocale: locale,
       );
 
@@ -263,9 +260,9 @@ void main() {
   });
 
   testWidgets('ProfileTab_OpensTheProfileAndItsSettings', (tester) async {
-    final state = FakeSeed.pharmacy(FakeClock().now());
-    final tokens = await tester.runAsync(() => _signedInTokens(state));
-    final container = await _startApp(tester, tokens: tokens!, state: state);
+    final server = TestServer();
+    final tokens = await tester.runAsync(() => _signedInTokens(server));
+    final container = await _startApp(tester, tokens: tokens!, server: server);
     final l10n = l10nOf(const Locale('ar'));
 
     await tester.tap(find.text(l10n.navProfile));
@@ -297,9 +294,9 @@ void main() {
   });
 
   testWidgets('LegacySettings_RedirectsToProfileSettings', (tester) async {
-    final state = FakeSeed.pharmacy(FakeClock().now());
-    final tokens = await tester.runAsync(() => _signedInTokens(state));
-    final container = await _startApp(tester, tokens: tokens!, state: state);
+    final server = TestServer();
+    final tokens = await tester.runAsync(() => _signedInTokens(server));
+    final container = await _startApp(tester, tokens: tokens!, server: server);
 
     container.read(routerProvider).go(RoutePaths.legacySettings);
     await tester.pumpAndSettle();
@@ -312,7 +309,7 @@ void main() {
     final container = await _startApp(
       tester,
       tokens: InMemoryTokenStorage(),
-      state: FakeSeed.pharmacy(FakeClock().now()),
+      server: TestServer(),
     );
     container.read(routerProvider).go(RoutePaths.register);
     await tester.pumpAndSettle();
@@ -336,9 +333,9 @@ void main() {
   });
 
   testWidgets('PrivacyPolicy_OpenSignedInFromProfile', (tester) async {
-    final state = FakeSeed.pharmacy(FakeClock().now());
-    final tokens = await tester.runAsync(() => _signedInTokens(state));
-    final container = await _startApp(tester, tokens: tokens!, state: state);
+    final server = TestServer();
+    final tokens = await tester.runAsync(() => _signedInTokens(server));
+    final container = await _startApp(tester, tokens: tokens!, server: server);
     container.read(routerProvider).go(RoutePaths.profile);
     await tester.pumpAndSettle();
 
@@ -361,12 +358,11 @@ void main() {
   });
 
   testWidgets('ProductRoutes_RenderTheProductScreens', (tester) async {
-    final state = FakeSeed.pharmacy(FakeClock().now());
-    final tokens = await tester.runAsync(() => _signedInTokens(state));
-    final container = await _startApp(tester, tokens: tokens!, state: state);
-    final product = state.products.first;
-    final id = product.id;
-    final unitId = product.units.last.id;
+    final server = TestServer();
+    final tokens = await tester.runAsync(() => _signedInTokens(server));
+    final container = await _startApp(tester, tokens: tokens!, server: server);
+    const id = _productId;
+    const unitId = _unitId;
 
     for (final (location, screen) in [
       ('/products', ProductListScreen),
@@ -388,11 +384,11 @@ void main() {
   });
 
   testWidgets('InvoiceRoutes_RenderTheInvoiceScreens', (tester) async {
-    final state = FakeSeed.pharmacy(FakeClock().now());
-    final tokens = await tester.runAsync(() => _signedInTokens(state));
-    final container = await _startApp(tester, tokens: tokens!, state: state);
-    const confirmed = FakeInvoiceSeed.confirmedId;
-    const review = FakeInvoiceSeed.needsReviewId;
+    final server = TestServer();
+    final tokens = await tester.runAsync(() => _signedInTokens(server));
+    final container = await _startApp(tester, tokens: tokens!, server: server);
+    const confirmed = TestServer.confirmedInvoiceId;
+    const review = TestServer.needsReviewInvoiceId;
 
     for (final (location, screen) in [
       ('/invoices', InvoiceListScreen),
@@ -400,9 +396,9 @@ void main() {
       ('/invoices/scan', ScanCaptureScreen),
       ('/invoices/queue', ScanQueueScreen),
       ('/invoices/$confirmed', InvoiceDetailScreen),
-      ('/invoices/${FakeInvoiceSeed.failedId}', InvoiceDetailScreen),
+      ('/invoices/${TestServer.failedInvoiceId}', InvoiceDetailScreen),
       ('/invoices/$review/review', InvoiceReviewScreen),
-      ('/invoices/$review/review/lines/2', InvoiceLineEditorScreen),
+      ('/invoices/$review/review/lines/1', InvoiceLineEditorScreen),
     ]) {
       container.read(routerProvider).go(location);
       await tester.pumpAndSettle();
@@ -412,10 +408,10 @@ void main() {
   });
 
   testWidgets('NeedsReviewDetail_OpensTheReview', (tester) async {
-    final state = FakeSeed.pharmacy(FakeClock().now());
-    final tokens = await tester.runAsync(() => _signedInTokens(state));
-    final container = await _startApp(tester, tokens: tokens!, state: state);
-    const review = FakeInvoiceSeed.needsReviewId;
+    final server = TestServer();
+    final tokens = await tester.runAsync(() => _signedInTokens(server));
+    final container = await _startApp(tester, tokens: tokens!, server: server);
+    const review = TestServer.needsReviewInvoiceId;
 
     container.read(routerProvider).go('/invoices/$review');
     await tester.pumpAndSettle();
@@ -425,22 +421,22 @@ void main() {
   });
 
   testWidgets('BadLineNumber_ShowsNotFound', (tester) async {
-    final state = FakeSeed.pharmacy(FakeClock().now());
-    final tokens = await tester.runAsync(() => _signedInTokens(state));
-    final container = await _startApp(tester, tokens: tokens!, state: state);
+    final server = TestServer();
+    final tokens = await tester.runAsync(() => _signedInTokens(server));
+    final container = await _startApp(tester, tokens: tokens!, server: server);
 
     container
         .read(routerProvider)
-        .go('/invoices/${FakeInvoiceSeed.needsReviewId}/review/lines/x');
+        .go('/invoices/${TestServer.needsReviewInvoiceId}/review/lines/x');
     await tester.pumpAndSettle();
 
     expect(find.byType(NotFoundScreen), findsOneWidget);
   });
 
   testWidgets('Logout_ReturnsToLogin', (tester) async {
-    final state = FakeSeed.pharmacy(FakeClock().now());
-    final tokens = await tester.runAsync(() => _signedInTokens(state));
-    final container = await _startApp(tester, tokens: tokens!, state: state);
+    final server = TestServer();
+    final tokens = await tester.runAsync(() => _signedInTokens(server));
+    final container = await _startApp(tester, tokens: tokens!, server: server);
 
     await tester.runAsync(() => container.read(authProvider.notifier).logout());
     await tester.pumpAndSettle();

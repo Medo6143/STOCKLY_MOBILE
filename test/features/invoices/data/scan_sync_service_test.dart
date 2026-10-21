@@ -19,9 +19,9 @@ import 'package:stockly/features/invoices/data/sync/scan_sync_service.dart';
 import 'package:stockly/features/invoices/domain/entities/pending_scan.dart';
 import 'package:stockly/features/invoices/domain/entities/scan_upload_outcome.dart';
 
-import '../../../helpers/fake_app.dart';
 import '../../../helpers/invoices_doubles.dart';
 import '../../../helpers/scripted_adapter.dart';
+import '../../../helpers/test_app.dart';
 import '../../../helpers/test_doubles.dart';
 
 /// No jitter: `nextDouble` is the middle of the range.
@@ -80,7 +80,7 @@ void main() {
     service = ScanSyncService(
       local: local,
       remote: InvoicesRemoteDataSource(
-        buildBaseDio(config: fakeConfig, adapter: adapter),
+        buildBaseDio(config: testConfig, adapter: adapter),
       ),
       leases: ImmediateLeaseService(),
       tokens: tokens,
@@ -412,7 +412,7 @@ void main() {
     final busy = ScanSyncService(
       local: local,
       remote: InvoicesRemoteDataSource(
-        buildBaseDio(config: fakeConfig, adapter: adapter),
+        buildBaseDio(config: testConfig, adapter: adapter),
       ),
       leases: _BusyLease(),
       tokens: tokens,

@@ -21,10 +21,10 @@ import 'package:stockly/features/invoices/domain/entities/captured_image.dart';
 import 'package:stockly/features/invoices/domain/entities/pending_scan.dart';
 import 'package:stockly/features/invoices/domain/entities/scan_upload_outcome.dart';
 
-import '../../../helpers/fake_app.dart';
 import '../../../helpers/invoices_doubles.dart';
 import '../../../helpers/products_doubles.dart' show errOf, okValue;
 import '../../../helpers/scripted_adapter.dart';
+import '../../../helpers/test_app.dart';
 import '../../../helpers/test_doubles.dart';
 
 class _MockCompressor extends Mock implements ImageCompressor;
@@ -58,7 +58,7 @@ void main() {
         local: local,
         remote: InvoicesRemoteDataSource(
           buildBaseDio(
-            config: fakeConfig,
+            config: testConfig,
             adapter: ScriptedAdapter((_) async => jsonBody(500, null)),
           ),
         ),

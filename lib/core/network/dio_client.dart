@@ -3,12 +3,12 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stockly/core/config/app_config.dart';
 import 'package:stockly/core/config/network_timeouts.dart';
-import 'package:stockly/core/fake_backend/fake_backend_provider.dart';
 import 'package:stockly/core/ids/uuid_generator.dart';
 import 'package:stockly/core/logging/app_logger.dart';
 import 'package:stockly/core/network/accept_language_interceptor.dart';
 import 'package:stockly/core/network/auth_header_interceptor.dart';
 import 'package:stockly/core/network/correlation_id_interceptor.dart';
+import 'package:stockly/core/network/http_adapter_override.dart';
 import 'package:stockly/core/network/redacting_log_interceptor.dart';
 import 'package:stockly/core/network/refresh_interceptor.dart';
 import 'package:stockly/core/network/shop_suspended_interceptor.dart';
@@ -94,7 +94,7 @@ final refreshDioProvider = Provider<Dio>(
     languageCode: () => ref.read(localeProvider).languageCode,
     logger: ref.watch(appLoggerProvider),
     logRequests: kDebugMode,
-    adapter: ref.watch(fakeBackendProvider),
+    adapter: ref.watch(httpAdapterOverrideProvider),
   ),
 );
 
@@ -117,6 +117,6 @@ final dioProvider = Provider<Dio>(
     signals: ref.watch(sessionSignalsProvider),
     logger: ref.watch(appLoggerProvider),
     logRequests: kDebugMode,
-    adapter: ref.watch(fakeBackendProvider),
+    adapter: ref.watch(httpAdapterOverrideProvider),
   ),
 );
