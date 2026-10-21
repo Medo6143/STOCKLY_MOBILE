@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/misc.dart';
 import 'package:stockly/core/decimal/decimal_formatter.dart';
 import 'package:stockly/core/decimal/quantity.dart';
 import 'package:stockly/core/error/failure.dart';
+import 'package:stockly/core/error/line_field_errors.dart';
 import 'package:stockly/core/error/result.dart';
 import 'package:stockly/core/ids/uuid_generator.dart';
 import 'package:stockly/core/time/clock.dart';
@@ -30,9 +31,6 @@ import 'package:stockly/features/sales/presentation/providers/sales_providers.da
 /// is in flight or locked.
 final class QuickSaleNotifier extends Notifier<QuickSaleState> {
   KeepAliveLink? _keepAlive;
-
-  /// `items[2].quantity` → index 2 of the sent lines.
-  static final RegExp _itemField = RegExp(r'^items\[(\d+)\]');
 
   @override
   QuickSaleState build() {
@@ -408,27 +406,14 @@ final class QuickSaleNotifier extends Notifier<QuickSaleState> {
             lockedRequest: null,
             lockedSince: null,
             failure: failure,
-            lineMessages: _lineMessages(failure, sending),
+            lineMessages: failure is ValidationFailure
+                ? LineFieldErrors.byLine(failure.fieldErrors, [
+                    for (final line in sending.lines) line.key,
+                  ])
+                : const {},
           ),
         );
     }
-  }
-
-  /// Server messages of `items[i].*` keys, by the key of line `i`.
-  Map<int, List<String>> _lineMessages(Failure failure, QuickSaleState sent) {
-    if (failure is! ValidationFailure) {
-      return const {};
-    }
-    final messages = <int, List<String>>{};
-    for (final MapEntry(:key, :value) in failure.fieldErrors.entries) {
-      final index = int.tryParse(_itemField.firstMatch(key)?.group(1) ?? '');
-      if (index == null || index >= sent.lines.length) {
-        continue;
-      }
-      final lineKey = sent.lines[index].key;
-      messages[lineKey] = [...?messages[lineKey], ...value];
-    }
-    return messages;
   }
 }
 

@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:stockly/core/config/app_config.dart';
 import 'package:stockly/core/error/api_error_code.dart';
 import 'package:stockly/core/fake_backend/fake_backend_config.dart';
 import 'package:stockly/core/fake_backend/fake_backend_controls.dart';
@@ -47,7 +48,7 @@ final class FakeBillingHandler implements FakeHandler {
   static const String _idParam = 'id';
   static const String _location = 'Location';
   static const String _currency = 'EGP';
-  static const String _hostedCheckout = 'https://fake.stockly.invalid/pay/';
+  static const String _hostedCheckout = '${AppConfig.fakeApiBaseUrl}/pay/';
   static const String _declined = 'Declined by the issuer (fake provider).';
   static const int _defaultPage = 1;
   static const int _defaultPageSize = 20;
