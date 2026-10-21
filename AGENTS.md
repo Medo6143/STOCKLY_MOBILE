@@ -2,7 +2,7 @@
 
 This file is the contract for anyone writing code in `stockly-mobile`: humans and AI agents. Read it fully before your first change. If a task conflicts with a rule here, **stop and ask**.
 
-The backend lives in `stockly-backend` (locally `D:\FLUTTER\stockly`), see its ADR-0011 (polyrepo). The app talks to the backend **only** through the API contract: `docs/api/contract.md` (human, versioned copy of `stockly-backend/docs/api/contract.md`) and `stockly-backend/docs/api/openapi.json`. Brand assets: `brand/`. Rule numbers are kept from the original shared `AGENTS.md` (34–39).
+The backend lives in `stockly-backend` (locally `D:\FLUTTER\stockly`), see its ADR-0011 (polyrepo). The app talks to the backend **only** through the API contract: `docs/api/contract.md` (human, versioned copy of `stockly-backend/docs/api/contract.md`) and `stockly-backend/docs/api/openapi.json`. Brand source (`brand/`: the design-system HTML and the master logo) is kept locally and git-ignored; the app reads its values from `lib/core/theme/tokens.dart`. Rule numbers are kept from the original shared `AGENTS.md` (34–39).
 
 ## Shared product rules (apply here too)
 - Money and quantities are **decimal**, never `double`. The API sends them as strings (`"125.50"`, `"1.500"`); parse and format them with the `decimal` package.
@@ -42,7 +42,7 @@ Mobile: `presentation (widgets + Riverpod notifiers) → domain (use cases, enti
 ## Rules (numbers kept from the original AGENTS.md)
 
 34. Every screen handles four states: loading, empty, error, data, using the shared `AsyncStateView`.
-35. No hardcoded strings, colors, sizes or durations. Strings from ARB files, colors and spacing from theme tokens (`brand/` is the source).
+35. No hardcoded strings, colors, sizes or durations. Strings from ARB files, colors and spacing from theme tokens (`lib/core/theme/tokens.dart`, taken from the local `brand/`).
 36. Use `EdgeInsetsDirectional`, `AlignmentDirectional`, `start`/`end`. Never `left`/`right`.
 37. State is immutable (freezed). No business logic in widgets.
 38. Tokens in `flutter_secure_storage` only. No API keys in the app, ever.
