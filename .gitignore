@@ -49,3 +49,7 @@ ios/Runner/GeneratedPluginRegistrant.*
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# Claude Code: agent worktrees and personal settings
+.claude/worktrees/
+.claude/settings.local.json
