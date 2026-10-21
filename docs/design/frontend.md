@@ -1457,6 +1457,7 @@ Approved at checkpoint 2 (each stays behind the interface named here):
 | `mobile_scanner` | Camera barcode scanning on the quick-sale screen (Sprint 4) | Keyboard-wedge Bluetooth/USB scanners and manual entry, which work with a plain `TextField` (the fallback is built anyway) | `BarcodeScanner`: `Stream<String> scan()` |
 | `uuid` | RFC 4122 v4 ids, above all `clientRequestId`, which is what makes retries safe: never hand-rolled | none (hand-rolled generator rejected) | `UuidGenerator` → `PackageUuidGenerator` (`core/ids/uuid_generator.dart`) |
 | `flutter_launcher_icons` (dev) | App icon generation from the PNG exports in `assets/icon/` | manual per-density exports | n/a (build-time only) |
+| `url_launcher` (brief mobile-7) | Open the Paymob hosted checkout (card, wallet) outside the app | none practical | `ExternalBrowser` (`core/platform/external_browser.dart`): `Future<bool> open(Uri)`, never throws. The URL comes from the server and is untrusted: only `https` pages of `paymob.com` / `paymobsolutions.com` reach the system; any other scheme or host returns `false` (update 2026-10-21, mobile review) |
 
 Considered and **not** needed:
 
